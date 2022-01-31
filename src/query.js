@@ -3,7 +3,7 @@ var query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> \
 PREFIX dcterms: <http://purl.org/dc/terms/> \
 PREFIX dcat: <http://www.w3.org/ns/dcat#> \
 PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
-SELECT  ?název ?popis ?poskytovatel ?zdroj \
+SELECT DISTINCT ?název ?popis ?poskytovatel ?zdroj \
 WHERE { \
     ?s a dcat:Dataset ; \
         dcat:distribution ?distribuce ; \
