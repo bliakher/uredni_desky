@@ -25,4 +25,4 @@ WHERE { \
   BIND(COALESCE(?ovm_název_poskytovatele, ?nkod_název_poskytovatele) AS ?poskytovatel) \
 }";
 
-export { query };
+export default query;
