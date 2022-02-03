@@ -36,34 +36,47 @@ interface InfoStandard {
 class BulletinData {
     provider: string;
     source: string;
-    isLoaded: boolean;
+    hasValidSource: boolean;
+    loadError: any;
+    infoRecordsLoaded: boolean;
     distribution: BulletinStandard | null; 
-    infoRecords: Array<InfoRecord> | null;
+    infoRecords: Array<InfoRecord>;
 
     constructor(dataset: BulletinMetadata) {
         this.provider = dataset.poskytovatel.value;
         this.source = dataset.zdroj.value;
-        this.isLoaded = false;
+        this.hasValidSource = true;
+        this.loadError = "";
+        this.infoRecordsLoaded = false;
         this.distribution = null;
-        this.infoRecords = null;
+        this.infoRecords = [];
     }
 
-    async fetchDistribution(): Promise<BulletinStandard> {
-        const response = await fetch(this.source);
-        return await response.json();
-    }
-
-    async getDistribution(): Promise<BulletinStandard> {
-        if (this.distribution == null) {
-            this.distribution = await this.fetchDistribution();
+    async fetchDistribution(): Promise<void> {
+        try {
+            const response = await fetch(this.source);
+            this.distribution = await response.json();
         }
+        catch (error) {
+            this.hasValidSource = false;
+            this.loadError = error
+        } 
+    }
+
+    getDistribution(): BulletinStandard | null {
         return this.distribution;
     }
 
-    async getInfoRecords(): Promise<Array<InfoRecord>> {
-        if (this.infoRecords == null) {
-            var distribution = await this.getDistribution();
-            this.infoRecords = distribution.informace.map(info => new InfoRecord(info));
+    getInfoRecords(): Array<InfoRecord> | false {
+        if (this.distribution == null) {
+            return false;
+        } 
+
+        if (!this.infoRecordsLoaded) {
+            if (this.distribution.informace) {
+                this.infoRecords = this.distribution.informace.map(info => new InfoRecord(info));
+            }
+            this.infoRecordsLoaded = true;
         }
         return this.infoRecords;
     }
@@ -109,6 +122,14 @@ class Datasets {
         });
         this.metadata = (await response.json()).results.bindings; // Todo: type?
         this.data = this.metadata.map((dataset) => new BulletinData(dataset));
+        this.isLoaded = true;
+    }
+
+    async fetchAllDistibutions(): Promise<void> {
+        if (!this.isLoaded) {
+            return; // ToDo: error?
+        }
+        await Promise.all(this.data.map(d => d.fetchDistribution()));
     }
 
     getDatasets(): Array<BulletinData> {

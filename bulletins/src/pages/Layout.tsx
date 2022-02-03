@@ -5,7 +5,6 @@ const Layout = () => {
     return (
         <>
             <nav>
-                <span>
                     <div>
                         <Link to="/">Domů</Link>
                     </div>
@@ -15,7 +14,6 @@ const Layout = () => {
                     <div>
                         <Link to="/validace">Validace</Link>
                     </div>
-                </span>
             </nav>
             <Outlet />
         </>

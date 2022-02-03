@@ -20,6 +20,10 @@ class App extends React.Component<{}, { bulletinData: Array<BulletinData> }> {
     await this.datasets.fetchDatasets();
     var data = this.datasets.getDatasets();
     this.setState({ bulletinData: data });
+    
+    await this.datasets.fetchAllDistibutions();
+    var data = this.datasets.getDatasets();
+    this.setState({ bulletinData: data });
   }
   render() {
     var datasets = this.state.bulletinData;

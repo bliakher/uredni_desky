@@ -16,3 +16,7 @@ div.bulletin {
   border: solid 1p;
   border-color: black;
 }
+
+span * {
+  display: inline-block;
+}
