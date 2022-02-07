@@ -5,10 +5,10 @@ var nkod_sparql = "https://data.gov.cz/sparql";
 /* Metadata of a bulletin dataset in NKOD
 */
 interface BulletinMetadata {
-    název: {value: string};
-    popis: {value: string};
-    poskytovatel: {value: string};
-    zdroj: {value: string};
+    name: {value: string};
+    description: {value: string};
+    provider: {value: string};
+    source: {value: string};
 }
 
 /* Class representing the bulletin board distribution 
@@ -44,12 +44,21 @@ class BulletinDistribution {
         const info = "informace";
         return this.getProperty(info);
     }
+    getMissingRecommendedProperties(): Array<string> {
+        return []; // ToDo: implement
+    }
     
+}
+
+interface MissingProperties {
+    bulletin: Array<string>;
+    information: Array<{name:string, missing: Array<string>}>
 }
 
 /* Wrapper for bulletin board dataset
 */
 class BulletinData {
+    name: string;
     provider: string;
     source: string;
     hasValidSource: boolean;
@@ -59,8 +68,9 @@ class BulletinData {
     infoRecords: Array<InfoRecord>;
 
     constructor(dataset: BulletinMetadata) {
-        this.provider = dataset.poskytovatel.value;
-        this.source = dataset.zdroj.value;
+        this.name = dataset.name.value;
+        this.provider = dataset.provider.value;
+        this.source = dataset.source.value;
         this.hasValidSource = true;
         this.loadError = "";
         this.infoRecordsLoaded = false;
@@ -83,7 +93,7 @@ class BulletinData {
     getDistribution(): BulletinDistribution | null {
         return this.distribution;
     }
-
+    // fetchDistribution() should be called before calling this
     getInfoRecords(): Array<InfoRecord> | false {
         if (this.distribution == null) {
             return false;
@@ -98,6 +108,26 @@ class BulletinData {
         }
         return this.infoRecords;
     }
+    // fetchDistribution() should be called before calling this
+    checkRecommendedProperties(): MissingProperties {
+        var missingPropInfo = [];
+        var infoRecords = this.getInfoRecords();
+        if (infoRecords) {
+            for (var record of infoRecords) {
+                var recordMissing = record.getMissingRecommendedProperties();
+                if (recordMissing.length > 0) {
+                    var name = record.getName()
+                    if (!name) {
+                        name = "";
+                    }
+                    missingPropInfo.push({ name: name, missing: recordMissing });
+                }
+            }
+        }
+        var missingPropBulletin = this.distribution != null ? this.distribution.getMissingRecommendedProperties() : [];
+        return {bulletin: missingPropBulletin, information: missingPropInfo};
+
+    }
 }
 
 interface Document {
@@ -110,6 +140,7 @@ interface Document {
 */
 class InfoRecord {
     private data: any; // inner data object
+    private recommendedProperties = ["typ", "iri", "url", "název", "vyvěšení", "relevantní_do"];
 
     constructor(info: any) {
         this.data = info;
@@ -147,7 +178,16 @@ class InfoRecord {
     getDateValidTo(): Date | false {
         return this.getDate("relevantní_do");
     }
-    
+    // returns array of missing recommended properties
+    getMissingRecommendedProperties(): Array<string> {
+        var missing: Array<string> = [];
+        for (var property of this.recommendedProperties) {
+            if (!this.hasProperty(property)) {
+                missing.push(property);
+            }
+        }
+        return missing;
+    }
 
 }
 
