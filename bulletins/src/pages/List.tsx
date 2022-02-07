@@ -36,7 +36,7 @@ class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean}>
             insides = (<InfoList data={infoRecords} />);
         }
         return (
-            <div className="bulletin" id={bulletinData?.iri}>
+            <div className="bulletin">
                 <span>
                     <h3>{bulletin.provider}</h3>
                     <a href={bulletin.source} target="_blank">odkaz</a>
@@ -90,11 +90,20 @@ class BulletinInfo extends React.Component<{data: InfoRecord}> {
     }
     render() {
         var info = this.props.data;
-        //var url = info.hasOwnProperty("url") ? ((void)info)['url'] : null;
+        var name = info.getName()? info.getName() : "'Informace na úřední desce'";
+        var url = info.getUrl();
+        var issued = info.getDateIssued();
+        var validTo = info.getDateValidTo();
         return (
             <div>
-                {info.name}
+                <span>
+                    <h4>{name}</h4>
+                    {url && <a href={url} target="_blank">odkaz</a>}
+                </span>
+                {issued && <p>Datum vyvěšení: {issued.toLocaleDateString("cs-CZ")}</p>}
+                {validTo && <p>Relevantní do: {validTo.toLocaleDateString("cs-CZ")}</p>}
             </div>
+
         );
     }
 }

@@ -11,24 +11,40 @@ interface BulletinMetadata {
     zdroj: {value: string};
 }
 
-/* OFN standard for bulletin boards - essential data
+/* Class representing the bulletin board distribution 
+* with parameters according to the OFN
 */
-interface BulletinStandard {
-    iri: string;
-    stránka: string;
-    provozovatel: { ičo: string};
-    informace: Array<InfoStandard>;
-}
-
-/* Standard for information on bulletin board - essential data
-*/
-interface InfoStandard {
-    typ: Array<string>;
-    iri: string;
-    url: string;
-    název: { cs: string };
-    vyvěšení: { datum: string };
-    relevantní_do: { datum: string };
+class BulletinDistribution {
+    private data: any; // inner data object
+    constructor(data: any) {
+        this.data = data;
+    }
+    private hasProperty(propertyName: string): boolean {
+        return this.data.hasOwnProperty(propertyName);
+    }
+    private getProperty(propertyName: string): any | false {
+        if (this.hasProperty(propertyName)) {
+            return this.data[propertyName];
+        }
+        return false;
+    }
+    getIri(): string | false {
+        return this.getProperty("iri");
+    }
+    getPageUrl(): string | false {
+        const page = "stránka";
+        return this.getProperty(page);
+    }
+    getPublisher(): { ičo: string} | false {
+        const publisher = "provozovatel";
+        return this.getProperty(publisher);
+        
+    }
+    getInformation(): Array<any> | false { // ToDo: type
+        const info = "informace";
+        return this.getProperty(info);
+    }
+    
 }
 
 /* Wrapper for bulletin board dataset
@@ -39,7 +55,7 @@ class BulletinData {
     hasValidSource: boolean;
     loadError: any;
     infoRecordsLoaded: boolean;
-    distribution: BulletinStandard | null; 
+    distribution: BulletinDistribution | null; 
     infoRecords: Array<InfoRecord>;
 
     constructor(dataset: BulletinMetadata) {
@@ -55,7 +71,8 @@ class BulletinData {
     async fetchDistribution(): Promise<void> {
         try {
             const response = await fetch(this.source);
-            this.distribution = await response.json();
+            var distributionObj = await response.json();
+            this.distribution = new BulletinDistribution(distributionObj);
         }
         catch (error) {
             this.hasValidSource = false;
@@ -63,7 +80,7 @@ class BulletinData {
         } 
     }
 
-    getDistribution(): BulletinStandard | null {
+    getDistribution(): BulletinDistribution | null {
         return this.distribution;
     }
 
@@ -73,29 +90,65 @@ class BulletinData {
         } 
 
         if (!this.infoRecordsLoaded) {
-            if (this.distribution.informace) {
-                this.infoRecords = this.distribution.informace.map(info => new InfoRecord(info));
-            }
+            var information = this.distribution.getInformation();
+            if (information) {
+                this.infoRecords = information.map(info => new InfoRecord(info));
+            } 
             this.infoRecordsLoaded = true;
         }
         return this.infoRecords;
     }
 }
 
+interface Document {
+    typ: string;
+    název: {cs: string}
+    url: string;
+}
+
 /* Wrapper for information in bulletin board dataset
 */
 class InfoRecord {
-    name: string;
-    issued: Date;
-    valid_to: Date;
-    info: InfoStandard;
+    private data: any; // inner data object
 
-    constructor(info: InfoStandard) {
-        this.info = info;
-        this.name = info.název.cs;
-        this.issued = new Date(info.vyvěšení.datum);
-        this.valid_to = new Date(info.relevantní_do.datum);
+    constructor(info: any) {
+        this.data = info;
     }
+    private hasProperty(propertyName: string): boolean {
+        return this.data.hasOwnProperty(propertyName);
+    }
+    private getProperty(propertyName: string): any | false {
+        if (this.hasProperty(propertyName)) {
+            return this.data[propertyName];
+        }
+        return false;
+    }
+    private getDate(dateProperty: string): Date | false { // ToDo: add nespecifikovany
+        var dateObj = this.getProperty(dateProperty);
+        if (dateObj) {
+            return new Date(dateObj.datum);
+        }
+        return false;
+    }
+    getName(): string | false {
+        const nameProp = "název";
+        var name = this.getProperty(nameProp);
+        if (name) {
+            return name.cs;
+        }
+        return false;
+    }
+    getUrl(): string | false {
+        return this.getProperty("url");
+    }
+    getDateIssued(): Date | false {
+        return this.getDate("vyvěšení");
+    }
+    getDateValidTo(): Date | false {
+        return this.getDate("relevantní_do");
+    }
+    
+
 }
 
 /* Wrapper for all bulletin datasets
