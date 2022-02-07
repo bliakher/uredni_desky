@@ -13,10 +13,14 @@ code {
 }
 
 div.bulletin {
-  border: solid 1p;
+  border: solid 1px;
   border-color: black;
 }
 
 span * {
   display: inline-block;
+}
+
+table * {
+  border: solid 1px black;
 }
