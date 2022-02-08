@@ -1,5 +1,8 @@
 
-var query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> \
+const nkod_sparql = "https://data.gov.cz/sparql";
+const rpp_sparql = "https://rpp-opendata.egon.gov.cz/odrpp/sparql";
+
+const queryAllBulletinBoards = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> \
 PREFIX dcterms: <http://purl.org/dc/terms/> \
 PREFIX dcat: <http://www.w3.org/ns/dcat#> \
 PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
@@ -25,4 +28,47 @@ WHERE { \
   BIND(COALESCE(?ovm_název_poskytovatele, ?nkod_název_poskytovatele) AS ?provider) \
 }";
 
-export default query;
+function getQueryForOrganizationTypeWithIco(icoList: Array<string>) {
+    var query = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#> \
+    PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
+    PREFIX a-sgov-104-pojem: <https://slovník.gov.cz/agendový/104/pojem/> \
+    SELECT * WHERE { \
+      ?OrganVerejneMoci a l-sgov-sbírka-111-2009-pojem:orgán-veřejné-moci . \
+      OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-název-orgánu-veřejné-moci ?MaNazevOrganuVerejneMoci . FILTER (langMatches(LANG(?MaNazevOrganuVerejneMoci),'cs')) } \
+      OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-identifikační-číslo-osoby-orgánu-veřejné-moci ?MaIdentifikacniCisloOsobyOrganuVerejneMoci . } \
+      OPTIONAL { \
+        ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-právní-formu-osoby ?MaPravniFormuOsoby . \
+        ?MaPravniFormuOsoby skos:notation ?cisloPravniFormy ; \
+                            skos:prefLabel ?nazevPravniFormy . \
+      } \
+      FILTER ( STR(?MaIdentifikacniCisloOsobyOrganuVerejneMoci) IN ( ";
+    for (var ico of icoList) {
+        query += "'" + ico + "'";
+    }
+    query += ") )}";
+    return query;
+}
+
+function getSparqlQueryObj(query: string) {
+    return {
+        "headers": {
+            "accept": "application/json",
+            "content-type": "application/sparql-query",
+        },
+        "body": query,
+        "method": "POST",
+    };
+}
+
+async function fetchAllBulletins() {
+    const response = await fetch(nkod_sparql, getSparqlQueryObj(queryAllBulletinBoards));
+    return (await response.json()).results.bindings;
+}
+
+async function fetchOrganizationTypes(icoList: Array<string>) {
+    var query = getQueryForOrganizationTypeWithIco(icoList);
+    const response = await fetch(rpp_sparql, getSparqlQueryObj(query));
+    return (await response.json()).results.bindings;
+}
+
+export { fetchAllBulletins, fetchOrganizationTypes };

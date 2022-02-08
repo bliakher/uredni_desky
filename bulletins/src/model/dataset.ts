@@ -1,6 +1,5 @@
-import  query  from "./query";
+import  { fetchAllBulletins, fetchOrganizationTypes }  from "./query";
 
-var nkod_sparql = "https://data.gov.cz/sparql";
 
 /* Metadata of a bulletin dataset in NKOD
 */
@@ -205,15 +204,7 @@ class Datasets {
     }
 
     async fetchDatasets(): Promise<void> {
-        const response = await fetch(nkod_sparql, {
-            "headers": {
-                "accept": "application/json",
-                "content-type": "application/sparql-query",
-            },
-            "body": query,
-            "method": "POST",
-        });
-        this.metadata = (await response.json()).results.bindings; // Todo: type?
+        this.metadata = await fetchAllBulletins();
         this.data = this.metadata.map((dataset) => new BulletinData(dataset));
         this.isLoaded = true;
     }
