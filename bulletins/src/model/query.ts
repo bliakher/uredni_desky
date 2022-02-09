@@ -35,13 +35,13 @@ function getQueryForOrganizationTypeWithIco(icoList: Array<string>) {
     SELECT * WHERE { \
       ?OrganVerejneMoci a l-sgov-sbírka-111-2009-pojem:orgán-veřejné-moci . \
       OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-název-orgánu-veřejné-moci ?MaNazevOrganuVerejneMoci . FILTER (langMatches(LANG(?MaNazevOrganuVerejneMoci),'cs')) } \
-      OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-identifikační-číslo-osoby-orgánu-veřejné-moci ?MaIdentifikacniCisloOsobyOrganuVerejneMoci . } \
+      OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-identifikační-číslo-osoby-orgánu-veřejné-moci ?ico . } \
       OPTIONAL { \
-        ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-právní-formu-osoby ?MaPravniFormuOsoby . \
-        ?MaPravniFormuOsoby skos:notation ?cisloPravniFormy ; \
+        ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-právní-formu-osoby ?pravniForma . \
+        ?pravniForma skos:notation ?cisloPravniFormy ; \
                             skos:prefLabel ?nazevPravniFormy . \
       } \
-      FILTER ( STR(?MaIdentifikacniCisloOsobyOrganuVerejneMoci) IN ( ";
+      FILTER ( STR(?ico) IN ( ";
     for (var ico of icoList) {
         query += "'" + ico + "'";
     }
@@ -60,15 +60,22 @@ function getSparqlQueryObj(query: string) {
     };
 }
 
-async function fetchAllBulletins() {
+async function fetchAllBulletins(){
     const response = await fetch(nkod_sparql, getSparqlQueryObj(queryAllBulletinBoards));
     return (await response.json()).results.bindings;
 }
 
-async function fetchOrganizationTypes(icoList: Array<string>) {
+async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<string, string>>  {
     var query = getQueryForOrganizationTypeWithIco(icoList);
     const response = await fetch(rpp_sparql, getSparqlQueryObj(query));
-    return (await response.json()).results.bindings;
+    var typedOrganizations = (await response.json()).results.bindings;
+    var orgTypeMap = new Map(); 
+    for (var org of typedOrganizations) {
+        var ico: string = org.ico.value;
+        var type: string = org.cisloPravniFormy.value;
+        orgTypeMap.set(ico, type);
+    }
+    return orgTypeMap;
 }
 
 export { fetchAllBulletins, fetchOrganizationTypes };
