@@ -190,17 +190,27 @@ class InfoRecord {
 
 }
 
+interface BulletinCategories {
+    cities: BulletinData[];
+    cityParts: BulletinData[];
+    regions: BulletinData[];
+    stateOrganizations: BulletinData[];
+    other: BulletinData[];
+}
+
 /* Wrapper for all bulletin datasets
 */
 class Datasets {
     isLoaded: boolean;
     metadata: Array<BulletinMetadata>;
     data: Array<BulletinData>;
+    dataCategories: BulletinCategories;
 
     constructor() {
         this.isLoaded = false;
         this.metadata = [];
         this.data = [];
+        this.dataCategories = {cities: [], cityParts: [],regions: [], stateOrganizations: [], other: [] };
     }
 
     async fetchDatasets(): Promise<void> {
@@ -218,6 +228,54 @@ class Datasets {
 
     getDatasets(): Array<BulletinData> {
         return this.data;
+    }
+
+    getIcoList(): Array<string> {
+        var icoList : string[] = this.data.map(bulletin => {
+            var distribution = bulletin.getDistribution();
+            if (distribution == null) return "";
+            var publisher = distribution.getPublisher();
+            return publisher ? publisher.ičo : "";
+        });
+        return icoList.filter(ico => ico != "");
+    }
+
+    async sortBulletinsByProviderType() {
+        var typeMap = await fetchOrganizationTypes(this.getIcoList());
+        var cities: BulletinData[] = [];
+        var cityParts: BulletinData[] = [];
+        var regions: BulletinData[]  = [];
+        var stateOrganizations: BulletinData[]  = [];
+        var other: BulletinData[]  = [];
+        for (var bulletin of this.data) {
+            var distribution = bulletin.getDistribution();
+            if (distribution == null) {
+                other.push(bulletin);
+                continue;
+            }
+            var publisher = distribution.getPublisher();
+            if (!publisher) {
+                other.push(bulletin);
+                continue;
+            }
+            var ico = publisher.ičo;
+            var type = typeMap.get(ico);
+            var category = other;
+            if (type == "801") {
+                category = cities;
+            }
+            if (type == "811") {
+                category = cityParts;
+            }
+            if (type == "804") {
+                category = regions;
+            }
+            if (type == "325") {
+                category = stateOrganizations;
+            }
+            category.push(bulletin);
+        }
+        this.dataCategories = {cities, cityParts, regions, stateOrganizations, other };
     }
 }
 
