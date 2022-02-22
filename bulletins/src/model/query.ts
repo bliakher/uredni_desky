@@ -1,3 +1,4 @@
+import formurlencoded from 'form-urlencoded';
 
 const nkod_sparql = "https://data.gov.cz/sparql";
 const rpp_sparql = "https://rpp-opendata.egon.gov.cz/odrpp/sparql";
@@ -42,8 +43,11 @@ function getQueryForOrganizationTypeWithIco(icoList: Array<string>) {
                             skos:prefLabel ?nazevPravniFormy . \
       } \
       FILTER ( STR(?ico) IN ( ";
+    var first = true;
     for (var ico of icoList) {
+        if (!first) query += ' , ';
         query += "'" + ico + "'";
+        first = false;
     }
     query += ") )}";
     return query;
@@ -67,7 +71,14 @@ async function fetchAllBulletins(){
 
 async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<string, string>>  {
     var query = getQueryForOrganizationTypeWithIco(icoList);
-    const response = await fetch(rpp_sparql, getSparqlQueryObj(query));
+    const response = await fetch(rpp_sparql, {
+        "headers": {
+            "accept": "application/sparql-results+json",
+            "content-type": "application/x-www-form-urlencoded",
+        },
+        "body": formurlencoded({query : query}),
+        "method": "POST",
+    });
     var typedOrganizations = (await response.json()).results.bindings;
     var orgTypeMap = new Map(); 
     for (var org of typedOrganizations) {
