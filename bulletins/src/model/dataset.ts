@@ -190,11 +190,12 @@ class InfoRecord {
 
 }
 
-interface BulletinCategories {
+interface SortedBulletins {
+    all: BulletinData[],
     cities: BulletinData[];
     cityParts: BulletinData[];
     regions: BulletinData[];
-    stateOrganizations: BulletinData[];
+    government: BulletinData[];
     other: BulletinData[];
 }
 
@@ -204,18 +205,19 @@ class Datasets {
     isLoaded: boolean;
     metadata: Array<BulletinMetadata>;
     data: Array<BulletinData>;
-    dataCategories: BulletinCategories;
+    dataCategories: SortedBulletins;
 
     constructor() {
         this.isLoaded = false;
         this.metadata = [];
         this.data = [];
-        this.dataCategories = {cities: [], cityParts: [],regions: [], stateOrganizations: [], other: [] };
+        this.dataCategories = {all: [],cities: [], cityParts: [],regions: [], government: [], other: [] };
     }
 
     async fetchDatasets(): Promise<void> {
         this.metadata = await fetchAllBulletins();
         this.data = this.metadata.map((dataset) => new BulletinData(dataset));
+        this.dataCategories.all = this.data;
         this.isLoaded = true;
     }
 
@@ -275,8 +277,9 @@ class Datasets {
             }
             category.push(bulletin);
         }
-        this.dataCategories = {cities, cityParts, regions, stateOrganizations, other };
+        this.dataCategories = {all: this.data, cities, cityParts, regions, government: stateOrganizations, other };
     }
 }
 
+export type { SortedBulletins };
 export { Datasets, BulletinData, InfoRecord };
