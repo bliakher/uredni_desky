@@ -10,14 +10,12 @@ interface SelectorOptions {
 }
 
 
-class RadioSelector extends React.Component<SelectorOptions, {selected: string}> {
+class RadioSelector extends React.Component<SelectorOptions> {
     constructor(props: SelectorOptions) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
-        this.state = {selected: this.props.firstSelected}
     }
     handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({ selected: event.target.value })
         this.props.callback(event.target.value);
         
     }
@@ -26,8 +24,8 @@ class RadioSelector extends React.Component<SelectorOptions, {selected: string}>
             <div onChange={this.handleChange}>
                 {this.props.options.map(option => {
                     var radio = <input type="radio" id={option.value} value={option.value} name={this.props.groupName} />
-                    if (option.value == this.state.selected) {
-                        var radio = <input type="radio" id={option.value} value={option.value} name={this.props.groupName} checked />
+                    if (option.value == this.props.firstSelected) {
+                        var radio = <input type="radio" id={option.value} value={option.value} name={this.props.groupName} defaultChecked />
                     }
                     return (
                         <div key={option.value}>
