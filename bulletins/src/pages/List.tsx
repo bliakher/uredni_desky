@@ -1,5 +1,6 @@
 import React from 'react';
-import { Datasets, BulletinData, InfoRecord } from '../model/dataset';
+import { BulletinData, InfoRecord, SortedBulletins } from '../model/dataset';
+import { SelectorOptions, SelectorChangeCallback, RadioSelector } from '../Utils';
 
 
 class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean}> {
@@ -98,7 +99,7 @@ class BulletinInfo extends React.Component<{data: InfoRecord}> {
             <div>
                 <span>
                     <h4>{name}</h4>
-                    {url && <a href={url} target="_blank">odkaz</a>}
+                    {url && <a href={url} target="_blank" rel="noreferrer">odkaz</a>}
                 </span>
                 {issued && <p>Datum vyvěšení: {issued.toLocaleDateString("cs-CZ")}</p>}
                 {validTo && <p>Relevantní do: {validTo.toLocaleDateString("cs-CZ")}</p>}
@@ -108,12 +109,71 @@ class BulletinInfo extends React.Component<{data: InfoRecord}> {
     }
 }
 
-class BulletinList extends React.Component<{data: BulletinData[]}, { search: string}> {
-    constructor(props: {data: BulletinData[]}) {
+class ProviderTypeSelector extends React.Component<{callback: SelectorChangeCallback}> {
+    selector: SelectorOptions;
+    constructor(props: {callback: SelectorChangeCallback}) {
+        super(props);
+        this.selector = {
+            groupName: "bulletin_type",
+            firstSelected: "vse",
+            options: [
+                    {label: "Vše", value: "vse"},
+                    {label: "Obce", value: "obce"}, 
+                    {label: "Městské části", value: "casti"}, 
+                    {label: "Kraje", value: "kraje"},
+                    {label: "Organizační složky státu", value: "stat"},
+                    {label: "Ostatní", value: "ostatni"}],
+            callback: props.callback,
+        }
+    }
+    render() {
+        return (
+            <>
+                <p>Vyberte poskytovatele</p>
+                <RadioSelector groupName={this.selector.groupName} options={this.selector.options} 
+                    firstSelected={this.selector.firstSelected} callback={this.selector.callback} />
+            </>
+        );
+    }
+}
+
+enum ProviderCategories {
+    All,
+    City,
+    CityPart,
+    Region,
+    Government,
+    Other,
+}
+
+class BulletinList extends React.Component<{data: SortedBulletins}, { search: string, category: ProviderCategories }> {
+    constructor(props: {data: SortedBulletins}) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.state = { search: ""}
+        this.handleSelector = this.handleSelector.bind(this);
+        this.state = { search: "", category: ProviderCategories.All}
+    }
+    handleSelector(selected: string) {
+        var newCategory = ProviderCategories.All;
+        switch (selected) {
+            case "obce":
+                newCategory = ProviderCategories.City;
+                break;
+            case "casti":
+                newCategory = ProviderCategories.CityPart;
+                break;
+            case "kraje":
+                newCategory = ProviderCategories.Region;
+                break;
+            case "stat":
+                newCategory = ProviderCategories.Government;
+                break;
+            case "ostatni":
+                newCategory = ProviderCategories.City;
+                break;  
+        }
+        this.setState({category: newCategory});
     }
     handleSubmit(event: any) {
 
@@ -121,12 +181,29 @@ class BulletinList extends React.Component<{data: BulletinData[]}, { search: str
     handleChange(event: any) {
 
     }
+    getSellectedBulletins(): BulletinData[] {
+        switch(this.state.category) {
+            case ProviderCategories.All:
+                return this.props.data.all;
+            case ProviderCategories.City:
+                return this.props.data.cities;
+            case ProviderCategories.CityPart:
+                return this.props.data.cityParts; 
+            case ProviderCategories.Region:
+                return this.props.data.regions;
+            case ProviderCategories.Government:
+                return this.props.data.government;
+            case ProviderCategories.Other:
+                return this.props.data.other;
+        }
+    }
     render() {
-        const bulletinData = this.props.data;
+        const bulletinData = this.getSellectedBulletins();
         const bulletins = bulletinData.map((bul) => (<Bulletin key={bul.source} data={bul}/>))
         return (
             <div>
                 <h2>Úřední desky</h2>
+                <ProviderTypeSelector callback={this.handleSelector} />
                 <form onSubmit={this.handleSubmit}>
                     <label htmlFor="finder">Vyhledávání desky:</label>
                     <input type="text" id="finder" onChange={this.handleChange}/>
