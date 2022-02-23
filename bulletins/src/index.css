@@ -24,3 +24,7 @@ span * {
 table * {
   border: solid 1px black;
 }
+
+div {
+  margin: 5px;
+}
