@@ -1,6 +1,38 @@
 import React from 'react';
 import { BulletinData, InfoRecord } from '../model/dataset';
 
+
+class ValidationDetail extends React.Component<{data: BulletinData}> {
+    constructor(props: {data: BulletinData}) {
+        super(props);
+    }
+    renderBulletinMissingTable(bulletinMissing: Array<string>) {
+        return (
+            <ul>
+                {bulletinMissing.map(bulProp => (<li key={bulProp}>bulProp</li>))}
+            </ul>
+        );
+    }
+    renderInfoMissingTable(infoMissing: Array<{name:string, missing: Array<string>}>) {
+
+    }
+    render() {
+        var provider = this.props.data.provider;
+        var name = this.props.data.name;
+        var missing = this.props.data.checkRecommendedProperties();
+        var bulletinTable = this.renderBulletinMissingTable(missing.bulletin);
+        var infoTable = this.renderInfoMissingTable(missing.information);
+        return (
+            <>
+                <h2>{name}</h2>
+                <p>Poskytovatel: {provider}</p>
+                {bulletinTable}
+                {infoTable}
+            </>
+        );
+    }
+}
+
 class ValidationRow extends React.Component<{data: BulletinData}> {
     ok = "Ano";
     notOk = "Ne";
