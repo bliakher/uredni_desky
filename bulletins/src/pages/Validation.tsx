@@ -1,10 +1,82 @@
 import React from 'react';
+import { Link, useParams } from "react-router-dom";
 import { BulletinData, InfoRecord } from '../model/dataset';
+import NoPage from './NoPage';
+import formurlencoded from 'form-urlencoded';
+import {Md5} from 'ts-md5/dist/md5';
+
+const ValidationDetail = (props: {data: BulletinData[]}) => {
+    var { id } = useParams();
+    var data = props.data.filter((bul) => {
+        var curId = Md5.hashStr(bul.source);
+        var result = id == curId;
+        return result;
+    });
+    if (data.length == 0) {
+        return (<NoPage />);
+    }
+    var bulletin = data[0];
+    var provider = bulletin.provider;
+    var name = bulletin.name;
+    var missing = bulletin.checkRecommendedProperties();
+    var hasErrors = missing.bulletin.length > 0 || missing.information.length > 0;
+    return (
+        <>
+            <h2>Validace úřední desky</h2>
+            <h3>{name}</h3>
+            <p>Poskytovatel: {provider}</p>
+            <h4>Shrnutí:</h4>
+            { hasErrors && <p style={{color: 'red'}}>Nalezeny chyby</p> }
+            { !hasErrors && <p style={{color: 'green'}}>Validace v pořádku</p> }
+
+            <h4>Doporučené atributy desky:</h4>
+            <p>Aby bylo možné data z úřední desky smysluplně používat, měla by obsahovat následující atributy:</p>
+            <ul>
+                {["@context", "typ", "iri", "stránka", "provozovatel"].map(prop => <li key={prop}>{prop}</li>)}
+            </ul>
+            <p>Viz <a href="https://ofn.gov.cz/úředn%C3%AD-desky/2021-07-20/#př%C3%ADklady-jednoduchá-informace" target="_blank" rel="noreferrer" >dokumentace</a></p>
+            
+            { missing.bulletin.length > 0 &&
+                <>
+                    <p style={{color: 'red'}}>Chybí atributy:</p>
+                    <ul>
+                        {missing.bulletin.map(bulProp => (<li key={bulProp}>{bulProp}</li>))}
+                    </ul>
+                </>
+            }
+            { missing.bulletin.length == 0 && 
+                <p style={{color: 'green'}}>Obsahuje všechny doporučené atributy.</p>
+            }
+
+            <h4>Doporučené atributy informací na desce:</h4>
+            <p>Každá informace na úřední desce by také měla obsahovat tyto atributy:</p>
+            <ul>
+                {["typ", "iri", "url", "název", "vyvěšení", "relevantní_do"].map(prop => <li key={prop}>{prop}</li>)}
+            </ul>
+            { missing.information.length > 0 &&
+                <>
+                <p style={{color: 'red'}}>Informace s chybějícími atributy:</p>
+                <ul>
+                    {missing.information.map(info => (
+                        <li key={info.name}>
+                            {info.name}
+                            <ul>
+                                {info.missing.map(prop => <li key={prop}>{prop}</li>)}
+                            </ul>
+                        </li>))}
+                </ul>
+            </>
+            }
+        </>
+    );
+}
 
 
-class ValidationDetail extends React.Component<{data: BulletinData}> {
-    constructor(props: {data: BulletinData}) {
+class ValidationDetail2 extends React.Component<any,{id: string}> {
+    constructor(props: any) {
         super(props);
+        var { id } = this.props.match.params;
+        this.state = {id: id? id : "12345"}
     }
     renderBulletinMissingTable(bulletinMissing: Array<string>) {
         return (
@@ -14,12 +86,19 @@ class ValidationDetail extends React.Component<{data: BulletinData}> {
         );
     }
     renderInfoMissingTable(infoMissing: Array<{name:string, missing: Array<string>}>) {
-
+        return (
+            <table></table>
+        );
     }
     render() {
-        var provider = this.props.data.provider;
-        var name = this.props.data.name;
-        var missing = this.props.data.checkRecommendedProperties();
+        var data = this.props.data.filter((bul: any) => formurlencoded(bul.source) == this.state.id);
+        if (data.length == 0) {
+            return (<NoPage />);
+        }
+        var bulletin = data[0];
+        var provider = bulletin.provider;
+        var name = bulletin.name;
+        var missing = bulletin.checkRecommendedProperties();
         var bulletinTable = this.renderBulletinMissingTable(missing.bulletin);
         var infoTable = this.renderInfoMissingTable(missing.information);
         return (
@@ -39,11 +118,16 @@ class ValidationRow extends React.Component<{data: BulletinData}> {
     noValue = "-";
     constructor(props: {data: BulletinData}) {
         super(props);
+        this.handleClick = this.handleClick.bind(this);
+    }
+    handleClick() {
+
     }
     render() {
         var distribution = this.props.data.getDistribution();
         var provider = this.props.data.provider;
         var name = this.props.data.name;
+        var source = this.props.data.source;
         var info = this.props.data.getInfoRecords();
         var infoCount = info ? info.length : this.noValue;
         var missing = this.props.data.checkRecommendedProperties();
@@ -58,7 +142,9 @@ class ValidationRow extends React.Component<{data: BulletinData}> {
                 <td>{distribution? missingBulletin : this.noValue }</td>
                 <td>{infoCount}</td>
                 <td>{distribution? missingInfo : this.noValue }</td>
-                <td></td>
+                <td>
+                    <Link to={Md5.hashStr(source)}>Detail</Link>
+                </td>
             </tr>
         );
     }
@@ -94,4 +180,4 @@ class Validation extends React.Component<{data: BulletinData[]}> {
 }
 
 
-export { Validation };
+export { Validation, ValidationDetail };

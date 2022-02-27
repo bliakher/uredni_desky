@@ -7,7 +7,7 @@ import Layout from "./pages/Layout";
 import BulletinList from "./pages/List";
 import Home from './pages/Home';
 import NoPage from './pages/NoPage';
-import { Validation } from './pages/Validation';
+import { Validation, ValidationDetail } from './pages/Validation';
 
 class App extends React.Component<{}, {data: SortedBulletins}> {
   datasets: Datasets;
@@ -35,7 +35,10 @@ class App extends React.Component<{}, {data: SortedBulletins}> {
           <Route path="uredni_desky" element={ <Layout /> }>
             <Route index element={ <Home /> } />
             <Route path="seznam" element={ <BulletinList data={datasets} /> } />
-            <Route path="validace" element={ <Validation data={datasets.all} /> } />
+            <Route path="validace">
+              <Route index element={ <Validation data={datasets.all} /> } />
+              <Route path=":id" element={ <ValidationDetail data={datasets.all}/> }/>
+            </Route>
             <Route path="*" element={ <NoPage /> } />
           </Route>
         </Routes>

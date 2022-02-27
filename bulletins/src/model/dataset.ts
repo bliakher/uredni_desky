@@ -15,6 +15,7 @@ interface BulletinMetadata {
 */
 class BulletinDistribution {
     private data: any; // inner data object
+    private recommendedProperties = ["@context", "typ", "iri", "stránka", "provozovatel"];
     constructor(data: any) {
         this.data = data;
     }
@@ -44,7 +45,13 @@ class BulletinDistribution {
         return this.getProperty(info);
     }
     getMissingRecommendedProperties(): Array<string> {
-        return []; // ToDo: implement
+        var missing: string[] = [];
+        for (var property of this.recommendedProperties) {
+            if (!this.hasProperty(property)) {
+                missing.push(property);
+            }
+        }
+        return missing;
     }
     
 }
