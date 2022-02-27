@@ -40,7 +40,7 @@ class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean}>
             <div className="bulletin">
                 <span>
                     <h3>{bulletin.provider}</h3>
-                    <a href={bulletin.source} target="_blank">odkaz</a>
+                    <a href={bulletin.source} target="_blank" rel="noreferrer">odkaz</a>
                 </span>
                 <button onClick={this.handleClick}>
                     {this.state.opened ? '^' : 'v'}
@@ -56,7 +56,7 @@ class InfoList extends React.Component<{ data: Array<InfoRecord>}, {infoDisplaye
     constructor(props: { data: Array<InfoRecord>}) {
         super(props);
         this.state = {
-            infoDisplayed: this.INFO_QUANTUM,
+            infoDisplayed: this.props.data.length >= this.INFO_QUANTUM ? this.INFO_QUANTUM : this.props.data.length,
         };
         this.handleClick = this.handleClick.bind(this);
     }
@@ -78,8 +78,8 @@ class InfoList extends React.Component<{ data: Array<InfoRecord>}, {infoDisplaye
                     {infoRecords.slice(0, this.state.infoDisplayed).map(record => (<li><BulletinInfo data={record} /></li>))}
                 </ul>
                 <p>Zobrazeno: {this.state.infoDisplayed} z {infoRecords.length}</p>
-                { this.state.infoDisplayed != infoRecords.length && 
-                <button onClick={this.handleClick} >Načíst další</button>}
+                { this.state.infoDisplayed !== infoRecords.length && 
+                <button onClick={this.handleClick} >Zobrazit další</button>}
             </>
         );
     }
@@ -146,34 +146,43 @@ enum ProviderCategories {
     Other,
 }
 
-class BulletinList extends React.Component<{data: SortedBulletins}, { search: string, category: ProviderCategories }> {
+class BulletinList extends React.Component<{data: SortedBulletins}, { search: string, category: ProviderCategories, data: BulletinData[] }> {
+    firstLoad: boolean;
     constructor(props: {data: SortedBulletins}) {
         super(props);
+        this.firstLoad = true;
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleSelector = this.handleSelector.bind(this);
-        this.state = { search: "", category: ProviderCategories.All}
+        this.state = { search: "", category: ProviderCategories.All, data: this.props.data.all}
     }
     handleSelector(selected: string) {
+        this.firstLoad = false;
         var newCategory = ProviderCategories.All;
+        var displayedData = this.props.data.all;
         switch (selected) {
             case "obce":
                 newCategory = ProviderCategories.City;
+                displayedData = this.props.data.cities;
                 break;
             case "casti":
                 newCategory = ProviderCategories.CityPart;
+                displayedData = this.props.data.cityParts;
                 break;
             case "kraje":
                 newCategory = ProviderCategories.Region;
+                displayedData = this.props.data.regions;
                 break;
             case "stat":
                 newCategory = ProviderCategories.Government;
+                displayedData = this.props.data.government;
                 break;
             case "ostatni":
                 newCategory = ProviderCategories.City;
+                displayedData = this.props.data.other;
                 break;  
         }
-        this.setState({category: newCategory});
+        this.setState({category: newCategory, data: displayedData});
     }
     handleSubmit(event: any) {
 
@@ -198,8 +207,9 @@ class BulletinList extends React.Component<{data: SortedBulletins}, { search: st
         }
     }
     render() {
-        const bulletinData = this.getSellectedBulletins();
+        var bulletinData = this.getSellectedBulletins();
         const bulletins = bulletinData.map((bul) => (<Bulletin key={bul.source} data={bul}/>))
+        var message = bulletins.length == 0 ? "Načítá se..." : `Zobrazeno desek v kategorii: ${bulletins.length}`;
         return (
             <div>
                 <h2>Úřední desky</h2>
@@ -209,6 +219,7 @@ class BulletinList extends React.Component<{data: SortedBulletins}, { search: st
                     <input type="text" id="finder" onChange={this.handleChange}/>
                     <input type="submit" value="Najít"/>
                 </form>
+                <p>{message}</p>
                 { bulletins }
             </div>
         );
