@@ -19,12 +19,12 @@ class App extends React.Component<{}, {data: SortedBulletins}> {
   }
   async componentDidMount() {
     await this.datasets.fetchDatasets();
-    var data = this.datasets.getDatasets();
+    // var data = this.datasets.getDatasets();
     this.setState({ data: this.datasets.dataCategories });
 
     await this.datasets.fetchAllDistibutions();
     await this.datasets.sortBulletinsByProviderType();
-    var data = this.datasets.getDatasets();
+    // var data = this.datasets.getDatasets();
     this.setState({ data: this.datasets.dataCategories });
   }
   render() {
@@ -32,7 +32,7 @@ class App extends React.Component<{}, {data: SortedBulletins}> {
     return (
       <BrowserRouter>
         <Routes>
-          <Route path="/uredni_desky/" element={ <Layout /> }>
+          <Route path="uredni_desky" element={ <Layout /> }>
             <Route index element={ <Home /> } />
             <Route path="seznam" element={ <BulletinList data={datasets} /> } />
             <Route path="validace" element={ <Validation data={datasets.all} /> } />
@@ -40,6 +40,17 @@ class App extends React.Component<{}, {data: SortedBulletins}> {
           </Route>
         </Routes>
       </BrowserRouter>
+
+      // <BrowserRouter>
+      // <Routes>
+      //   <Route path="/" element={ <Layout /> }>
+      //     <Route index element={ <Home /> } />
+      //     <Route path="seznam" element={ <BulletinList data={datasets} /> } />
+      //     <Route path="validace" element={ <Validation data={datasets.all} /> } />
+      //     <Route path="*" element={ <NoPage /> } />
+      //   </Route>
+      // </Routes>
+      // </BrowserRouter>
 
     );
   }
