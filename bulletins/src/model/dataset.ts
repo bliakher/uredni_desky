@@ -288,5 +288,5 @@ class Datasets {
     }
 }
 
-export type { SortedBulletins };
+export type { SortedBulletins, MissingProperties };
 export { Datasets, BulletinData, InfoRecord };

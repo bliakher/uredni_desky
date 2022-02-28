@@ -9,13 +9,13 @@ import Home from './pages/Home';
 import NoPage from './pages/NoPage';
 import { Validation, ValidationDetail } from './pages/Validation';
 
-class App extends React.Component<{}, {data: SortedBulletins}> {
+class App extends React.Component<{}, {data: SortedBulletins, distributionLoaded: boolean}> {
   datasets: Datasets;
 
   constructor(props: {}) {
     super(props)
     this.datasets = new Datasets();
-    this.state = {data: this.datasets.dataCategories}
+    this.state = {data: this.datasets.dataCategories, distributionLoaded: false}
   }
   async componentDidMount() {
     await this.datasets.fetchDatasets();
@@ -25,7 +25,7 @@ class App extends React.Component<{}, {data: SortedBulletins}> {
     await this.datasets.fetchAllDistibutions();
     await this.datasets.sortBulletinsByProviderType();
     // var data = this.datasets.getDatasets();
-    this.setState({ data: this.datasets.dataCategories });
+    this.setState({ data: this.datasets.dataCategories, distributionLoaded: true });
   }
   render() {
     var datasets = this.state.data;
@@ -37,7 +37,7 @@ class App extends React.Component<{}, {data: SortedBulletins}> {
             <Route path="seznam" element={ <BulletinList data={datasets} /> } />
             <Route path="validace">
               <Route index element={ <Validation data={datasets.all} /> } />
-              <Route path=":id" element={ <ValidationDetail data={datasets.all}/> }/>
+              <Route path=":id" element={ <ValidationDetail data={datasets.all} distributionLoaded={this.state.distributionLoaded}/> }/>
             </Route>
             <Route path="*" element={ <NoPage /> } />
           </Route>

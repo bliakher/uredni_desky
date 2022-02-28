@@ -1,34 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams } from "react-router-dom";
 import { BulletinData, InfoRecord } from '../model/dataset';
 import NoPage from './NoPage';
 import formurlencoded from 'form-urlencoded';
 import {Md5} from 'ts-md5/dist/md5';
+import { MissingProperties } from '../model/dataset';
 
-const ValidationDetail = (props: {data: BulletinData[]}) => {
-    var { id } = useParams();
-    var data = props.data.filter((bul) => {
-        var curId = Md5.hashStr(bul.source);
-        var result = id == curId;
-        return result;
-    });
-    if (data.length == 0) {
-        return (<NoPage />);
-    }
-    var bulletin = data[0];
-    var provider = bulletin.provider;
-    var name = bulletin.name;
-    var missing = bulletin.checkRecommendedProperties();
-    var hasErrors = missing.bulletin.length > 0 || missing.information.length > 0;
+function renderRecommendedProps(missingBulletinProps: Array<string>) {
     return (
         <>
-            <h2>Validace úřední desky</h2>
-            <h3>{name}</h3>
-            <p>Poskytovatel: {provider}</p>
-            <h4>Shrnutí:</h4>
-            { hasErrors && <p style={{color: 'red'}}>Nalezeny chyby</p> }
-            { !hasErrors && <p style={{color: 'green'}}>Validace v pořádku</p> }
-
             <h4>Doporučené atributy desky:</h4>
             <p>Aby bylo možné data z úřední desky smysluplně používat, měla by obsahovat následující atributy:</p>
             <ul>
@@ -36,37 +16,106 @@ const ValidationDetail = (props: {data: BulletinData[]}) => {
             </ul>
             <p>Viz <a href="https://ofn.gov.cz/úředn%C3%AD-desky/2021-07-20/#př%C3%ADklady-jednoduchá-informace" target="_blank" rel="noreferrer" >dokumentace</a></p>
             
-            { missing.bulletin.length > 0 &&
+            { missingBulletinProps.length > 0 &&
                 <>
                     <p style={{color: 'red'}}>Chybí atributy:</p>
                     <ul>
-                        {missing.bulletin.map(bulProp => (<li key={bulProp}>{bulProp}</li>))}
+                        {missingBulletinProps.map(bulProp => (<li key={bulProp}>{bulProp}</li>))}
                     </ul>
                 </>
             }
-            { missing.bulletin.length == 0 && 
+            { missingBulletinProps.length == 0 && 
                 <p style={{color: 'green'}}>Obsahuje všechny doporučené atributy.</p>
             }
+        </>
+    );
+}
 
+function renderRecommendedInfoProps(missingInfoProps: Array<{name:string, missing: Array<string>}>) {
+    return (
+        <>
             <h4>Doporučené atributy informací na desce:</h4>
             <p>Každá informace na úřední desce by také měla obsahovat tyto atributy:</p>
             <ul>
                 {["typ", "iri", "url", "název", "vyvěšení", "relevantní_do"].map(prop => <li key={prop}>{prop}</li>)}
             </ul>
-            { missing.information.length > 0 &&
+            { missingInfoProps.length > 0 &&
                 <>
-                <p style={{color: 'red'}}>Informace s chybějícími atributy:</p>
-                <ul>
-                    {missing.information.map(info => (
-                        <li key={info.name}>
-                            {info.name}
-                            <ul>
-                                {info.missing.map(prop => <li key={prop}>{prop}</li>)}
-                            </ul>
-                        </li>))}
-                </ul>
-            </>
+                    <p style={{color: 'red'}}>Informace s chybějícími atributy:</p>
+                    <ul>
+                        {missingInfoProps.map(info => (
+                            <li key={info.name}>
+                                {info.name}
+                                <ul>
+                                    {info.missing.map(prop => <li key={prop}>{prop}</li>)}
+                                </ul>
+                            </li>))}
+                    </ul>
+                </>
             }
+            { missingInfoProps.length == 0 && 
+                <p style={{color: 'green'}}>Všechny informace na desce obsahují doporučené atributy.</p>
+            }
+        </>
+    );
+}
+
+function renderHeader(provider: string, bulletinName: string) {
+    return (
+        <>
+            <h2>Validace úřední desky</h2>
+            <h3>{bulletinName}</h3>
+            <p>Poskytovatel: {provider}</p>
+        </>
+    );
+}
+
+function renderValidation(missing: MissingProperties) {
+    var hasErrors = missing.bulletin.length > 0 || missing.information.length > 0;
+    return (
+        <>
+            <h4>Shrnutí:</h4>
+            { hasErrors && <p style={{color: 'red'}}>Nalezeny chyby</p> }
+            { !hasErrors && <p style={{color: 'green'}}>Validace v pořádku</p> }
+
+            { renderRecommendedProps(missing.bulletin) }
+            { renderRecommendedInfoProps(missing.information) }
+        </>
+    );
+}
+
+const ValidationDetail = (props: {data: BulletinData[], distributionLoaded: boolean}) => {
+    var { id } = useParams();
+
+    // var [loading, setLoading] = useState([true]);
+
+    // useEffect(() => {
+    //     while(!bulletin.getDistribution()) {}
+    //     setLoading([false]);
+    // }, [])
+
+    var data = props.data.filter((bul) => {
+        var curId = Md5.hashStr(bul.source);
+        var result = id == curId;
+        return result;
+    });
+    if (data.length == 0) {
+        return (<p>Načítá se...</p>);
+    }
+    var bulletin = data[0];
+    var provider = bulletin.provider;
+    var name = bulletin.name;
+    var distribution = bulletin.getDistribution();
+    //var stillLoading = distribution == null;
+    var loading = !props.distributionLoaded;
+
+    var missing = bulletin.checkRecommendedProperties();
+    return (
+        <>
+            { renderHeader(provider, name) }
+            { loading && <p>Načítá se...</p> }
+            { !loading && renderValidation(missing) }
+            
         </>
     );
 }
