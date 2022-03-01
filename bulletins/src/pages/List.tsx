@@ -32,7 +32,7 @@ class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean}>
         var infoRecords = bulletin.getInfoRecords();
         var insides;
         if (!infoRecords) {
-            insides = this.renderErrorElement();
+            insides = bulletin.loadError == null ? (<p>Načítá se...</p>) : this.renderErrorElement();
         } else {
             insides = (<InfoList data={infoRecords} />);
         }
@@ -94,15 +94,17 @@ class BulletinInfo extends React.Component<{data: InfoRecord}> {
         var name = info.getName()? info.getName() : "'Informace na úřední desce'";
         var url = info.getUrl();
         var issued = info.getDateIssued();
+        var issuedStr = issued ? issued.to_string() : "Údaj chybí";
         var validTo = info.getDateValidTo();
+        var validToStr = validTo ? validTo.to_string() : "Údaj chybí";
         return (
             <div>
                 <span>
                     <h4>{name}</h4>
                     {url && <a href={url} target="_blank" rel="noreferrer">odkaz</a>}
                 </span>
-                {issued && <p>Datum vyvěšení: {issued.toLocaleDateString("cs-CZ")}</p>}
-                {validTo && <p>Relevantní do: {validTo.toLocaleDateString("cs-CZ")}</p>}
+                {issued && <p>Datum vyvěšení: {issuedStr}</p>}
+                {validTo && <p>Relevantní do: {validToStr}</p>}
             </div>
 
         );
@@ -208,7 +210,7 @@ class BulletinList extends React.Component<{data: SortedBulletins}, { search: st
     }
     render() {
         var bulletinData = this.getSellectedBulletins();
-        const bulletins = bulletinData.map((bul) => (<Bulletin key={bul.source} data={bul}/>))
+        const bulletins = bulletinData.map((bul) => (<Bulletin key={bul.source + Math.random().toString()} data={bul}/>))
         var message = bulletins.length == 0 ? "Načítá se..." : `Zobrazeno desek v kategorii: ${bulletins.length}`;
         return (
             <div>

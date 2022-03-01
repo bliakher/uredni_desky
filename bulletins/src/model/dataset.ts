@@ -78,7 +78,7 @@ class BulletinData {
         this.provider = dataset.provider.value;
         this.source = dataset.source.value;
         this.hasValidSource = true;
-        this.loadError = "";
+        this.loadError = null;
         this.infoRecordsLoaded = false;
         this.distribution = null;
         this.infoRecords = [];
@@ -142,6 +142,26 @@ interface Document {
     url: string;
 }
 
+class TimeMoment {
+    specified: boolean;
+    date: Date | null;
+    constructor(date: Date | null) {
+        if (date == null) {
+            this.specified = false;
+            this.date = null;
+        } else {
+            this.specified = true;
+            this.date = date;
+        }
+    }
+    to_string(): string {
+        if (this.specified && this.date != null) {
+            return this.date.toLocaleDateString("cs-CZ");
+        }
+        return "nespecifikováno";
+    }
+}
+
 /* Wrapper for information in bulletin board dataset
 */
 class InfoRecord {
@@ -160,10 +180,13 @@ class InfoRecord {
         }
         return false;
     }
-    private getDate(dateProperty: string): Date | false { // ToDo: add nespecifikovany
+    private getDate(dateProperty: string): TimeMoment | false { // ToDo: add nespecifikovany
         var dateObj = this.getProperty(dateProperty);
         if (dateObj) {
-            return new Date(dateObj.datum);
+            if (dateObj.hasOwnProperty("nespecifikovaný") && dateObj["nespecifikovaný"] == true) {
+                return new TimeMoment(null);
+            }
+            return new TimeMoment(new Date(dateObj.datum));
         }
         return false;
     }
@@ -178,10 +201,10 @@ class InfoRecord {
     getUrl(): string | false {
         return this.getProperty("url");
     }
-    getDateIssued(): Date | false {
+    getDateIssued(): TimeMoment | false {
         return this.getDate("vyvěšení");
     }
-    getDateValidTo(): Date | false {
+    getDateValidTo(): TimeMoment | false {
         return this.getDate("relevantní_do");
     }
     // returns array of missing recommended properties
