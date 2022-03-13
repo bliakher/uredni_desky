@@ -5,6 +5,7 @@ import NoPage from './NoPage';
 import formurlencoded from 'form-urlencoded';
 import {Md5} from 'ts-md5/dist/md5';
 import { MissingProperties } from '../model/dataset';
+import { stat } from 'fs';
 
 function renderRecommendedProps(missingBulletinProps: Array<string>) {
     return (
@@ -121,58 +122,31 @@ const ValidationDetail = (props: {data: BulletinData[], distributionLoaded: bool
 }
 
 
-class ValidationDetail2 extends React.Component<any,{id: string}> {
-    constructor(props: any) {
-        super(props);
-        var { id } = this.props.match.params;
-        this.state = {id: id? id : "12345"}
-    }
-    renderBulletinMissingTable(bulletinMissing: Array<string>) {
-        return (
-            <ul>
-                {bulletinMissing.map(bulProp => (<li key={bulProp}>bulProp</li>))}
-            </ul>
-        );
-    }
-    renderInfoMissingTable(infoMissing: Array<{name:string, missing: Array<string>}>) {
-        return (
-            <table></table>
-        );
-    }
-    render() {
-        var data = this.props.data.filter((bul: any) => formurlencoded(bul.source) == this.state.id);
-        if (data.length == 0) {
-            return (<NoPage />);
-        }
-        var bulletin = data[0];
-        var provider = bulletin.provider;
-        var name = bulletin.name;
-        var missing = bulletin.checkRecommendedProperties();
-        var bulletinTable = this.renderBulletinMissingTable(missing.bulletin);
-        var infoTable = this.renderInfoMissingTable(missing.information);
-        return (
-            <>
-                <h2>{name}</h2>
-                <p>Poskytovatel: {provider}</p>
-                {bulletinTable}
-                {infoTable}
-            </>
-        );
-    }
-}
 
-class ValidationRow extends React.Component<{data: BulletinData}> {
+class ValidationRow extends React.Component<{data: BulletinData}, {loaded: boolean}> {
     ok = "Ano";
     notOk = "Ne";
     noValue = "-";
     constructor(props: {data: BulletinData}) {
         super(props);
-        this.handleClick = this.handleClick.bind(this);
+        this.state = {loaded: false};
     }
-    handleClick() {
-
+    async componentDidMount() {
+        await this.props.data.fetchDistribution();
+        this.setState({loaded: true});
     }
-    render() {
+    renderWaiting() {
+        var provider = this.props.data.provider;
+        var name = this.props.data.name;
+        return (
+            <tr>
+                <td>{provider}</td>
+                <td>{name}</td>
+                <td colSpan={6}>Načítá se...</td>
+            </tr>
+        );
+    }
+    renderLoaded() {
         var distribution = this.props.data.getDistribution();
         var provider = this.props.data.provider;
         var name = this.props.data.name;
@@ -196,6 +170,12 @@ class ValidationRow extends React.Component<{data: BulletinData}> {
                 </td>
             </tr>
         );
+    }
+    render() {
+        if (this.state.loaded) {
+            return this.renderLoaded();
+        }
+        return this.renderWaiting();
     }
 }
 
