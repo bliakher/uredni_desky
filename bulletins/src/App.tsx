@@ -22,10 +22,10 @@ class App extends React.Component<{}, {data: SortedBulletins, distributionLoaded
     // var data = this.datasets.getDatasets();
     this.setState({ data: this.datasets.dataCategories });
 
-    await this.datasets.fetchAllDistibutions();
-    await this.datasets.sortBulletinsByProviderType();
-    // var data = this.datasets.getDatasets();
-    this.setState({ data: this.datasets.dataCategories, distributionLoaded: true });
+    // await this.datasets.fetchAllDistibutions();
+    // await this.datasets.sortBulletinsByProviderType();
+    // // var data = this.datasets.getDatasets();
+    // this.setState({ data: this.datasets.dataCategories, distributionLoaded: true });
   }
   render() {
     var datasets = this.state.data;

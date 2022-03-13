@@ -4,9 +4,11 @@ import  { fetchAllBulletins, fetchOrganizationTypes }  from "./query";
 /* Metadata of a bulletin dataset in NKOD
 */
 interface BulletinMetadata {
+    dataset: {value: string};
     name: {value: string};
     description: {value: string};
     provider: {value: string};
+    provider_iri : {value: string};
     source: {value: string};
 }
 
@@ -64,8 +66,10 @@ interface MissingProperties {
 /* Wrapper for bulletin board dataset
 */
 class BulletinData {
+    iri: string;
     name: string;
     provider: string;
+    providerIri: string;
     source: string;
     hasValidSource: boolean;
     loadError: any;
@@ -74,8 +78,10 @@ class BulletinData {
     infoRecords: Array<InfoRecord>;
 
     constructor(dataset: BulletinMetadata) {
+        this.iri = dataset.dataset.value;
         this.name = dataset.name.value;
         this.provider = dataset.provider.value;
+        this.providerIri = dataset.provider_iri.value;
         this.source = dataset.source.value;
         this.hasValidSource = true;
         this.loadError = null;

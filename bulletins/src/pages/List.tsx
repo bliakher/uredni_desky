@@ -3,13 +3,19 @@ import { BulletinData, InfoRecord, SortedBulletins } from '../model/dataset';
 import { SelectorOptions, SelectorChangeCallback, RadioSelector } from '../Utils';
 
 
-class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean}> {
+class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean, loaded: boolean}> {
     constructor(props: { data: BulletinData}) {
         super(props);
         this.state = {
             opened: false,
+            loaded: false,
         };
         this.handleClick = this.handleClick.bind(this);
+    }
+
+    async componentDidMount() {
+        await this.props.data.fetchDistribution();
+        this.setState({loaded: true});
     }
     
     handleClick() {
@@ -24,23 +30,33 @@ class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean}>
             </div>
         );
     }
-
+    renderInfo() {
+        var bulletin = this.props.data; 
+        var infoRecords = bulletin.getInfoRecords();
+        return (<InfoList data={infoRecords? infoRecords : []} />);
+    }
+    renderLoading() {
+        return (<p>Načítá se...</p>);
+    }
 
     render() {
         var bulletin = this.props.data; // BulletinData
-        var bulletinData = bulletin.getDistribution();
-        var infoRecords = bulletin.getInfoRecords();
+        var linkToDataset = "https://data.gov.cz/datová-sada?iri=" + bulletin.iri;
         var insides;
-        if (!infoRecords) {
-            insides = bulletin.loadError == null ? (<p>Načítá se...</p>) : this.renderErrorElement();
+        if( this.state.loaded ) {
+            if (bulletin.loadError == null) {
+                insides = this.renderInfo();
+            } else {
+                insides = this.renderErrorElement();
+            }
         } else {
-            insides = (<InfoList data={infoRecords} />);
+            insides = this.renderLoading();
         }
         return (
             <div className="bulletin">
                 <span>
                     <h3>{bulletin.provider}</h3>
-                    <a href={bulletin.source} target="_blank" rel="noreferrer">odkaz</a>
+                    <a href={linkToDataset} target="_blank" rel="noreferrer">odkaz</a>
                 </span>
                 <button onClick={this.handleClick}>
                     {this.state.opened ? '^' : 'v'}
