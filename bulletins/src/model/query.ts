@@ -53,6 +53,32 @@ function getQueryForOrganizationTypeWithIco(icoList: Array<string>) {
     return query;
 }
 
+function getQueryBulletinByIri(iri: string) {
+    return "PREFIX foaf: <http://xmlns.com/foaf/0.1/> \
+    PREFIX dcterms: <http://purl.org/dc/terms/> \
+    PREFIX dcat: <http://www.w3.org/ns/dcat#> \
+    PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
+    SELECT DISTINCT ?name ?description ?provider ?provider_iri ?source \
+    WHERE { <" + iri + "> a dcat:Dataset ; \
+            dcat:distribution ?distribuce ; \
+            dcterms:title ?name ; \
+            dcterms:description ?description; \
+            dcterms:publisher ?provider_iri . \
+        ?distribuce a dcat:Distribution ; \
+            dcterms:format <http://publications.europa.eu/resource/authority/file-type/JSON_LD> ; \
+            dcat:downloadURL ?source . \
+      FILTER (langMatches(LANG(?name), 'cs')) \
+      FILTER (langMatches(LANG(?description), 'cs')) \
+      OPTIONAL { \
+           ?provider_iri l-sgov-sbírka-111-2009-pojem:má-název-orgánu-veřejné-moci ?ovm_název_poskytovatele \
+      } \
+      OPTIONAL { \
+           ?provider_iri foaf:name ?nkod_název_poskytovatele \
+      } \
+      BIND(COALESCE(?ovm_název_poskytovatele, ?nkod_název_poskytovatele) AS ?provider) \
+    }";
+}
+
 function getSparqlQueryObj(query: string) {
     return {
         "headers": {
@@ -89,4 +115,14 @@ async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<strin
     return orgTypeMap;
 }
 
-export { fetchAllBulletins, fetchOrganizationTypes };
+async function fetchBulletinByIri(iri: string) {
+    try {
+        const response = await fetch(nkod_sparql, getSparqlQueryObj(getQueryBulletinByIri(iri)));
+        return (await response.json()).results.bindings;
+    } catch(error) {
+        return null;
+    }
+    
+}
+
+export { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri };

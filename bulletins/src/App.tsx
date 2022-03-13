@@ -37,7 +37,7 @@ class App extends React.Component<{}, {data: SortedBulletins, distributionLoaded
             <Route path="seznam" element={ <BulletinList data={datasets} /> } />
             <Route path="validace">
               <Route index element={ <Validation data={datasets.all} /> } />
-              <Route path=":id" element={ <ValidationDetail data={datasets.all} distributionLoaded={this.state.distributionLoaded}/> }/>
+              <Route path="detail" element={ <ValidationDetail /> }/>
             </Route>
             <Route path="*" element={ <NoPage /> } />
           </Route>

@@ -1,4 +1,4 @@
-import  { fetchAllBulletins, fetchOrganizationTypes }  from "./query";
+import  { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri }  from "./query";
 
 
 /* Metadata of a bulletin dataset in NKOD
@@ -317,5 +317,19 @@ class Datasets {
     }
 }
 
+async function getBulletinByIri(iri: string): Promise<BulletinData | null> {
+    var data = await fetchBulletinByIri(iri); // BulletinMetadata but without iri
+    if (data == null) return null;
+    var dataWithIri: BulletinMetadata = { // add iri
+        dataset: {value: iri},
+        name: data[0].name,
+        description: data[0].description,
+        provider: data[0].provider,
+        provider_iri : data[0].provider_iri,
+        source: data[0].source
+    }
+    return new BulletinData(dataWithIri);
+}
+
 export type { SortedBulletins, MissingProperties };
-export { Datasets, BulletinData, InfoRecord };
+export { Datasets, BulletinData, InfoRecord, getBulletinByIri };

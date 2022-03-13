@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useParams } from "react-router-dom";
-import { BulletinData, InfoRecord } from '../model/dataset';
-import NoPage from './NoPage';
-import formurlencoded from 'form-urlencoded';
+import React from 'react';
+import { Link, useParams, useLocation } from "react-router-dom";
+import { BulletinData, InfoRecord, getBulletinByIri } from '../model/dataset';
 import {Md5} from 'ts-md5/dist/md5';
 import { MissingProperties } from '../model/dataset';
-import { stat } from 'fs';
+import { RouterProps } from "react-router";
+
 
 function renderRecommendedProps(missingBulletinProps: Array<string>) {
     return (
@@ -85,7 +84,7 @@ function renderValidation(missing: MissingProperties) {
     );
 }
 
-const ValidationDetail = (props: {data: BulletinData[], distributionLoaded: boolean}) => {
+const ValidationDetail2 = (props: {data: BulletinData[], distributionLoaded: boolean}) => {
     var { id } = useParams();
 
     // var [loading, setLoading] = useState([true]);
@@ -121,7 +120,48 @@ const ValidationDetail = (props: {data: BulletinData[], distributionLoaded: bool
     );
 }
 
+interface PropsWithLocation {
+    location: RouterProps["location"];
+}
 
+const ValidationDetail = () => {
+    var params = new URLSearchParams(useLocation().search);
+    var iriNull = params.get("iri");
+    var iri = iriNull == null? "" : iriNull;
+    return (<ValidationDetailComplete iri={iri} />);
+}
+
+class ValidationDetailComplete extends React.Component<{iri: string}, {loaded: boolean, invalidIri: boolean}> {
+    data: BulletinData | null;
+    constructor(props: any) {
+        super(props);
+        this.state = {loaded: false, invalidIri: false }
+        this.data = null;
+    }
+    async componentDidMount() {
+        var data = await getBulletinByIri(this.props.iri);
+        if (data == null) {
+            this.setState({loaded: true, invalidIri: true});
+        } else {
+            this.data = data;
+            await this.data.fetchDistribution();
+            this.setState({loaded: true});
+        }
+    }
+    render() {
+        if (this.state.loaded) {
+            if (!this.state.invalidIri && this.data != null) {
+                return renderHeader(this.data.provider, this.data.name);
+                
+            } else {
+                return (<p>Chyba: Nevalidní iri datasetu - nelze načíst.</p>)
+            }
+        } else {
+            return (<p>Načítá se...</p>);
+        }
+        
+    }
+}
 
 class ValidationRow extends React.Component<{data: BulletinData}, {loaded: boolean}> {
     ok = "Ano";
@@ -149,6 +189,7 @@ class ValidationRow extends React.Component<{data: BulletinData}, {loaded: boole
     renderLoaded() {
         var distribution = this.props.data.getDistribution();
         var provider = this.props.data.provider;
+        var iri = this.props.data.iri;
         var name = this.props.data.name;
         var source = this.props.data.source;
         var info = this.props.data.getInfoRecords();
@@ -166,7 +207,7 @@ class ValidationRow extends React.Component<{data: BulletinData}, {loaded: boole
                 <td>{infoCount}</td>
                 <td>{distribution? missingInfo : this.noValue }</td>
                 <td>
-                    <Link to={Md5.hashStr(source)}>Detail</Link>
+                    <Link to={"detail?iri=" + iri}>Detail</Link>
                 </td>
             </tr>
         );
@@ -178,6 +219,7 @@ class ValidationRow extends React.Component<{data: BulletinData}, {loaded: boole
         return this.renderWaiting();
     }
 }
+
 
 class Validation extends React.Component<{data: BulletinData[]}> {
     constructor(props: {data: BulletinData[]}) {
@@ -200,10 +242,12 @@ class Validation extends React.Component<{data: BulletinData[]}> {
         var bulletins = this.props.data;
         var header = this.renderHeaderRow();
         return (
+            <>
             <table>
                 { header }
                 { bulletins.map(bul => <ValidationRow data={bul} />) }
             </table>
+            </>
         );
     }
 }
