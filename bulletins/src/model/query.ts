@@ -118,7 +118,8 @@ async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<strin
 async function fetchBulletinByIri(iri: string) {
     try {
         const response = await fetch(nkod_sparql, getSparqlQueryObj(getQueryBulletinByIri(iri)));
-        return (await response.json()).results.bindings;
+        var parsed = await response.json();
+        return parsed.results.bindings;
     } catch(error) {
         return null;
     }

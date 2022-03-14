@@ -319,7 +319,7 @@ class Datasets {
 
 async function getBulletinByIri(iri: string): Promise<BulletinData | null> {
     var data = await fetchBulletinByIri(iri); // BulletinMetadata but without iri
-    if (data == null) return null;
+    if (data == null || data.length == 0) return null;
     var dataWithIri: BulletinMetadata = { // add iri
         dataset: {value: iri},
         name: data[0].name,
