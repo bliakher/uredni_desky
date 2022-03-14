@@ -162,7 +162,7 @@ class TimeMoment {
     }
     to_string(): string {
         if (this.specified && this.date != null) {
-            return this.date.toLocaleDateString("cs-CZ");
+            return this.date.toLocaleDateString();
         }
         return "nespecifikováno";
     }

@@ -31,7 +31,7 @@ function renderRecommendedProps(missingBulletinProps: Array<string>) {
     );
 }
 
-function renderRecommendedInfoProps(missingInfoProps: Array<{name:string, missing: Array<string>}>) {
+function renderRecommendedInfoProps(missingInfoProps: Array<{name:string, missing: Array<string>}>, infoCount: number) {
     return (
         <>
             <h4>Doporučené atributy informací na desce:</h4>
@@ -41,7 +41,8 @@ function renderRecommendedInfoProps(missingInfoProps: Array<{name:string, missin
             </ul>
             { missingInfoProps.length > 0 &&
                 <>
-                    <p style={{color: 'red'}}>Informace s chybějícími atributy:</p>
+                    <p>Informací celkem: {infoCount}</p>
+                    <p style={{color: 'red'}}>Informace s chybějícími atributy: {missingInfoProps.length}</p>
                     <ul>
                         {missingInfoProps.map(info => (
                             <li key={info.name}>
@@ -70,52 +71,24 @@ function renderHeader(provider: string, bulletinName: string) {
     );
 }
 
-function renderValidation(missing: MissingProperties) {
-    var hasErrors = missing.bulletin.length > 0 || missing.information.length > 0;
+function renderValidation(bulletin: BulletinData) {
+    var missing = bulletin.checkRecommendedProperties();
+    var info = bulletin.getInfoRecords();
+    var infoCount = info ? info.length : 0;
+    var hasErrors = missing.bulletin.length > 0 || missing.information.length > 0 || !bulletin.hasValidSource;
     return (
         <>
             <h4>Shrnutí:</h4>
             { hasErrors && <p style={{color: 'red'}}>Nalezeny chyby</p> }
             { !hasErrors && <p style={{color: 'green'}}>Validace v pořádku</p> }
 
-            { renderRecommendedProps(missing.bulletin) }
-            { renderRecommendedInfoProps(missing.information) }
-        </>
-    );
-}
+            { !bulletin.hasValidSource && 
+                <p>Distribuci nebylo možné stáhnout z odkazu:
+                    <a href={bulletin.source} target="_blank"> {bulletin.source} </a>
+                </p>}
 
-const ValidationDetail2 = (props: {data: BulletinData[], distributionLoaded: boolean}) => {
-    var { id } = useParams();
-
-    // var [loading, setLoading] = useState([true]);
-
-    // useEffect(() => {
-    //     while(!bulletin.getDistribution()) {}
-    //     setLoading([false]);
-    // }, [])
-
-    var data = props.data.filter((bul) => {
-        var curId = Md5.hashStr(bul.source);
-        var result = id == curId;
-        return result;
-    });
-    if (data.length == 0) {
-        return (<p>Načítá se...</p>);
-    }
-    var bulletin = data[0];
-    var provider = bulletin.provider;
-    var name = bulletin.name;
-    var distribution = bulletin.getDistribution();
-    //var stillLoading = distribution == null;
-    var loading = !props.distributionLoaded;
-
-    var missing = bulletin.checkRecommendedProperties();
-    return (
-        <>
-            { renderHeader(provider, name) }
-            { loading && <p>Načítá se...</p> }
-            { !loading && renderValidation(missing) }
-            
+            { bulletin.hasValidSource && renderRecommendedProps(missing.bulletin) }
+            { bulletin.hasValidSource && renderRecommendedInfoProps(missing.information, infoCount) }
         </>
     );
 }
@@ -151,7 +124,11 @@ class ValidationDetailComplete extends React.Component<{iri: string}, {loaded: b
     render() {
         if (this.state.loaded) {
             if (!this.state.invalidIri && this.data != null) {
-                return renderHeader(this.data.provider, this.data.name);
+                return (
+                    <>
+                        { renderHeader(this.data.provider, this.data.name) }
+                        { renderValidation(this.data) }
+                    </>);
                 
             } else {
                 return (<p>Chyba: Nevalidní iri datasetu - nelze načíst.</p>)
