@@ -4,7 +4,7 @@ import { BulletinData, InfoRecord, getBulletinByIri } from '../model/dataset';
 import {Md5} from 'ts-md5/dist/md5';
 import { MissingProperties } from '../model/dataset';
 import { RouterProps } from "react-router";
-
+import { BulletinDetail } from "./Detail";
 
 function renderRecommendedProps(missingBulletinProps: Array<string>) {
     return (
@@ -61,11 +61,14 @@ function renderRecommendedInfoProps(missingInfoProps: Array<{name:string, missin
     );
 }
 
-function renderHeader(provider: string, bulletinName: string) {
+function renderHeader(provider: string, bulletinName: string, iri: string) {
     return (
         <>
             <h2>Validace úřední desky</h2>
-            <h3>{bulletinName}</h3>
+            <h3>
+                {bulletinName} 
+                <Link to={"/uredni_desky/seznam/detail?iri=" + iri} >detail</Link>
+            </h3>
             <p>Poskytovatel: {provider}</p>
         </>
     );
@@ -126,7 +129,7 @@ class ValidationDetailComplete extends React.Component<{iri: string}, {loaded: b
             if (!this.state.invalidIri && this.data != null) {
                 return (
                     <>
-                        { renderHeader(this.data.provider, this.data.name) }
+                        { renderHeader(this.data.provider, this.data.name, this.data.iri) }
                         { renderValidation(this.data) }
                     </>);
                 

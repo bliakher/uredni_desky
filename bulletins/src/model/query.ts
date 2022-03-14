@@ -3,7 +3,7 @@ import formurlencoded from 'form-urlencoded';
 const nkod_sparql = "https://data.gov.cz/sparql";
 const rpp_sparql = "https://rpp-opendata.egon.gov.cz/odrpp/sparql";
 
-const queryAllBulletinBoards = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> \
+const queryAllBulletinBoards: string = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> \
 PREFIX dcterms: <http://purl.org/dc/terms/> \
 PREFIX dcat: <http://www.w3.org/ns/dcat#> \
 PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
@@ -29,7 +29,7 @@ WHERE { \
   BIND(COALESCE(?ovm_název_poskytovatele, ?nkod_název_poskytovatele) AS ?provider) \
 }";
 
-function getQueryForOrganizationTypeWithIco(icoList: Array<string>) {
+function getQueryForOrganizationTypeWithIco(icoList: Array<string>): string {
     var query = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#> \
     PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
     PREFIX a-sgov-104-pojem: <https://slovník.gov.cz/agendový/104/pojem/> \
@@ -53,7 +53,7 @@ function getQueryForOrganizationTypeWithIco(icoList: Array<string>) {
     return query;
 }
 
-function getQueryBulletinByIri(iri: string) {
+function getQueryBulletinByIri(iri: string): string {
     return "PREFIX foaf: <http://xmlns.com/foaf/0.1/> \
     PREFIX dcterms: <http://purl.org/dc/terms/> \
     PREFIX dcat: <http://www.w3.org/ns/dcat#> \
@@ -76,6 +76,31 @@ function getQueryBulletinByIri(iri: string) {
            ?provider_iri foaf:name ?nkod_název_poskytovatele \
       } \
       BIND(COALESCE(?ovm_název_poskytovatele, ?nkod_název_poskytovatele) AS ?provider) \
+    }";
+}
+
+function getQueryOrganiationInfoByIri(iri: string): string {
+    var identifier = '<' + iri + '>';
+    return "PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
+    PREFIX a-sgov-104-pojem: <https://slovník.gov.cz/agendový/104/pojem/> \
+    SELECT DISTINCT ?nazev ?ico ?pravni_forma \
+    WHERE {" + identifier + " a l-sgov-sbírka-111-2009-pojem:orgán-veřejné-moci . \
+      OPTIONAL {" + identifier + " l-sgov-sbírka-111-2009-pojem:má-název-orgánu-veřejné-moci ?nazev . FILTER (LANG(?nazev) = 'cs') } \
+      OPTIONAL { " + identifier + " l-sgov-sbírka-111-2009-pojem:má-identifikační-číslo-osoby-orgánu-veřejné-moci ?ico . } \
+      OPTIONAL { " + identifier + " l-sgov-sbírka-111-2009-pojem:má-právní-formu-osoby ?pravni_forma . }";
+}
+
+function getQueryOrganiationInfoByIco(ico: string): string {
+    var identifier = "'" + ico + "'";
+    return "PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
+    PREFIX a-sgov-104-pojem: <https://slovník.gov.cz/agendový/104/pojem/> \
+    SELECT DISTINCT ?nazev ?ico ?pravni_forma \
+    WHERE { \
+      ?organ a l-sgov-sbírka-111-2009-pojem:orgán-veřejné-moci . \
+      OPTIONAL { ?organ l-sgov-sbírka-111-2009-pojem:má-název-orgánu-veřejné-moci ?nazev . FILTER (LANG(?nazev) = 'cs') } \
+      OPTIONAL { ?organ l-sgov-sbírka-111-2009-pojem:má-identifikační-číslo-osoby-orgánu-veřejné-moci ?ico .  } \
+      OPTIONAL { ?organ l-sgov-sbírka-111-2009-pojem:má-právní-formu-osoby ?pravni_forma . } \
+      FILTER ( STR(?ico) = " + identifier + " ) \
     }";
 }
 

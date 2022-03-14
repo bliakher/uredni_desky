@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { ComponentClass, ReactComponentElement } from 'react';
+import { useLocation } from "react-router-dom";
+
 
 type SelectorChangeCallback = (selected: string) => void;
 
@@ -37,6 +39,13 @@ class RadioSelector extends React.Component<SelectorOptions> {
             </div>
         );
     }
+}
+
+const OutletWithQueryParam = (param: string, element: ComponentClass<{param: string}, any>) => {
+    var params = new URLSearchParams(useLocation().search);
+    var paramValueOrNull = params.get(param);
+    var paramValue = paramValueOrNull == null? "" : paramValueOrNull;
+    return React.createElement(element, {param: paramValue} );
 }
 
 export type { SelectorOptions, SelectorChangeCallback };

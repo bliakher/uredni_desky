@@ -4,10 +4,11 @@ import './App.css';
 import { BulletinData, Datasets, SortedBulletins } from './model/dataset';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
-import BulletinList from "./pages/List";
+import { BulletinList } from "./pages/List";
 import Home from './pages/Home';
 import NoPage from './pages/NoPage';
 import { Validation, ValidationDetail } from './pages/Validation';
+import { BulletinDetail } from './pages/Detail';
 
 class App extends React.Component<{}, {data: SortedBulletins, distributionLoaded: boolean}> {
   datasets: Datasets;
@@ -34,7 +35,10 @@ class App extends React.Component<{}, {data: SortedBulletins, distributionLoaded
         <Routes>
           <Route path="uredni_desky" element={ <Layout /> }>
             <Route index element={ <Home /> } />
-            <Route path="seznam" element={ <BulletinList data={datasets} /> } />
+            <Route path="seznam" >
+              <Route index element={ <BulletinList data={datasets} /> } />
+              <Route path="detail" element={ <BulletinDetail /> } />
+            </Route>
             <Route path="validace">
               <Route index element={ <Validation data={datasets.all} /> } />
               <Route path="detail" element={ <ValidationDetail /> }/>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { BulletinData, InfoRecord, SortedBulletins } from '../model/dataset';
 import { SelectorOptions, SelectorChangeCallback, RadioSelector } from '../Utils';
 
@@ -57,6 +58,7 @@ class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean, 
                 <span>
                     <h3>{bulletin.provider}</h3>
                     <a href={linkToDataset} target="_blank" rel="noreferrer">odkaz</a>
+                    <Link to={"detail?iri=" + bulletin.iri}>detail</Link>
                 </span>
                 <button onClick={this.handleClick}>
                     {this.state.opened ? '^' : 'v'}
@@ -244,4 +246,4 @@ class BulletinList extends React.Component<{data: SortedBulletins}, { search: st
     }
 }
 
-export default BulletinList;
+export { BulletinList, InfoList };
