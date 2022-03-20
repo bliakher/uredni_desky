@@ -2,7 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { BulletinData, Datasets, SortedBulletins } from './model/dataset';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
 import { BulletinList } from "./pages/List";
 import Home from './pages/Home';
@@ -29,22 +29,23 @@ class App extends React.Component<{}, {data: SortedBulletins}> {
   render() {
     var datasets = this.state.data;
     return (
-      <BrowserRouter>
-        <Routes>
-          <Route path="uredni_desky" element={ <Layout /> }>
-            <Route index element={ <Home /> } />
-            <Route path="seznam" >
-              <Route index element={ <BulletinList data={datasets} /> } />
-              <Route path="detail" element={ <BulletinDetail /> } />
-            </Route>
-            <Route path="validace">
-              <Route index element={ <Validation data={datasets.all} /> } />
-              <Route path="detail" element={ <ValidationDetail /> }/>
-            </Route>
-            <Route path="*" element={ <NoPage /> } />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <>
+        <HashRouter>
+          <Layout/>
+          <Routes>
+              <Route index element={ <Home /> } />
+              <Route path="seznam" >
+                <Route index element={ <BulletinList data={datasets} /> } />
+                <Route path="detail" element={ <BulletinDetail /> } />
+              </Route>
+              <Route path="validace">
+                <Route index element={ <Validation data={datasets.all} /> } />
+                <Route path="detail" element={ <ValidationDetail /> }/>
+              </Route>
+              <Route path="*" element={ <NoPage /> } />
+          </Routes>
+        </HashRouter>
+      </>
 
       // <BrowserRouter>
       // <Routes>

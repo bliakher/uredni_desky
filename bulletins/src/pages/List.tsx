@@ -63,6 +63,7 @@ class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean, 
                     <a href={linkToDataset} target="_blank" rel="noreferrer">odkaz</a>
                     <Link to={"detail?iri=" + bulletin.iri}>detail</Link>
                 </span>
+                <h4>{bulletin.name}</h4>
                 <button onClick={this.handleClick}>
                     {this.state.opened ? '^' : 'v'}
                 </button>
@@ -198,7 +199,7 @@ class BulletinList extends React.Component<{data: SortedBulletins}, { search: st
                 displayedData = this.props.data.government;
                 break;
             case "ostatni":
-                newCategory = ProviderCategories.City;
+                newCategory = ProviderCategories.Other;
                 displayedData = this.props.data.other;
                 break;  
         }

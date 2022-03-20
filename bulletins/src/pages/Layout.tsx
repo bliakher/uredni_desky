@@ -15,7 +15,7 @@ const Layout = () => {
                         <Link to="validace">Validace</Link>
                     </div>
             </nav>
-            <Outlet />
+             {/* <Outlet /> */}
         </>
     );
 }
