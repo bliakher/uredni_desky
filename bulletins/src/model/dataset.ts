@@ -192,7 +192,10 @@ class InfoRecord {
             if (dateObj.hasOwnProperty("nespecifikovaný") && dateObj["nespecifikovaný"] == true) {
                 return new TimeMoment(null);
             }
-            return new TimeMoment(new Date(dateObj.datum));
+            if (dateObj.hasOwnProperty("datum_a_čas")) {
+                return new TimeMoment(new Date(dateObj["datum_a_čas"]));
+            }
+            return new TimeMoment(new Date(dateObj["datum"]));
         }
         return false;
     }
@@ -300,16 +303,16 @@ class Datasets {
             var ico = this.getIcoFromIri(bulletin);
             var type = typeMap.get(ico);
             var category = other;
-            if (type == "801") {
+            if (type === "801") {
                 category = cities;
             }
-            if (type == "811") {
+            if (type === "811") {
                 category = cityParts;
             }
-            if (type == "804") {
+            if (type === "804") {
                 category = regions;
             }
-            if (type == "325") {
+            if (type === "325") {
                 category = stateOrganizations;
             }
             category.push(bulletin);
