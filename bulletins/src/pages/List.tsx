@@ -15,12 +15,15 @@ class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean, 
     }
 
     async componentDidMount() {
-        await this.props.data.fetchDistribution();
-        this.setState({loaded: true});
+        
     }
     
-    handleClick() {
+    async handleClick() {
         this.setState(prevState => ({opened: !prevState.opened}));
+        if (!this.state.loaded) {
+            await this.props.data.fetchDistribution();
+            this.setState({loaded: true});
+        }
     }
 
     renderErrorElement() {
@@ -167,17 +170,14 @@ enum ProviderCategories {
 }
 
 class BulletinList extends React.Component<{data: SortedBulletins}, { search: string, category: ProviderCategories, data: BulletinData[] }> {
-    firstLoad: boolean;
     constructor(props: {data: SortedBulletins}) {
         super(props);
-        this.firstLoad = true;
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleSelector = this.handleSelector.bind(this);
         this.state = { search: "", category: ProviderCategories.All, data: this.props.data.all}
     }
     handleSelector(selected: string) {
-        this.firstLoad = false;
         var newCategory = ProviderCategories.All;
         var displayedData = this.props.data.all;
         switch (selected) {

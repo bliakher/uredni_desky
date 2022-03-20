@@ -10,23 +10,21 @@ import NoPage from './pages/NoPage';
 import { Validation, ValidationDetail } from './pages/Validation';
 import { BulletinDetail } from './pages/Detail';
 
-class App extends React.Component<{}, {data: SortedBulletins, distributionLoaded: boolean}> {
+class App extends React.Component<{}, {data: SortedBulletins}> {
   datasets: Datasets;
 
   constructor(props: {}) {
     super(props)
     this.datasets = new Datasets();
-    this.state = {data: this.datasets.dataCategories, distributionLoaded: false}
+    this.state = {data: this.datasets.dataCategories}
   }
   async componentDidMount() {
     await this.datasets.fetchDatasets();
-    // var data = this.datasets.getDatasets();
     this.setState({ data: this.datasets.dataCategories });
 
     // await this.datasets.fetchAllDistibutions();
-    // await this.datasets.sortBulletinsByProviderType();
-    // // var data = this.datasets.getDatasets();
-    // this.setState({ data: this.datasets.dataCategories, distributionLoaded: true });
+    await this.datasets.sortBulletinsByProviderType();
+    this.setState({ data: this.datasets.dataCategories});
   }
   render() {
     var datasets = this.state.data;

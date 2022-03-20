@@ -278,25 +278,26 @@ class Datasets {
         return icoList.filter(ico => ico != "");
     }
 
+    getIcoListFromIri(): Array<string> {
+        var result = this.data.map(bulletin => {
+            return this.getIcoFromIri(bulletin);
+        });
+        return result;
+    }
+
+    getIcoFromIri(bulletin: BulletinData): string {
+        return bulletin.providerIri.substr("https://rpp-opendata.egon.gov.cz/odrpp/zdroj/orgán-veřejné-moci/".length, 8); 
+    }
+
     async sortBulletinsByProviderType() {
-        var typeMap = await fetchOrganizationTypes(this.getIcoList());
+        var typeMap = await fetchOrganizationTypes(this.getIcoListFromIri());
         var cities: BulletinData[] = [];
         var cityParts: BulletinData[] = [];
         var regions: BulletinData[]  = [];
         var stateOrganizations: BulletinData[]  = [];
         var other: BulletinData[]  = [];
         for (var bulletin of this.data) {
-            var distribution = bulletin.getDistribution();
-            if (distribution == null) {
-                other.push(bulletin);
-                continue;
-            }
-            var publisher = distribution.getPublisher();
-            if (!publisher) {
-                other.push(bulletin);
-                continue;
-            }
-            var ico = publisher.ičo;
+            var ico = this.getIcoFromIri(bulletin);
             var type = typeMap.get(ico);
             var category = other;
             if (type == "801") {
