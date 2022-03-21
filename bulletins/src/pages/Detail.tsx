@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router';
 import { BulletinData, getBulletinByIri } from '../model/dataset';
 import { InfoList } from './List';
+import { fetchOrganizationNameByIco } from '../model/query';
 
 const BulletinDetail = () => {
     var params = new URLSearchParams(useLocation().search);
@@ -10,11 +11,11 @@ const BulletinDetail = () => {
     return (<BulletinDetailComplete iri={iri} />);
 }
 
-class BulletinDetailComplete extends React.Component<{iri: string}, {loaded: boolean, invalidIri: boolean}> {
+class BulletinDetailComplete extends React.Component<{iri: string}, {loaded: boolean, invalidIri: boolean, ownerName: string | null}> {
     data: BulletinData | null;
     constructor(props: {iri: string}) {
         super(props);
-        this.state = {loaded: false, invalidIri: false}
+        this.state = {loaded: false, invalidIri: false, ownerName: null }
         this.data = null;
     }
     async componentDidMount() {
@@ -25,6 +26,13 @@ class BulletinDetailComplete extends React.Component<{iri: string}, {loaded: boo
             this.data = data;
             await this.data.fetchDistribution();
             this.setState({loaded: true});
+            var distribution = data.getDistribution();
+            var publisher = distribution?.getPublisher();
+            if (publisher) {
+                var ico = publisher.ičo;
+                var name = await fetchOrganizationNameByIco(ico);
+                this.setState({ownerName: name});
+            }
         }
     }
     render() {
@@ -34,7 +42,8 @@ class BulletinDetailComplete extends React.Component<{iri: string}, {loaded: boo
                 return ( 
                     <>
                         <h3>{this.data.name}</h3>
-                        <p>Poskytovatel: {this.data.provider}</p>
+                        <p>Poskytovatel dat: {this.data.provider}</p>
+                        { this.state.ownerName != null && <p>Provozovatel: {this.state.ownerName}</p>}
                         <InfoList data={ infoRecords? infoRecords : []} />
                     </>);
                 

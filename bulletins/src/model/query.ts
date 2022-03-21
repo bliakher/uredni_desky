@@ -79,7 +79,7 @@ function getQueryBulletinByIri(iri: string): string {
     }";
 }
 
-function getQueryOrganiationInfoByIri(iri: string): string {
+function getQueryOrganizationInfoByIri(iri: string): string {
     var identifier = '<' + iri + '>';
     return "PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
     PREFIX a-sgov-104-pojem: <https://slovník.gov.cz/agendový/104/pojem/> \
@@ -90,7 +90,7 @@ function getQueryOrganiationInfoByIri(iri: string): string {
       OPTIONAL { " + identifier + " l-sgov-sbírka-111-2009-pojem:má-právní-formu-osoby ?pravni_forma . }";
 }
 
-function getQueryOrganiationInfoByIco(ico: string): string {
+function getQueryOrganizationInfoByIco(ico: string): string {
     var identifier = "'" + ico + "'";
     return "PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
     PREFIX a-sgov-104-pojem: <https://slovník.gov.cz/agendový/104/pojem/> \
@@ -151,4 +151,22 @@ async function fetchBulletinByIri(iri: string) {
     
 }
 
-export { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri };
+async function fetchOrganizationNameByIco(ico: string) {
+    var query = getQueryOrganizationInfoByIco(ico);
+    try {
+        const response = await fetch(rpp_sparql,  {
+            "headers": {
+                "accept": "application/sparql-results+json",
+                "content-type": "application/x-www-form-urlencoded",
+            },
+            "body": formurlencoded({query : query}),
+            "method": "POST",
+        });
+        var parsed = await response.json();
+        return parsed.results.bindings[0].nazev.value;
+    } catch(error) {
+        return null;
+    }
+}
+
+export { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri, fetchOrganizationNameByIco };
