@@ -133,13 +133,14 @@ class BulletinInfo extends React.Component<{data: InfoRecord}> {
     }
 }
 
-class ProviderTypeSelector extends React.Component<{callback: SelectorChangeCallback}> {
+// TODO: add first selected to props
+class ProviderTypeSelector extends React.Component<{firstSelected: string, callback: SelectorChangeCallback}> {
     selector: SelectorOptions;
-    constructor(props: {callback: SelectorChangeCallback}) {
+    constructor(props: {firstSelected: string, callback: SelectorChangeCallback}) {
         super(props);
         this.selector = {
             groupName: "bulletin_type",
-            firstSelected: "vse",
+            firstSelected: props.firstSelected,
             options: [
                     {label: "Vše", value: "vse"},
                     {label: "Obce", value: "obce"}, 
@@ -170,39 +171,43 @@ enum ProviderCategories {
     Other,
 }
 
-class BulletinList extends React.Component<{data: SortedBulletins}, { search: string, category: ProviderCategories, data: BulletinData[] }> {
-    constructor(props: {data: SortedBulletins}) {
+
+interface BulletinListProps {
+    data: SortedBulletins;
+    selected: ProviderCategories;
+    setSelected: (selected: ProviderCategories) => void;
+}
+
+class BulletinList extends React.Component<BulletinListProps, { search: string, category: ProviderCategories, data: BulletinData[] }> {
+    providerMapToEnum : Map<string, ProviderCategories>;
+    providerMapFromEnum : Map<ProviderCategories, string>;
+    constructor(props: BulletinListProps) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleSelector = this.handleSelector.bind(this);
-        this.state = { search: "", category: ProviderCategories.All, data: this.props.data.all}
+        this.state = { search: "", category: props.selected, data: this.props.data.all}
+        this.providerMapToEnum = new Map<string, ProviderCategories>();
+        this.providerMapToEnum.set("vse", ProviderCategories.All);
+        this.providerMapToEnum.set("obce", ProviderCategories.City);
+        this.providerMapToEnum.set("casti", ProviderCategories.CityPart);
+        this.providerMapToEnum.set("kraje", ProviderCategories.Region);
+        this.providerMapToEnum.set("stat", ProviderCategories.Government);
+        this.providerMapToEnum.set("ostatni", ProviderCategories.Other);
+
+        this.providerMapFromEnum = new Map<ProviderCategories, string>();
+        this.providerMapFromEnum.set(ProviderCategories.All, "vse");
+        this.providerMapFromEnum.set(ProviderCategories.City, "obce");
+        this.providerMapFromEnum.set(ProviderCategories.CityPart, "casti");
+        this.providerMapFromEnum.set(ProviderCategories.Region, "kraje");
+        this.providerMapFromEnum.set(ProviderCategories.Government, "stat");
+        this.providerMapFromEnum.set(ProviderCategories.Other, "ostatni");
     }
     handleSelector(selected: string) {
-        var newCategory = ProviderCategories.All;
-        var displayedData = this.props.data.all;
-        switch (selected) {
-            case "obce":
-                newCategory = ProviderCategories.City;
-                displayedData = this.props.data.cities;
-                break;
-            case "casti":
-                newCategory = ProviderCategories.CityPart;
-                displayedData = this.props.data.cityParts;
-                break;
-            case "kraje":
-                newCategory = ProviderCategories.Region;
-                displayedData = this.props.data.regions;
-                break;
-            case "stat":
-                newCategory = ProviderCategories.Government;
-                displayedData = this.props.data.government;
-                break;
-            case "ostatni":
-                newCategory = ProviderCategories.Other;
-                displayedData = this.props.data.other;
-                break;  
-        }
+        var selectedCategory = this.providerMapToEnum.get(selected);
+        var newCategory = selectedCategory ? selectedCategory : ProviderCategories.All;
+        var displayedData = this.getSellectedBulletins(newCategory);
+        this.props.setSelected(newCategory);
         this.setState({category: newCategory, data: displayedData});
     }
     handleSubmit(event: any) {
@@ -211,8 +216,8 @@ class BulletinList extends React.Component<{data: SortedBulletins}, { search: st
     handleChange(event: any) {
 
     }
-    getSellectedBulletins(): BulletinData[] {
-        switch(this.state.category) {
+    getSellectedBulletins(category: ProviderCategories): BulletinData[] {
+        switch(category) {
             case ProviderCategories.All:
                 return this.props.data.all;
             case ProviderCategories.City:
@@ -228,13 +233,14 @@ class BulletinList extends React.Component<{data: SortedBulletins}, { search: st
         }
     }
     render() {
-        var bulletinData = this.getSellectedBulletins();
+        var bulletinData = this.getSellectedBulletins(this.state.category);
         const bulletins = bulletinData.map((bul) => (<Bulletin key={bul.source + Math.random().toString()} data={bul}/>))
         var message = bulletins.length == 0 ? "Načítá se..." : `Zobrazeno desek v kategorii: ${bulletins.length}`;
+        var selected = this.providerMapFromEnum.get(this.state.category);
         return (
             <div>
                 <h2>Úřední desky</h2>
-                <ProviderTypeSelector callback={this.handleSelector} />
+                <ProviderTypeSelector firstSelected={selected? selected : "vse"} callback={this.handleSelector} />
                 <form onSubmit={this.handleSubmit}>
                     <label htmlFor="finder">Vyhledávání desky:</label>
                     <input type="text" id="finder" onChange={this.handleChange}/>
@@ -247,4 +253,4 @@ class BulletinList extends React.Component<{data: SortedBulletins}, { search: st
     }
 }
 
-export { BulletinList, InfoList };
+export { BulletinList, InfoList, ProviderCategories };
