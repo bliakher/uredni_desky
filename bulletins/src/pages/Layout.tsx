@@ -1,10 +1,32 @@
 import React from 'react';
 import { Outlet, Link } from "react-router-dom";
+import Navbar from 'react-bootstrap/Navbar';
+import { Container, Nav } from 'react-bootstrap';
+import logo from '../logo.png'
 
 const Layout = () => {
     return (
         <>
-            <nav>
+            <Navbar bg="light" expand="lg">
+                <Container>
+                <Navbar.Brand href="#">
+                    <img alt="logo" src={logo} width="30" height="30" className="d-inline-block align-top" />{' '}
+                    Úřední desky
+                </Navbar.Brand>
+                    <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                    <Navbar.Collapse id="basic-navbar-nav">
+                    <Nav className="me-auto">
+                        <Nav.Link href="#">Domů</Nav.Link>
+                        <Nav.Link href="#/seznam">Seznam</Nav.Link>
+                        <Nav.Link href="#/validace">Validace</Nav.Link>
+                        {/* <Link to="">Domů</Link>
+                        <Link to="seznam">Seznam</Link>
+                        <Link to="validace">Validace</Link> */}
+                    </Nav>
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
+            {/* <nav>
                     <div>
                         <Link to="">Domů</Link>
                     </div>
@@ -14,8 +36,7 @@ const Layout = () => {
                     <div>
                         <Link to="validace">Validace</Link>
                     </div>
-            </nav>
-             {/* <Outlet /> */}
+            </nav> */}
         </>
     );
 }

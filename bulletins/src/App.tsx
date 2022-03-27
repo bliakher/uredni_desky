@@ -9,6 +9,7 @@ import Home from './pages/Home';
 import NoPage from './pages/NoPage';
 import { Validation, ValidationDetail } from './pages/Validation';
 import { BulletinDetail } from './pages/Detail';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 class App extends React.Component<{}, {data: SortedBulletins, selectedProvider: ProviderCategories}> {
   datasets: Datasets;

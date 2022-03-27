@@ -48,5 +48,25 @@ const OutletWithQueryParam = (param: string, element: ComponentClass<{param: str
     return React.createElement(element, {param: paramValue} );
 }
 
+// type A<X extends 1 | 2> = ({ 1: number, 2: string })[X];
+// type ttt = A<1>;
+
+// type Maybe2<T> = {
+//   hasValue: boolean;
+// } | T;
+
+// type Maybe<T> = {
+//   hasValue: true;
+//   value: T;
+// } | {
+//   hasValue: false;
+// };
+
+// var m: Maybe<Date> = {} as any;
+
+// if (m.hasValue) {
+//   m.value;
+// }
+
 export type { SelectorOptions, SelectorChangeCallback };
 export { RadioSelector };

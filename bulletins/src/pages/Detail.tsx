@@ -1,8 +1,13 @@
 import React from 'react';
 import { useLocation } from 'react-router';
-import { BulletinData, getBulletinByIri } from '../model/dataset';
-import { InfoList } from './List';
+import { BulletinData, getBulletinByIri, InfoRecord } from '../model/dataset';
 import { fetchOrganizationNameByIco } from '../model/query';
+import znak from '../statni_znak.png';
+import Card from 'react-bootstrap/Card';
+import Button from 'react-bootstrap/Button';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Stack from 'react-bootstrap/Stack'
 
 const BulletinDetail = () => {
     var params = new URLSearchParams(useLocation().search);
@@ -41,10 +46,19 @@ class BulletinDetailComplete extends React.Component<{iri: string}, {loaded: boo
                 var infoRecords = this.data.getInfoRecords();
                 return ( 
                     <>
-                        <h3>{this.data.name}</h3>
-                        <p>Poskytovatel dat: {this.data.provider}</p>
-                        { this.state.ownerName != null && <p>Provozovatel: {this.state.ownerName}</p>}
-                        <InfoList data={ infoRecords? infoRecords : []} />
+                        <Container>
+                            <div className="text-center">
+                                <img alt="logo" src={znak} width="50" height="60" className="d-inline-block align-top" />
+                            </div>
+                            <div className="text-center justify-content-md-center">
+                                <h3>{this.data.name}</h3>
+                            </div>
+                        
+                            {/* <p>Poskytovatel dat: {this.data.provider}</p>
+                            { this.state.ownerName != null && <p>Provozovatel: {this.state.ownerName}</p>} */}
+                            <InfoCards data={ infoRecords? infoRecords : []} />
+                        </Container>
+
                     </>);
                 
             } else {
@@ -56,5 +70,97 @@ class BulletinDetailComplete extends React.Component<{iri: string}, {loaded: boo
     }
 }
 
+class InfoCards extends React.Component<{ data: Array<InfoRecord>}, {infoDisplayed: number}> {
+    INFO_QUANTUM = 10; // number of infos loaded on one load
+    constructor(props: { data: Array<InfoRecord>}) {
+        super(props);
+        this.state = {
+            infoDisplayed: this.props.data.length >= this.INFO_QUANTUM ? this.INFO_QUANTUM : this.props.data.length,
+        };
+        this.handleShowMore = this.handleShowMore.bind(this);
+        this.handleShowAll = this.handleShowAll.bind(this);
+    }
+    handleShowMore() {
+        var infoCount = this.props.data.length;
+        var displayed = this.state.infoDisplayed
+        if ( displayed + this.INFO_QUANTUM <= infoCount) {
+            displayed += this.INFO_QUANTUM;
+        } else {
+            displayed += (infoCount - displayed);
+        }
+        this.setState({infoDisplayed: displayed});
+    }
+    handleShowAll() {
+        var infoCount = this.props.data.length;
+        this.setState({infoDisplayed: infoCount});
+    }  
+    render() {
+        var infoRecords = this.props.data;
+        return (
+            <>
+                <Container>
+                    <Row lg={4} md={2} sm={1}>
+                        {infoRecords.slice(0, this.state.infoDisplayed).map(record => (<InfoCard data={record} key={record.getName() || undefined} />))}
+                    </Row>
+                    <Stack className="text-center justify-content-md-center">
+                        <div>
+                            <p>Zobrazeno: {this.state.infoDisplayed} z {infoRecords.length}</p>
+                        </div>
+                        <Stack direction="horizontal" className="text-center justify-content-md-center">
+                            <div>
+                                { this.state.infoDisplayed !== infoRecords.length && 
+                                    <Button variant="light" onClick={this.handleShowMore}>Zobrazit další</Button>}
+                            </div>
+                            <div>
+                                { this.state.infoDisplayed !== infoRecords.length && 
+                                    <Button variant="light" onClick={this.handleShowAll}>Zobrazit vše</Button>}
+                            </div>
+                        </Stack>
+                    </Stack>
+                </Container>
+                
+            </>
+        );
+    }
+}
+
+class InfoCard extends React.Component<{data: InfoRecord}> {
+    constructor(props: {data: InfoRecord}) {
+        super(props);
+    }
+    render() {
+        var info = this.props.data;
+        var name = info.getName()? info.getName() : "'Informace na úřední desce'";
+        var url = info.getUrl();
+        var issued = info.getDateIssued();
+        var issuedStr = issued ? issued.to_string() : "Údaj chybí";
+        var validTo = info.getDateValidTo();
+        var validToStr = validTo ? validTo.to_string() : "Údaj chybí";
+        return (
+            <>
+                {/* <div>
+                    <span>
+                        <h4>{name}</h4>
+                        {url && <a href={url} target="_blank" rel="noreferrer">odkaz</a>}
+                    </span>
+                    {issued && <p>Datum vyvěšení: {issuedStr}</p>}
+                    {validTo && <p>Relevantní do: {validToStr}</p>}
+                </div> */}
+
+                <Card style={{ width: '18rem' }}>
+                    <Card.Body>
+                        <Card.Title>{name}</Card.Title>
+                        {/* <Card.Subtitle className="mb-2 text-muted">Card Subtitle</Card.Subtitle> */}
+                        <Card.Text>
+                            {issued && ("Datum vyvěšení: " + issuedStr + '\n')}
+                            {validTo && ("Relevantní do: " + validToStr)}
+                        </Card.Text>
+                        {url && <Button variant="light"><a href={url} target="_blank" rel="noreferrer">Dokument</a></Button>}
+                    </Card.Body>
+                </Card>
+            </>
+        );
+    }
+}
 
 export { BulletinDetail };
