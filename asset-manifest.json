@@ -1,15 +1,17 @@
 {
   "files": {
-    "main.css": "/uredni_desky/static/css/main.8cb04ce6.css",
-    "main.js": "/uredni_desky/static/js/main.440bef90.js",
+    "main.css": "/uredni_desky/static/css/main.5cc7619e.css",
+    "main.js": "/uredni_desky/static/js/main.5330e0a6.js",
     "static/js/787.e83a1db5.chunk.js": "/uredni_desky/static/js/787.e83a1db5.chunk.js",
+    "static/media/statni_znak.png": "/uredni_desky/static/media/statni_znak.384f633a344823a40816.png",
+    "static/media/logo.png": "/uredni_desky/static/media/logo.cd62486f9ea128bf04af.png",
     "index.html": "/uredni_desky/index.html",
-    "main.8cb04ce6.css.map": "/uredni_desky/static/css/main.8cb04ce6.css.map",
-    "main.440bef90.js.map": "/uredni_desky/static/js/main.440bef90.js.map",
+    "main.5cc7619e.css.map": "/uredni_desky/static/css/main.5cc7619e.css.map",
+    "main.5330e0a6.js.map": "/uredni_desky/static/js/main.5330e0a6.js.map",
     "787.e83a1db5.chunk.js.map": "/uredni_desky/static/js/787.e83a1db5.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.8cb04ce6.css",
-    "static/js/main.440bef90.js"
+    "static/css/main.5cc7619e.css",
+    "static/js/main.5330e0a6.js"
   ]
 }
