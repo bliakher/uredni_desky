@@ -54,8 +54,8 @@ class BulletinDetailComplete extends React.Component<{iri: string}, {loaded: boo
                                 <h3>{this.data.name}</h3>
                             </div>
                         
-                            {/* <p>Poskytovatel dat: {this.data.provider}</p>
-                            { this.state.ownerName != null && <p>Provozovatel: {this.state.ownerName}</p>} */}
+                            <p>Poskytovatel dat: {this.data.provider}</p>
+                            { this.state.ownerName != null && <p>Provozovatel: {this.state.ownerName}</p>}
                             <InfoCards data={ infoRecords? infoRecords : []} />
                         </Container>
 
@@ -99,7 +99,7 @@ class InfoCards extends React.Component<{ data: Array<InfoRecord>}, {infoDisplay
         return (
             <>
                 <Container>
-                    <Row lg={4} md={2} sm={1}>
+                    <Row  /*md={2} sm={1}*/ className="text-center justify-content-md-center">
                         {infoRecords.slice(0, this.state.infoDisplayed).map(record => (<InfoCard data={record} key={record.getName() || undefined} />))}
                     </Row>
                     <Stack className="text-center justify-content-md-center">
@@ -148,6 +148,7 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
                 </div> */}
 
                 <Card style={{ width: '18rem' }}>
+                    {/* <Card.Header>{name}</Card.Header> */}
                     <Card.Body>
                         <Card.Title>{name}</Card.Title>
                         {/* <Card.Subtitle className="mb-2 text-muted">Card Subtitle</Card.Subtitle> */}
@@ -155,7 +156,9 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
                             {issued && ("Datum vyvěšení: " + issuedStr + '\n')}
                             {validTo && ("Relevantní do: " + validToStr)}
                         </Card.Text>
-                        {url && <Button variant="light"><a href={url} target="_blank" rel="noreferrer">Dokument</a></Button>}
+                        {url && <Button variant="light" /*className="position-absolute bottom-0"*/>
+                                    <a href={url} target="_blank" rel="noreferrer">Dokument</a>
+                                </Button>}
                     </Card.Body>
                 </Card>
             </>
