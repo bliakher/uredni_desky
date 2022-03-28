@@ -1,5 +1,6 @@
 import React, { ComponentClass, ReactComponentElement } from 'react';
 import { useLocation } from "react-router-dom";
+import Spinner from 'react-bootstrap/Spinner';
 
 
 type SelectorChangeCallback = (selected: string) => void;
@@ -41,6 +42,13 @@ class RadioSelector extends React.Component<SelectorOptions> {
     }
 }
 
+const Loader = () => {
+    return (
+        <div>
+            <Spinner animation="grow" size="sm" /> Načítá se...
+        </div>);
+}
+
 const OutletWithQueryParam = (param: string, element: ComponentClass<{param: string}, any>) => {
     var params = new URLSearchParams(useLocation().search);
     var paramValueOrNull = params.get(param);
@@ -69,4 +77,4 @@ const OutletWithQueryParam = (param: string, element: ComponentClass<{param: str
 // }
 
 export type { SelectorOptions, SelectorChangeCallback };
-export { RadioSelector };
+export { RadioSelector, Loader };

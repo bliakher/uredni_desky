@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BulletinData, InfoRecord, SortedBulletins } from '../model/dataset';
-import { SelectorOptions, SelectorChangeCallback, RadioSelector } from '../Utils';
+import { SelectorOptions, SelectorChangeCallback, RadioSelector, Loader } from '../Utils';
 import { BsLink45Deg as LinkIcon } from 'react-icons/bs';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
@@ -43,7 +43,7 @@ class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean, 
         return (<InfoList data={infoRecords? infoRecords : []} />);
     }
     renderLoading() {
-        return (<p>Načítá se...</p>);
+        return (<Loader />);
     }
 
     render() {

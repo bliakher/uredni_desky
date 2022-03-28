@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router';
 import { BulletinData, getBulletinByIri, InfoRecord } from '../model/dataset';
 import { fetchOrganizationNameByIco } from '../model/query';
+import { Loader } from '../Utils';
 import znak from '../statni_znak.png';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
@@ -65,7 +66,7 @@ class BulletinDetailComplete extends React.Component<{iri: string}, {loaded: boo
                 return (<p>Chyba: Nevalidní iri datasetu - nelze načíst.</p>)
             }
         } else {
-            return (<p>Načítá se...</p>);
+            return (<Loader />);
         }
     }
 }
