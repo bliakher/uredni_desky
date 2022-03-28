@@ -2,6 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { BulletinData, InfoRecord, SortedBulletins } from '../model/dataset';
 import { SelectorOptions, SelectorChangeCallback, RadioSelector } from '../Utils';
+import { BsLink45Deg as LinkIcon } from 'react-icons/bs';
+import Card from 'react-bootstrap/Card';
+import Button from 'react-bootstrap/Button';
 
 
 class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean, loaded: boolean}> {
@@ -57,19 +60,35 @@ class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean, 
             insides = this.renderLoading();
         }
         return (
-            <div className="bulletin">
-                <span>
-                    <h3>{bulletin.provider}</h3>
-                    <a href={linkToDataset} target="_blank" rel="noreferrer">odkaz</a>
-                    <Link to={"detail?iri=" + bulletin.iri}>detail</Link>
-                </span>
-                <h4>{bulletin.name}</h4>
-                <button onClick={this.handleClick}>
-                    {this.state.opened ? '^' : 'v'}
-                </button>
-                {this.state.opened && insides}
-            </div>
-        );
+            <>
+                {/* <div className="bulletin">
+                    <span>
+                        <h3>{bulletin.provider}</h3>
+                        <a href={linkToDataset} target="_blank" rel="noreferrer">odkaz</a>
+                        <Link to={"detail?iri=" + bulletin.iri}>detail</Link>
+                    </span>
+                    <h4>{bulletin.name}</h4>
+                    <button onClick={this.handleClick}>
+                        {this.state.opened ? '^' : 'v'}
+                    </button>
+                    {this.state.opened && insides}
+                </div> */}
+
+                <Card>
+                    <Card.Header as="h3">
+                        {bulletin.provider}
+                        <a href={linkToDataset} target="_blank" rel="noreferrer"><LinkIcon/></a>
+                    </Card.Header>
+                    <Card.Body>
+                        <Card.Title>{bulletin.name}</Card.Title>
+                        {/* <Card.Text>
+                            With supporting text below as a natural lead-in to additional content.
+                        </Card.Text> */}
+                        <Button href={"#/seznam/detail?iri=" + bulletin.iri} variant="primary">Detail</Button>
+                    </Card.Body>
+                </Card>
+            </>
+                    );
     }
 }
 
