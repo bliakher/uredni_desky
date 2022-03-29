@@ -67,7 +67,7 @@ function renderHeader(provider: string, bulletinName: string, iri: string) {
             <h2>Validace úřední desky</h2>
             <h3>
                 {bulletinName} 
-                <Link to={"/seznam/detail?iri=" + iri} >detail</Link>
+                <Link to={"/detail?iri=" + iri} >detail</Link>
             </h3>
             <p>Poskytovatel: {provider}</p>
         </>

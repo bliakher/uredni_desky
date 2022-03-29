@@ -2,9 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { BulletinData, InfoRecord, SortedBulletins } from '../model/dataset';
 import { SelectorOptions, SelectorChangeCallback, RadioSelector, Loader } from '../Utils';
-import { BsLink45Deg as LinkIcon } from 'react-icons/bs';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
 
 
 class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean, loaded: boolean}> {
@@ -75,16 +76,13 @@ class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean, 
                 </div> */}
 
                 <Card>
-                    <Card.Header as="h3">
+                    <Card.Header as="h5">
                         {bulletin.provider}
-                        <a href={linkToDataset} target="_blank" rel="noreferrer"><LinkIcon/></a>
                     </Card.Header>
                     <Card.Body>
-                        <Card.Title>{bulletin.name}</Card.Title>
-                        {/* <Card.Text>
-                            With supporting text below as a natural lead-in to additional content.
-                        </Card.Text> */}
-                        <Button href={"#/seznam/detail?iri=" + bulletin.iri} variant="primary">Detail</Button>
+                        <Card.Title as="h4">{bulletin.name}</Card.Title>
+                        <Button href={"#/detail?iri=" + bulletin.iri} variant="outline-primary">Zobrazit informace</Button>
+                        <Button href={linkToDataset} variant="outline-primary">Dataset v NKOD</Button>
                     </Card.Body>
                 </Card>
             </>

@@ -37,15 +37,13 @@ class App extends React.Component<{}, {data: SortedBulletins, selectedProvider: 
         <HashRouter>
           <Layout/>
           <Routes>
-              <Route index element={ <Home /> } />
-              <Route path="seznam" >
-                <Route index element={ <BulletinList data={datasets} selected={this.state.selectedProvider} setSelected={this.setSelectedProviderType} /> } />
-                <Route path="detail" element={ <BulletinDetail /> } />
-              </Route>
+              <Route index element={ <BulletinList data={datasets} selected={this.state.selectedProvider} setSelected={this.setSelectedProviderType} /> } />
+              <Route path="detail" element={ <BulletinDetail /> } />
               <Route path="validace">
                 <Route index element={ <Validation data={datasets.all} /> } />
                 <Route path="detail" element={ <ValidationDetail /> }/>
               </Route>
+              <Route path="about" element={ <Home /> } />
               <Route path="*" element={ <NoPage /> } />
           </Routes>
         </HashRouter>
