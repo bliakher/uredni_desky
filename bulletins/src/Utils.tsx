@@ -45,7 +45,7 @@ class RadioSelector extends React.Component<SelectorOptions> {
 const Loader = () => {
     return (
         <div>
-            <Spinner animation="grow" size="sm" /> Načítá se...
+            <Spinner animation="grow" size="sm" role="status"/> Načítá se...
         </div>);
 }
 
