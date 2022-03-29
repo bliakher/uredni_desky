@@ -75,7 +75,7 @@ class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean, 
                     {this.state.opened && insides}
                 </div> */}
 
-                <Card>
+                <Card style={{ width: '30rem' }}>
                     <Card.Header as="h5">
                         {bulletin.provider}
                     </Card.Header>
@@ -264,7 +264,12 @@ class BulletinList extends React.Component<BulletinListProps, { search: string, 
                     <input type="submit" value="Najít"/>
                 </form>
                 <p>{message}</p>
-                { bulletins }
+                <Container>
+                    <Row className="justify-content-md-center">
+                        { bulletins }
+                    </Row>
+                </Container>
+                
             </div>
         );
     }
