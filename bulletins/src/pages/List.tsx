@@ -174,4 +174,4 @@ class BulletinList extends React.Component<BulletinListProps, { search: string, 
     }
 }
 
-export { BulletinList, InfoList, ProviderCategories };
+export { BulletinList, ProviderCategories };

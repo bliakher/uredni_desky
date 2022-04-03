@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router';
-import { BulletinData, getBulletinByIri, InfoRecord } from '../model/dataset';
+import { BulletinData, getBulletinByIri, InfoRecord, TimeMoment } from '../model/dataset';
 import { fetchOrganizationNameByIco } from '../model/query';
 import { Loader } from '../Utils';
 import znak from '../statni_znak.png';
@@ -9,6 +9,7 @@ import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Stack from 'react-bootstrap/Stack'
+import { info } from 'console';
 
 const BulletinDetail = () => {
     var params = new URLSearchParams(useLocation().search);
@@ -97,6 +98,8 @@ class InfoCards extends React.Component<{ data: Array<InfoRecord>}, {infoDisplay
     }  
     render() {
         var infoRecords = this.props.data;
+        infoRecords.sort(InfoRecord.compare); // sort by date issued
+        infoRecords.reverse(); // reverse so the newest show first
         return (
             <>
                 <Container>
@@ -158,7 +161,7 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
                             {validTo && ("Relevantní do: " + validToStr)}
                         </Card.Text>
                         {url && <Button variant="light" /*className="position-absolute bottom-0"*/>
-                                    <a href={url} target="_blank" rel="noreferrer">Dokument</a>
+                                    <a href={url} target="_blank" rel="noreferrer">Informace</a>
                                 </Button>}
                     </Card.Body>
                 </Card>

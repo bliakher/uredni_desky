@@ -161,10 +161,25 @@ class TimeMoment {
         }
     }
     to_string(): string {
-        if (this.specified && this.date != null) {
+        if (this.specified && this.date !== null) {
             return this.date.toLocaleDateString('cs-CZ');
         }
         return "nespecifikováno";
+    }
+    static compare(a: TimeMoment, b:TimeMoment): number {
+        if (a.date === null && b.date === null) {
+            return 0;
+        } else if (a.date === null) {
+            return -1;
+        } else if (b.date === null) {
+            return 1;
+        } else if (a.date === b.date) {
+            return 0;
+        } else if (a.date > b.date) {
+            return 1;
+        } else {
+            return -1;
+        }
     }
 }
 
@@ -177,6 +192,12 @@ class InfoRecord {
     constructor(info: any) {
         this.data = info;
     }
+    static compare(a: InfoRecord, b: InfoRecord) : number {
+        var aDate = a.getDateIssued() ?? new TimeMoment(null);
+        var bDate = b.getDateIssued() ?? new TimeMoment(null);
+        return TimeMoment.compare(aDate, bDate);
+    }
+
     private hasProperty(propertyName: string): boolean {
         return this.data.hasOwnProperty(propertyName);
     }
@@ -186,7 +207,7 @@ class InfoRecord {
         }
         return false;
     }
-    private getDate(dateProperty: string): TimeMoment | false { // ToDo: add nespecifikovany
+    private getDate(dateProperty: string): TimeMoment | null {
         var dateObj = this.getProperty(dateProperty);
         if (dateObj) {
             if (dateObj.hasOwnProperty("nespecifikovaný") && dateObj["nespecifikovaný"] == true) {
@@ -197,7 +218,7 @@ class InfoRecord {
             }
             return new TimeMoment(new Date(dateObj["datum"]));
         }
-        return false;
+        return null;
     }
     getName(): string | false {
         const nameProp = "název";
@@ -210,10 +231,10 @@ class InfoRecord {
     getUrl(): string | false {
         return this.getProperty("url");
     }
-    getDateIssued(): TimeMoment | false {
+    getDateIssued(): TimeMoment | null {
         return this.getDate("vyvěšení");
     }
-    getDateValidTo(): TimeMoment | false {
+    getDateValidTo(): TimeMoment | null {
         return this.getDate("relevantní_do");
     }
     // returns array of missing recommended properties
@@ -336,4 +357,4 @@ async function getBulletinByIri(iri: string): Promise<BulletinData | null> {
 }
 
 export type { SortedBulletins, MissingProperties };
-export { Datasets, BulletinData, InfoRecord, getBulletinByIri };
+export { Datasets, BulletinData, InfoRecord, TimeMoment, getBulletinByIri };
