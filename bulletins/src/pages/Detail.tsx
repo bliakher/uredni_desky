@@ -10,6 +10,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Stack from 'react-bootstrap/Stack'
 import { info } from 'console';
+import { ListGroup, ListGroupItem } from 'react-bootstrap';
 
 const BulletinDetail = () => {
     var params = new URLSearchParams(useLocation().search);
@@ -140,6 +141,7 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
         var issuedStr = issued ? issued.to_string() : "Údaj chybí";
         var validTo = info.getDateValidTo();
         var validToStr = validTo ? validTo.to_string() : "Údaj chybí";
+        var documents = info.getDocuments().filter(document => document.getUrl() !== null); // take only documents with url
         return (
             <>
                 {/* <div>
@@ -160,10 +162,25 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
                             {issued && ("Datum vyvěšení: " + issuedStr + '\n')}
                             {validTo && ("Relevantní do: " + validToStr)}
                         </Card.Text>
-                        {url && <Button variant="light" /*className="position-absolute bottom-0"*/>
-                                    <a href={url} target="_blank" rel="noreferrer">Informace</a>
+                    </Card.Body>
+                    <Card.Body>
+                        {documents.length > 0 && 
+                            <ListGroup className="list-group-flush">
+                                <ListGroupItem>Přílohy</ListGroupItem>
+                                {documents.map(document => (
+                                    <ListGroupItem key={document.getUrl() ?? ""}>
+                                        <Button href={document.getUrl() ?? ""} target="_blank" rel="noreferrer" variant="light">Dokument</Button>
+                                    </ListGroupItem>
+                                ))}
+                            </ListGroup>
+                        }
+                    </Card.Body>
+                    <Card.Body>
+                        {url && <Button href={url} target="_blank" rel="noreferrer" variant="outline-primary" /*className="position-absolute bottom-0"*/>
+                                    Informace
                                 </Button>}
                     </Card.Body>
+                    
                 </Card>
             </>
         );

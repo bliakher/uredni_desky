@@ -1,3 +1,4 @@
+import { url } from "inspector";
 import  { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri }  from "./query";
 
 
@@ -142,10 +143,28 @@ class BulletinData {
     }
 }
 
-interface Document {
-    typ: string;
-    název: {cs: string}
-    url: string;
+class Document {
+    data: any;
+    constructor (documentObj: any) {
+        this.data = documentObj
+    }
+    private hasProperty(propertyName: string): boolean {
+        return this.data.hasOwnProperty(propertyName);
+    }
+    private getProperty(propertyName: string): any | null {
+        if (this.hasProperty(propertyName)) {
+            return this.data[propertyName];
+        }
+        return null;
+    }
+    getName() : string | null {
+        var nameObj = this.getProperty("název");
+        return nameObj?.cs ?? null;
+    }
+    getUrl(): string | null {
+        var url = this.getProperty("url");
+        return url;
+    }
 }
 
 class TimeMoment {
@@ -201,11 +220,11 @@ class InfoRecord {
     private hasProperty(propertyName: string): boolean {
         return this.data.hasOwnProperty(propertyName);
     }
-    private getProperty(propertyName: string): any | false {
+    private getProperty(propertyName: string): any | null {
         if (this.hasProperty(propertyName)) {
             return this.data[propertyName];
         }
-        return false;
+        return null;
     }
     private getDate(dateProperty: string): TimeMoment | null {
         var dateObj = this.getProperty(dateProperty);
@@ -236,6 +255,13 @@ class InfoRecord {
     }
     getDateValidTo(): TimeMoment | null {
         return this.getDate("relevantní_do");
+    }
+    private getDocumentObjects(): Array<any> {
+        return this.getProperty("dokument") ?? [];
+    }
+    getDocuments(): Array<Document> {
+        var documents: Array<any> = this.getDocumentObjects();
+        return documents.map((document) => new Document(document));
     }
     // returns array of missing recommended properties
     getMissingRecommendedProperties(): Array<string> {

@@ -39,8 +39,12 @@ class Bulletin extends React.Component<{ data: BulletinData}> {
                     </Card.Header>
                     <Card.Body>
                         <Card.Title as="h4">{bulletin.name}</Card.Title>
-                        <Button href={"#/detail?iri=" + bulletin.iri} variant="outline-primary">Zobrazit informace</Button>
-                        <Button href={linkToDataset} variant="outline-primary">Dataset v NKOD</Button>
+                        <Button href={"#/detail?iri=" + bulletin.iri} variant="outline-primary">
+                            Zobrazit informace
+                        </Button>
+                        <Button href={linkToDataset} target="_blank" rel="noreferrer" variant="outline-primary">
+                            Dataset v NKOD
+                        </Button>
                     </Card.Body>
                 </Card>
             </>
