@@ -8,58 +8,16 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 
 
-class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean, loaded: boolean}> {
+class Bulletin extends React.Component<{ data: BulletinData}> {
     constructor(props: { data: BulletinData}) {
         super(props);
-        this.state = {
-            opened: false,
-            loaded: false,
-        };
-        this.handleClick = this.handleClick.bind(this);
     }
 
-    async componentDidMount() {
-        
-    }
     
-    async handleClick() {
-        this.setState(prevState => ({opened: !prevState.opened}));
-        if (!this.state.loaded) {
-            await this.props.data.fetchDistribution();
-            this.setState({loaded: true});
-        }
-    }
-
-    renderErrorElement() {
-        return (
-            <div>
-                <p>Problém při načítání</p>
-                {/* <p>{this.props.data.loadError}</p> */}
-            </div>
-        );
-    }
-    renderInfo() {
-        var bulletin = this.props.data; 
-        var infoRecords = bulletin.getInfoRecords();
-        return (<InfoList data={infoRecords? infoRecords : []} />);
-    }
-    renderLoading() {
-        return (<Loader />);
-    }
-
     render() {
         var bulletin = this.props.data; // BulletinData
         var linkToDataset = "https://data.gov.cz/datová-sada?iri=" + bulletin.iri;
         var insides;
-        if( this.state.loaded ) {
-            if (bulletin.loadError == null) {
-                insides = this.renderInfo();
-            } else {
-                insides = this.renderErrorElement();
-            }
-        } else {
-            insides = this.renderLoading();
-        }
         return (
             <>
                 {/* <div className="bulletin">
@@ -90,67 +48,8 @@ class Bulletin extends React.Component<{ data: BulletinData}, {opened: boolean, 
     }
 }
 
-class InfoList extends React.Component<{ data: Array<InfoRecord>}, {infoDisplayed: number}> {
-    INFO_QUANTUM = 3; // number of infos loaded on one load
-    constructor(props: { data: Array<InfoRecord>}) {
-        super(props);
-        this.state = {
-            infoDisplayed: this.props.data.length >= this.INFO_QUANTUM ? this.INFO_QUANTUM : this.props.data.length,
-        };
-        this.handleClick = this.handleClick.bind(this);
-    }
-    handleClick() {
-        var infoCount = this.props.data.length;
-        var displayed = this.state.infoDisplayed
-        if ( displayed + this.INFO_QUANTUM <= infoCount) {
-            displayed += this.INFO_QUANTUM;
-        } else {
-            displayed += (infoCount - displayed);
-        }
-        this.setState({infoDisplayed: displayed});
-    }
-    render() {
-        var infoRecords = this.props.data;
-        return (
-            <>
-                <ul>
-                    {infoRecords.slice(0, this.state.infoDisplayed).map(record => (<li><BulletinInfo data={record} /></li>))}
-                </ul>
-                <p>Zobrazeno: {this.state.infoDisplayed} z {infoRecords.length}</p>
-                { this.state.infoDisplayed !== infoRecords.length && 
-                <button onClick={this.handleClick} >Zobrazit další</button>}
-            </>
-        );
-    }
-}
 
-class BulletinInfo extends React.Component<{data: InfoRecord}> {
-    constructor(props: {data: InfoRecord}) {
-        super(props);
-    }
-    render() {
-        var info = this.props.data;
-        var name = info.getName()? info.getName() : "'Informace na úřední desce'";
-        var url = info.getUrl();
-        var issued = info.getDateIssued();
-        var issuedStr = issued ? issued.to_string() : "Údaj chybí";
-        var validTo = info.getDateValidTo();
-        var validToStr = validTo ? validTo.to_string() : "Údaj chybí";
-        return (
-            <div>
-                <span>
-                    <h4>{name}</h4>
-                    {url && <a href={url} target="_blank" rel="noreferrer">odkaz</a>}
-                </span>
-                {issued && <p>Datum vyvěšení: {issuedStr}</p>}
-                {validTo && <p>Relevantní do: {validToStr}</p>}
-            </div>
 
-        );
-    }
-}
-
-// TODO: add first selected to props
 class ProviderTypeSelector extends React.Component<{firstSelected: string, callback: SelectorChangeCallback}> {
     selector: SelectorOptions;
     constructor(props: {firstSelected: string, callback: SelectorChangeCallback}) {
