@@ -6,7 +6,7 @@ import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
-
+import Badge from 'react-bootstrap/Badge';
 
 class Bulletin extends React.Component<{ data: BulletinData}> {
     constructor(props: { data: BulletinData}) {
@@ -19,21 +19,7 @@ class Bulletin extends React.Component<{ data: BulletinData}> {
         var linkToDataset = "https://data.gov.cz/datová-sada?iri=" + bulletin.iri;
         var insides;
         return (
-            <>
-                {/* <div className="bulletin">
-                    <span>
-                        <h3>{bulletin.provider}</h3>
-                        <a href={linkToDataset} target="_blank" rel="noreferrer">odkaz</a>
-                        <Link to={"detail?iri=" + bulletin.iri}>detail</Link>
-                    </span>
-                    <h4>{bulletin.name}</h4>
-                    <button onClick={this.handleClick}>
-                        {this.state.opened ? '^' : 'v'}
-                    </button>
-                    {this.state.opened && insides}
-                </div> */}
-
-                <Card style={{ width: '30rem' }}>
+                <Card /*style={{ width: '30rem' }}*/ >
                     <Card.Header as="h5">
                         {bulletin.provider}
                     </Card.Header>
@@ -47,8 +33,7 @@ class Bulletin extends React.Component<{ data: BulletinData}> {
                         </Button>
                     </Card.Body>
                 </Card>
-            </>
-                    );
+        );
     }
 }
 
@@ -158,22 +143,26 @@ class BulletinList extends React.Component<BulletinListProps, { search: string, 
         var message = bulletins.length == 0 ? "Načítá se..." : `Zobrazeno desek v kategorii: ${bulletins.length}`;
         var selected = this.providerMapFromEnum.get(this.state.category);
         return (
-            <div>
-                <h2>Úřední desky</h2>
-                <ProviderTypeSelector firstSelected={selected? selected : "vse"} callback={this.handleSelector} />
-                <form onSubmit={this.handleSubmit}>
-                    <label htmlFor="finder">Vyhledávání desky:</label>
-                    <input type="text" id="finder" onChange={this.handleChange}/>
-                    <input type="submit" value="Najít"/>
-                </form>
-                <p>{message}</p>
-                <Container>
-                    <Row className="justify-content-md-center">
+            // <div>
+                <Container fluid className="p-0">
+                    <Row>
+                        <h2>Úřední desky</h2>
+                    </Row>
+                    
+                    <ProviderTypeSelector firstSelected={selected? selected : "vse"} callback={this.handleSelector} />
+                    <form onSubmit={this.handleSubmit}>
+                        <label htmlFor="finder">Vyhledávání desky:</label>
+                        <input type="text" id="finder" onChange={this.handleChange}/>
+                        <input type="submit" value="Najít"/>
+                    </form>
+                    <p>{message}</p>
+                
+                    <Row lg={3} md={2} sm={1} className="justify-content-md-center">
                         { bulletins }
                     </Row>
                 </Container>
                 
-            </div>
+            // </div>
         );
     }
 }

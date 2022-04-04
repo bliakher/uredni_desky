@@ -10,7 +10,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Stack from 'react-bootstrap/Stack'
 import { info } from 'console';
-import { ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Col, ListGroup, ListGroupItem } from 'react-bootstrap';
 
 const BulletinDetail = () => {
     var params = new URLSearchParams(useLocation().search);
@@ -56,9 +56,20 @@ class BulletinDetailComplete extends React.Component<{iri: string}, {loaded: boo
                             <div className="text-center justify-content-md-center">
                                 <h3>{this.data.name}</h3>
                             </div>
-                        
-                            <p>Poskytovatel dat: {this.data.provider}</p>
-                            { this.state.ownerName != null && <p>Provozovatel: {this.state.ownerName}</p>}
+
+                            <Row>
+                                <Col md={{ span: 4, offset: 4 }}>
+                                    <ListGroup className="list-group-flush border border-secondary rounded">
+                                        <ListGroupItem>Poskytovatel dat: {this.data.provider}</ListGroupItem>
+                                        { this.state.ownerName != null &&
+                                        <ListGroupItem>
+                                            Provozovatel: {this.state.ownerName}
+                                        </ListGroupItem>}
+                                    </ListGroup>
+                                </Col>
+                            
+                            </Row>
+                            
                             <InfoCards data={ infoRecords? infoRecords : []} />
                         </Container>
 
@@ -103,9 +114,10 @@ class InfoCards extends React.Component<{ data: Array<InfoRecord>}, {infoDisplay
         infoRecords.reverse(); // reverse so the newest show first
         return (
             <>
-                <Container>
+                {/* <Container> */}
                     <Row  /*md={2} sm={1}*/ className="text-center justify-content-md-center">
-                        {infoRecords.slice(0, this.state.infoDisplayed).map(record => (<InfoCard data={record} key={record.getName() || undefined} />))}
+                        {infoRecords.slice(0, this.state.infoDisplayed).map(record => 
+                            (<InfoCard data={record} key={(record.getName() || "") + Math.random().toString()} />))}
                     </Row>
                     <Stack className="text-center justify-content-md-center">
                         <div>
@@ -122,7 +134,7 @@ class InfoCards extends React.Component<{ data: Array<InfoRecord>}, {infoDisplay
                             </div>
                         </Stack>
                     </Stack>
-                </Container>
+                {/* </Container> */}
                 
             </>
         );
