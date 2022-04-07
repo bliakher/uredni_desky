@@ -121,7 +121,7 @@ const Attachements = (props: {documents: Array<Document>}) => {
     if (props.documents.length == 1) {
         var document = props.documents[0];
         return (
-            <Button href={document.getUrl() ?? ""} target="_blank" rel="noreferrer" variant="light">Dokument</Button>
+            <Button href={document.getUrl() ?? ""} target="_blank" rel="noreferrer" variant="outline-primary" className="m-1">Dokument</Button>
         );
     }
     var counter = 0;
@@ -129,7 +129,7 @@ const Attachements = (props: {documents: Array<Document>}) => {
         <Row className="text-center justify-content-md-center">
             { props.documents.map( document => {
                 counter++;
-                return ( <Button href={document.getUrl() ?? ""} target="_blank" rel="noreferrer" variant="light" className="m-1 col-3">
+                return ( <Button href={document.getUrl() ?? ""} target="_blank" rel="noreferrer" variant="outline-primary" className="m-1 col-3">
                             {counter}
                         </Button> ); 
                 }) }
@@ -152,33 +152,28 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
         var documents = info.getDocuments().filter(document => document.getUrl() !== null); // take only documents with url
         return (
             <>
-                <Card style={{ width: '18rem' }}>
-                    {/* <Card.Header>{name}</Card.Header> */}
+                <Card style={{ width: '18rem' }} className="m-2">
                     <Card.Body>
                         <Card.Title>{name}</Card.Title>
-                        {/* <Card.Subtitle className="mb-2 text-muted">Card Subtitle</Card.Subtitle> */}
-                        <Card.Text>
-                            {issued && ("Datum vyvěšení: " + issuedStr + '\n')}
-                            {validTo && ("Relevantní do: " + validToStr)}
-                        </Card.Text>
                     </Card.Body>
                     <ListGroup className="list-group-flush">
+                        <ListGroupItem>
+                            <div>{"Datum vyvěšení: " + issuedStr}</div>
+                            <div>{"Relevantní do: " + validToStr}</div>
+                        </ListGroupItem>
                     {documents.length > 0 && (
                         <>
-                            <ListGroupItem>Přílohy</ListGroupItem>
                             <ListGroupItem>
+                                <h6>Přílohy:</h6>
                                 <Attachements documents={documents}/>
                             </ListGroupItem> 
                         </> )}
                         <ListGroupItem>
-                            {url && <Button href={url} target="_blank" rel="noreferrer" variant="outline-primary" >
+                            {url && <Button href={url} target="_blank" rel="noreferrer" variant="primary" >
                                         Informace
                                     </Button>}
                         </ListGroupItem>
                     </ListGroup>
-                    {/* <Card.Body> */}
-                        
-                    {/* </Card.Body> */}
                     
                 </Card>
             </>
