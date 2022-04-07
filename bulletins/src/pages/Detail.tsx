@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router';
 import { BulletinData, getBulletinByIri, InfoRecord, TimeMoment } from '../model/dataset';
 import { fetchOrganizationNameByIco } from '../model/query';
-import { Loader } from '../Utils';
+import { Loader, Paging } from '../Utils';
 import znak from '../statni_znak.png';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
@@ -91,51 +91,22 @@ class InfoCards extends React.Component<{ data: Array<InfoRecord>}, {infoDisplay
         this.state = {
             infoDisplayed: this.props.data.length >= this.INFO_QUANTUM ? this.INFO_QUANTUM : this.props.data.length,
         };
-        this.handleShowMore = this.handleShowMore.bind(this);
-        this.handleShowAll = this.handleShowAll.bind(this);
+        this.setDisplayedCount = this.setDisplayedCount.bind(this);
     }
-    handleShowMore() {
-        var infoCount = this.props.data.length;
-        var displayed = this.state.infoDisplayed
-        if ( displayed + this.INFO_QUANTUM <= infoCount) {
-            displayed += this.INFO_QUANTUM;
-        } else {
-            displayed += (infoCount - displayed);
-        }
-        this.setState({infoDisplayed: displayed});
+    setDisplayedCount(newCount: number): void {
+        this.setState( {infoDisplayed: newCount} );
     }
-    handleShowAll() {
-        var infoCount = this.props.data.length;
-        this.setState({infoDisplayed: infoCount});
-    }  
     render() {
         var infoRecords = this.props.data;
         infoRecords.sort(InfoRecord.compare); // sort by date issued
         infoRecords.reverse(); // reverse so the newest show first
         return (
             <>
-                {/* <Container> */}
-                    <Row  /*md={2} sm={1}*/ className="text-center justify-content-md-center">
+                    <Row className="text-center justify-content-md-center">
                         {infoRecords.slice(0, this.state.infoDisplayed).map(record => 
                             (<InfoCard data={record} key={(record.getName() || "") + Math.random().toString()} />))}
                     </Row>
-                    <Stack className="text-center justify-content-md-center">
-                        <div>
-                            <p>Zobrazeno: {this.state.infoDisplayed} z {infoRecords.length}</p>
-                        </div>
-                        <Stack direction="horizontal" className="text-center justify-content-md-center">
-                            <div>
-                                { this.state.infoDisplayed !== infoRecords.length && 
-                                    <Button variant="light" onClick={this.handleShowMore}>Zobrazit další</Button>}
-                            </div>
-                            <div>
-                                { this.state.infoDisplayed !== infoRecords.length && 
-                                    <Button variant="light" onClick={this.handleShowAll}>Zobrazit vše</Button>}
-                            </div>
-                        </Stack>
-                    </Stack>
-                {/* </Container> */}
-                
+                    <Paging totalCount={ infoRecords.length }  increment={ this.INFO_QUANTUM } setDisplayCount={ this.setDisplayedCount } />
             </>
         );
     }

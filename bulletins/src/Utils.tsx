@@ -1,6 +1,7 @@
 import React, { ComponentClass, ReactComponentElement } from 'react';
 import { useLocation } from "react-router-dom";
 import Spinner from 'react-bootstrap/Spinner';
+import { Button, Row, Stack } from 'react-bootstrap';
 
 
 type SelectorChangeCallback = (selected: string) => void;
@@ -35,7 +36,7 @@ class RadioSelector extends React.Component<SelectorOptions> {
                             {radio}
                             <label htmlFor={option.value}>{option.label}</label>
                         </div>
-                        )}
+                    )}
                 )}
             </div>
         );
@@ -44,9 +45,61 @@ class RadioSelector extends React.Component<SelectorOptions> {
 
 const Loader = () => {
     return (
-        <div>
+        <div className="text-center justify-content-md-center">
             <Spinner animation="grow" size="sm" role="status"/> Načítá se...
         </div>);
+}
+
+interface PagingProps {
+    increment: number;
+    totalCount: number;
+    setDisplayCount: (newCount: number) => void;
+}
+
+class Paging extends React.Component<PagingProps, {displayedCount: number}> {
+
+    constructor(props: PagingProps) {
+        super(props);
+        this.state = { displayedCount: props.increment <= props.totalCount ? props.increment : props.totalCount };
+        this.handleShowMore = this.handleShowMore.bind(this);
+        this.handleShowAll = this.handleShowAll.bind(this);
+    }
+
+    handleShowMore() {
+        var total = this.props.totalCount;
+        var displayed = this.state.displayedCount;
+        var increment = this.props.increment;
+        if ( displayed + increment <= total) {
+            displayed += increment;
+        } else {
+            displayed += (total - displayed);
+        }
+        this.setState({displayedCount: displayed});
+        this.props.setDisplayCount(displayed);
+    }
+    handleShowAll() {
+        this.setState({displayedCount: this.props.totalCount});
+        this.props.setDisplayCount(this.props.totalCount);
+    } 
+
+    render() {
+        return (
+            <Stack className="text-center justify-content-md-center">
+                <div>
+                    <p>Zobrazeno: {this.state.displayedCount} z {this.props.totalCount}</p>
+                </div>
+                { this.state.displayedCount !== this.props.totalCount && 
+                    <Stack direction="horizontal" className="text-center justify-content-md-center">
+                        <div>
+                                <Button variant="light" onClick={this.handleShowMore}>Zobrazit další</Button>
+                        </div>
+                        <div>
+                                <Button variant="light" onClick={this.handleShowAll}>Zobrazit vše</Button>
+                        </div>
+                    </Stack> }
+            </Stack> 
+        );
+    }
 }
 
 const OutletWithQueryParam = (param: string, element: ComponentClass<{param: string}, any>) => {
@@ -77,4 +130,4 @@ const OutletWithQueryParam = (param: string, element: ComponentClass<{param: str
 // }
 
 export type { SelectorOptions, SelectorChangeCallback };
-export { RadioSelector, Loader };
+export { RadioSelector, Loader, Paging };
