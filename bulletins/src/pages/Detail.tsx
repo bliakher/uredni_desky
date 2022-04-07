@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router';
-import { BulletinData, getBulletinByIri, InfoRecord, TimeMoment } from '../model/dataset';
+import { BulletinData, getBulletinByIri, InfoRecord, TimeMoment, Document } from '../model/dataset';
 import { fetchOrganizationNameByIco } from '../model/query';
 import { Loader, Paging } from '../Utils';
 import znak from '../statni_znak.png';
@@ -112,6 +112,31 @@ class InfoCards extends React.Component<{ data: Array<InfoRecord>}, {infoDisplay
     }
 }
 
+const Attachements = (props: {documents: Array<Document>}) => {
+    if (props.documents.length === 0) {
+        return (
+            <div></div>
+        );
+    }
+    if (props.documents.length == 1) {
+        var document = props.documents[0];
+        return (
+            <Button href={document.getUrl() ?? ""} target="_blank" rel="noreferrer" variant="light">Dokument</Button>
+        );
+    }
+    var counter = 0;
+    return (
+        <Row className="text-center justify-content-md-center">
+            { props.documents.map( document => {
+                counter++;
+                return ( <Button href={document.getUrl() ?? ""} target="_blank" rel="noreferrer" variant="light" className="m-1 col-3">
+                            {counter}
+                        </Button> ); 
+                }) }
+        </Row>
+    );
+}
+
 class InfoCard extends React.Component<{data: InfoRecord}> {
     constructor(props: {data: InfoRecord}) {
         super(props);
@@ -127,15 +152,6 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
         var documents = info.getDocuments().filter(document => document.getUrl() !== null); // take only documents with url
         return (
             <>
-                {/* <div>
-                    <span>
-                        <h4>{name}</h4>
-                        {url && <a href={url} target="_blank" rel="noreferrer">odkaz</a>}
-                    </span>
-                    {issued && <p>Datum vyvěšení: {issuedStr}</p>}
-                    {validTo && <p>Relevantní do: {validToStr}</p>}
-                </div> */}
-
                 <Card style={{ width: '18rem' }}>
                     {/* <Card.Header>{name}</Card.Header> */}
                     <Card.Body>
@@ -146,23 +162,23 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
                             {validTo && ("Relevantní do: " + validToStr)}
                         </Card.Text>
                     </Card.Body>
-                    <Card.Body>
-                        {documents.length > 0 && 
-                            <ListGroup className="list-group-flush">
-                                <ListGroupItem>Přílohy</ListGroupItem>
-                                {documents.map(document => (
-                                    <ListGroupItem key={document.getUrl() ?? ""}>
-                                        <Button href={document.getUrl() ?? ""} target="_blank" rel="noreferrer" variant="light">Dokument</Button>
-                                    </ListGroupItem>
-                                ))}
-                            </ListGroup>
-                        }
-                    </Card.Body>
-                    <Card.Body>
-                        {url && <Button href={url} target="_blank" rel="noreferrer" variant="outline-primary" /*className="position-absolute bottom-0"*/>
-                                    Informace
-                                </Button>}
-                    </Card.Body>
+                    <ListGroup className="list-group-flush">
+                    {documents.length > 0 && (
+                        <>
+                            <ListGroupItem>Přílohy</ListGroupItem>
+                            <ListGroupItem>
+                                <Attachements documents={documents}/>
+                            </ListGroupItem> 
+                        </> )}
+                        <ListGroupItem>
+                            {url && <Button href={url} target="_blank" rel="noreferrer" variant="outline-primary" >
+                                        Informace
+                                    </Button>}
+                        </ListGroupItem>
+                    </ListGroup>
+                    {/* <Card.Body> */}
+                        
+                    {/* </Card.Body> */}
                     
                 </Card>
             </>
