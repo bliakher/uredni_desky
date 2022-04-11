@@ -5,6 +5,8 @@ import {Md5} from 'ts-md5/dist/md5';
 import { MissingProperties } from '../model/dataset';
 import { RouterProps } from "react-router";
 import { BulletinDetail } from "./Detail";
+import { Row } from 'react-bootstrap';
+import { BulletinController } from './BulletinController';
 
 function renderRecommendedProps(missingBulletinProps: Array<string>) {
     return (
@@ -200,8 +202,22 @@ class ValidationRow extends React.Component<{data: BulletinData}, {loaded: boole
     }
 }
 
+const Validation = () => {
+    return (
+        <BulletinController headerElement={ValidationHeader} bulletinListElement={ValidationTable}/>
+    );
+}
 
-class Validation extends React.Component<{data: BulletinData[]}> {
+const ValidationHeader = () => {
+    return (
+        <Row className="p-2 text-center ">
+            <h2>Validace</h2>
+        </Row>
+    );
+}
+
+
+class ValidationTable extends React.Component<{data: BulletinData[]}> {
     constructor(props: {data: BulletinData[]}) {
         super(props);
     }

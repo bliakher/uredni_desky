@@ -20,13 +20,7 @@ class App extends React.Component<{}, {data: SortedBulletins, selectedProvider: 
     this.setSelectedProviderType = this.setSelectedProviderType.bind(this);
     this.state = {data: this.datasets.dataCategories, selectedProvider: ProviderCategories.All}
   }
-  async componentDidMount() {
-    // await this.datasets.fetchDatasets();
-    // this.setState({ data: this.datasets.dataCategories });
 
-    // await this.datasets.sortBulletinsByProviderType();
-    // this.setState({ data: this.datasets.dataCategories});
-  }
   setSelectedProviderType(newProviderType: ProviderCategories) {
     this.setState({selectedProvider: newProviderType});
   }
@@ -40,7 +34,7 @@ class App extends React.Component<{}, {data: SortedBulletins, selectedProvider: 
               <Route index element={ <BulletinList /> } />
               <Route path="detail" element={ <BulletinDetail /> } />
               <Route path="validace">
-                <Route index element={ <Validation data={datasets.all} /> } />
+                <Route index element={ <Validation /> } />
                 <Route path="detail" element={ <ValidationDetail /> }/>
               </Route>
               <Route path="about" element={ <Home /> } />
