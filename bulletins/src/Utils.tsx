@@ -4,13 +4,13 @@ import Spinner from 'react-bootstrap/Spinner';
 import { Button, Row, Stack } from 'react-bootstrap';
 
 
-type SelectorChangeCallback = (selected: string) => void;
+type OptionChangeCallback = (selected: string) => void;
 
 interface SelectorOptions { 
     options: {label: string, value: string}[];
     firstSelected: string;
     groupName: string;
-    callback: SelectorChangeCallback;
+    callback: OptionChangeCallback;
 }
 
 
@@ -34,6 +34,42 @@ class RadioSelector extends React.Component<SelectorOptions> {
                     return (
                         <div key={option.value}>
                             {radio}
+                            <label htmlFor={option.value}>{option.label}</label>
+                        </div>
+                    )}
+                )}
+            </div>
+        );
+    }
+}
+
+interface CheckboxOptions { 
+    options: {label: string, value: string, checked: boolean}[]; 
+    callback: OptionChangeCallback;
+}
+
+class CheckboxGroup extends React.Component<CheckboxOptions> {
+    constructor(props: CheckboxOptions) {
+        super(props);
+    }
+    handleChange(optionValue: string) {
+        this.props.callback(optionValue);
+    }
+    render() {
+        return (
+            <div >
+                {this.props.options.map((option) => {
+                
+                    if (option.checked) {
+                        var checkbox = <input type="checkbox" checked  id={option.value} value={option.value} name={option.value} 
+                                        onChange={() => this.handleChange(option.value)} />
+                    } else {
+                        var checkbox = <input type="checkbox" id={option.value} value={option.value} name={option.value} 
+                                        onChange={() => this.handleChange(option.value)}/>
+                    }
+                    return (
+                        <div key={option.value}>
+                            {checkbox}
                             <label htmlFor={option.value}>{option.label}</label>
                         </div>
                     )}
@@ -129,5 +165,5 @@ const OutletWithQueryParam = (param: string, element: ComponentClass<{param: str
 //   m.value;
 // }
 
-export type { SelectorOptions, SelectorChangeCallback };
-export { RadioSelector, Loader, Paging };
+export type { SelectorOptions, OptionChangeCallback, CheckboxOptions };
+export { RadioSelector, CheckboxGroup, Loader, Paging };

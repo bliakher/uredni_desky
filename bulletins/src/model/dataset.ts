@@ -64,6 +64,15 @@ interface MissingProperties {
     information: Array<{name:string, missing: Array<string>}>
 }
 
+enum ProviderType {
+    Unknown,
+    City,
+    CityPart,
+    Region,
+    Government,
+    Error,
+}
+
 /* Wrapper for bulletin board dataset
 */
 class BulletinData {
@@ -71,6 +80,7 @@ class BulletinData {
     name: string;
     provider: string;
     providerIri: string;
+    providerType: ProviderType;
     source: string;
     hasValidSource: boolean;
     loadError: any;
@@ -83,6 +93,7 @@ class BulletinData {
         this.name = dataset.name.value;
         this.provider = dataset.provider.value;
         this.providerIri = dataset.provider_iri.value;
+        this.providerType = ProviderType.Unknown;
         this.source = dataset.source.value;
         this.hasValidSource = true;
         this.loadError = null;
@@ -339,6 +350,26 @@ class Datasets {
         return bulletin.providerIri.substr("https://rpp-opendata.egon.gov.cz/odrpp/zdroj/orgán-veřejné-moci/".length, 8); 
     }
 
+    async assignProviderTypes() {
+        var typeMap = await fetchOrganizationTypes(this.getIcoListFromIri());
+        for (var bulletin of this.data) {
+            var ico = this.getIcoFromIri(bulletin);
+            var type = typeMap.get(ico);
+            if (type === "801") {
+                bulletin.providerType = ProviderType.City;
+            }
+            if (type === "811") {
+                bulletin.providerType = ProviderType.CityPart;
+            }
+            if (type === "804") {
+                bulletin.providerType = ProviderType.Region;
+            }
+            if (type === "325") {
+                bulletin.providerType = ProviderType.Government;
+            }
+        }
+    }
+
     async sortBulletinsByProviderType() {
         var typeMap = await fetchOrganizationTypes(this.getIcoListFromIri());
         var cities: BulletinData[] = [];
@@ -383,4 +414,4 @@ async function getBulletinByIri(iri: string): Promise<BulletinData | null> {
 }
 
 export type { SortedBulletins, MissingProperties };
-export { Datasets, BulletinData, InfoRecord, TimeMoment, getBulletinByIri };
+export { Datasets, BulletinData, InfoRecord, TimeMoment, Document, ProviderType, getBulletinByIri };
