@@ -1,8 +1,8 @@
 import React from 'react';
-import { Col, Container, ListGroup, ListGroupItem, Row } from 'react-bootstrap';
+import { Col, Container, ListGroup, ListGroupItem, Row, Button } from 'react-bootstrap';
 import { BulletinData, Datasets, ProviderType } from '../model/dataset';
 import { Loader, CheckboxGroup, OptionChangeCallback } from '../Utils';
-
+import Form from 'react-bootstrap/Form';
 
 
 interface BulletinControllerProps {
@@ -14,6 +14,8 @@ interface BulletinControllerProps {
 interface BulletinControllerState {
     loaded: boolean;
     checkedProviders: Set<ProviderType>;
+    finderValue: string;
+    finderOn: boolean;
 }
 
 class BulletinController extends React.Component<BulletinControllerProps, BulletinControllerState> {
@@ -24,10 +26,15 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
             loaded: false,
             // on load all provider types are checked
             checkedProviders: new Set<ProviderType>(
-                [ProviderType.City, ProviderType.CityPart, ProviderType.Government, ProviderType.Region, ProviderType.Unknown])
+                [ProviderType.City, ProviderType.CityPart, ProviderType.Government, ProviderType.Region, ProviderType.Unknown]),
+            finderValue: "",
+            finderOn: false,
         };
         this.datasets = new Datasets();
         this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleCancel = this.handleCancel.bind(this);
     }
     async componentDidMount() {
         await this.datasets.fetchDatasets();
@@ -66,9 +73,22 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
         }
         this.setState({ checkedProviders: updatedSet });
     }
+    handleSubmit() {
+        this.setState({finderOn: true});
+    }
+    handleChange(event: any) {
+        this.setState({finderValue: event.target.value});
+    }
+    handleCancel(event: any) {
+        this.setState({finderValue: "", finderOn: false});
+    }
 
     render() {
         var data = this.datasets.data.filter(dataset => this.state.checkedProviders.has(dataset.providerType) );
+        if (this.state.finderOn){
+            data = data.filter(dataset => (dataset.name.toLowerCase().includes(this.state.finderValue.toLowerCase())
+                                || dataset.provider.toLowerCase().includes(this.state.finderValue.toLowerCase())));
+        }
         var optionsList = [
             {label: "Obce", value: "obce", checked: this.state.checkedProviders.has(ProviderType.City)}, 
             {label: "Městské části", value: "casti", checked: this.state.checkedProviders.has(ProviderType.CityPart)}, 
@@ -97,6 +117,28 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
                         </ListGroup>
                         {/* <div>Vyberte poskytovatele:</div>
                         <CheckboxGroup options={optionsList} callback={this.handleCheckboxChange}/> */}
+                    </Col>
+                    <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex">
+                        <ListGroup className="list-group-flush border border-secondary rounded">
+                            <ListGroupItem><h6>Vyhledávání desky:</h6></ListGroupItem>
+                            <ListGroupItem>
+                                <Form onSubmit={this.handleSubmit} >
+                                    <Form.Group id="form-finder">
+                                        
+                                        <Form.Control type="text" id="finder" onChange={this.handleChange}/>
+                                        {/* <input type="submit" value="Najít"/>
+                                        <input type="cancel" value="Zrušit vyhledání" onClick={this.handleCancel}/> */}
+                                        <Button type="submit" variant="outline-primary" className="m-2">
+                                            Najít
+                                        </Button>
+                                        <Button type="reset" onClick={this.handleCancel} variant="outline-primary"  className="m-2">
+                                            Zrušit vyhledání
+                                        </Button>
+                                    </Form.Group>
+                                </Form>
+                            </ListGroupItem>
+                        </ListGroup>
+                        
                     </Col>
                 </Row>
                 <hr />
