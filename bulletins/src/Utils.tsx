@@ -2,6 +2,7 @@ import React, { ComponentClass, ReactComponentElement } from 'react';
 import { useLocation } from "react-router-dom";
 import Spinner from 'react-bootstrap/Spinner';
 import { Button, Row, Stack } from 'react-bootstrap';
+import Form from 'react-bootstrap/Form'
 
 
 type OptionChangeCallback = (selected: string) => void;
@@ -61,16 +62,18 @@ class CheckboxGroup extends React.Component<CheckboxOptions> {
                 {this.props.options.map((option) => {
                 
                     if (option.checked) {
-                        var checkbox = <input type="checkbox" checked  id={option.value} value={option.value} name={option.value} 
-                                        onChange={() => this.handleChange(option.value)} />
+                        var checkbox = <Form.Check type="switch" defaultChecked  id={option.value} value={option.value} name={option.value} 
+                                        onChange={() => this.handleChange(option.value)} 
+                                        label={option.label} />
                     } else {
-                        var checkbox = <input type="checkbox" id={option.value} value={option.value} name={option.value} 
-                                        onChange={() => this.handleChange(option.value)}/>
+                        var checkbox = <Form.Check type="switch" id={option.value} value={option.value} name={option.value} 
+                                        onChange={() => this.handleChange(option.value)}
+                                        label={option.label} />
                     }
                     return (
                         <div key={option.value}>
+                            {/* <label htmlFor={option.value}>{option.label}</label> */}
                             {checkbox}
-                            <label htmlFor={option.value}>{option.label}</label>
                         </div>
                     )}
                 )}

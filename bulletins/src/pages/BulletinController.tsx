@@ -1,4 +1,5 @@
 import React from 'react';
+import { Col, Container, ListGroup, ListGroupItem, Row } from 'react-bootstrap';
 import { BulletinData, Datasets, ProviderType } from '../model/dataset';
 import { Loader, CheckboxGroup, OptionChangeCallback } from '../Utils';
 
@@ -77,21 +78,30 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
 
         if (!this.state.loaded) {
             return (
-                <>
+                <Container>
                     <this.props.headerElement />
                     <Loader />
-                </>
+                </Container>
             );
         } 
         return (
-            <>
+            <Container>
                 <this.props.headerElement />
-                <div>
-                    <p>Vyberte poskytovatele</p>
-                    <CheckboxGroup options={optionsList} callback={this.handleCheckboxChange}/>
-                </div>
+                <Row className="justify-content-md-center">
+                    <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex">
+                        <ListGroup className="list-group-flush border border-secondary rounded">
+                            <ListGroupItem><h6>Vyberte poskytovatele:</h6></ListGroupItem>
+                            <ListGroupItem>
+                                <CheckboxGroup options={optionsList} callback={this.handleCheckboxChange}/>
+                            </ListGroupItem>
+                        </ListGroup>
+                        {/* <div>Vyberte poskytovatele:</div>
+                        <CheckboxGroup options={optionsList} callback={this.handleCheckboxChange}/> */}
+                    </Col>
+                </Row>
+                <hr />
                 <this.props.bulletinListElement data={data} />
-            </>
+            </Container>
         );
     }
 }

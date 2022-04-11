@@ -28,3 +28,11 @@ table * {
 div {
   margin: 5px;
 }
+
+tr.validation-severe {
+  background-color: #fc7676 ;
+}
+
+tr.validation-warning {
+  background-color: #eed202;
+}

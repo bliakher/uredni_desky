@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, useParams, useLocation } from "react-router-dom";
 import { BulletinData, InfoRecord, getBulletinByIri } from '../model/dataset';
-import {Md5} from 'ts-md5/dist/md5';
 import { MissingProperties } from '../model/dataset';
 import { RouterProps } from "react-router";
 import { BulletinDetail } from "./Detail";
 import { Row } from 'react-bootstrap';
 import { BulletinController } from './BulletinController';
+import Table from 'react-bootstrap/Table';
+import Button from 'react-bootstrap/Button';
 
 function renderRecommendedProps(missingBulletinProps: Array<string>) {
     return (
@@ -179,17 +180,21 @@ class ValidationRow extends React.Component<{data: BulletinData}, {loaded: boole
         var missing = this.props.data.checkRecommendedProperties();
         var missingBulletin = missing.bulletin.length == 0 ? this.ok : this.notOk;
         var missingInfo = missing.information.length == 0 ? this.ok : this.notOk;
+        var errorLevelClass = distribution === null ? "validation-severe" :
+                            (missing.bulletin.length > 0 || missing.information.length > 0) ? "validation-warning" :
+                            "validation-ok";
         
         return (
-            <tr>
+            <tr className={"p-2 " + errorLevelClass}>
                 <td>{provider}</td>
                 <td>{name}</td>
-                <td>{distribution? this.ok : this.notOk }</td>
-                <td>{distribution? missingBulletin : this.noValue }</td>
-                <td>{infoCount}</td>
-                <td>{distribution? missingInfo : this.noValue }</td>
-                <td>
-                    <Link to={"detail?iri=" + iri}>Detail</Link>
+                <td className="text-center">{distribution? this.ok : this.notOk }</td>
+                <td className="text-center">{distribution? missingBulletin : this.noValue }</td>
+                <td className="text-center">{infoCount}</td>
+                <td className="text-center">{distribution? missingInfo : this.noValue }</td>
+                <td className="text-center">
+                    {/* <Link to={"detail?iri=" + iri}>Detail</Link> */}
+                    <Button href={"#/validace/detail?iri=" + iri} variant="outline-secondary" size="sm"> + </Button>
                 </td>
             </tr>
         );
@@ -239,10 +244,14 @@ class ValidationTable extends React.Component<{data: BulletinData[]}> {
         var header = this.renderHeaderRow();
         return (
             <>
-            <table>
-                { header }
-                { bulletins.map(bul => <ValidationRow data={bul} />) }
-            </table>
+            <Table bordered hover responsive>
+                <thead>
+                    { header }
+                </thead>
+                <tbody>
+                    { bulletins.map(bul => <ValidationRow data={bul} />) }
+                </tbody>
+            </Table>
             </>
         );
     }
