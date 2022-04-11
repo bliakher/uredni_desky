@@ -4,26 +4,22 @@ import './App.css';
 import { BulletinData, Datasets, SortedBulletins } from './model/dataset';
 import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
-import { BulletinList, ProviderCategories} from "./pages/List";
+import { BulletinList} from "./pages/List";
 import Home from './pages/Home';
 import NoPage from './pages/NoPage';
 import { Validation, ValidationDetail } from './pages/Validation';
 import { BulletinDetail } from './pages/Detail';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-class App extends React.Component<{}, {data: SortedBulletins, selectedProvider: ProviderCategories}> {
+class App extends React.Component<{}, {data: SortedBulletins}> {
   datasets: Datasets;
 
   constructor(props: {}) {
     super(props)
     this.datasets = new Datasets();
-    this.setSelectedProviderType = this.setSelectedProviderType.bind(this);
-    this.state = {data: this.datasets.dataCategories, selectedProvider: ProviderCategories.All}
+    this.state = {data: this.datasets.dataCategories, }
   }
 
-  setSelectedProviderType(newProviderType: ProviderCategories) {
-    this.setState({selectedProvider: newProviderType});
-  }
   render() {
     var datasets = this.state.data;
     return (
@@ -42,17 +38,6 @@ class App extends React.Component<{}, {data: SortedBulletins, selectedProvider: 
           </Routes>
         </HashRouter>
       </>
-
-      // <BrowserRouter>
-      // <Routes>
-      //   <Route path="/" element={ <Layout /> }>
-      //     <Route index element={ <Home /> } />
-      //     <Route path="seznam" element={ <BulletinList data={datasets} /> } />
-      //     <Route path="validace" element={ <Validation data={datasets.all} /> } />
-      //     <Route path="*" element={ <NoPage /> } />
-      //   </Route>
-      // </Routes>
-      // </BrowserRouter>
 
     );
   }
