@@ -3,6 +3,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import { FaGithub as GitHubIcon } from 'react-icons/fa';
+import { Col } from 'react-bootstrap';
 
 class Home extends React.Component<{}, {}> {
     constructor(props: any) {
@@ -10,36 +11,46 @@ class Home extends React.Component<{}, {}> {
     }
     render() {
         return (
-            // <div>Vizualizace dat z úředních desek</div>
-            <Container>
-                    <div>
-                        <h3>O projektu</h3>
+            <Container fluid>
+                <Row className="justify-content-md-center m-3 mt-10">
+                    <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
                         <div>
-                            Tento projekt byl vytvořen v rámci bakalářské práce na MFF UK v roce 2022.
+                            <h3>O projektu</h3>
+                            <div>
+                                Tento projekt byl vytvořen v rámci bakalářské práce na MFF UK v roce 2022.
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <h3>GitHub <GitHubIcon /></h3>
+                    </Col>
+                    <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
                         <div>
-                            Projekt je verzovaný na GitHubu a hostovaný na GitHub Pages.
+                            <h3>GitHub <GitHubIcon /></h3>
+                            <div>
+                                Projekt je verzovaný na GitHubu a hostovaný na GitHub Pages.
+                            </div>
+                            <Button href="https://github.com/bliakher/uredni_desky" variant="outline-primary" >Zobrazit repozitář</Button>
                         </div>
-                        <Button href="https://github.com/bliakher/uredni_desky" variant="outline-primary" >Zobrazit repozitář</Button>
-                    </div>
-                    <div>
-                        <h3>Dokumentace</h3>
+                    </Col>
+                    <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
                         <div>
-                            Uživatelská dokumentace
+                            <h3>Dokumentace</h3>
+                            <div>
+                                Uživatelská dokumentace
+                            </div>
+                            <Button href="" variant="outline-primary" >Dokumentace</Button>
+
                         </div>
-                        <Button href="" variant="outline-primary" >Dokumentace</Button>
-                    </div>
-                    <div>
-                        <h3>Něco nefunguje?</h3>
+                    </Col>
+                    <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
                         <div>
-                            Našli jste v aplikaci něco, co nefunguje, nebo máte nápad, co by se dalo vylepšit? Dejte mi vědět vytvořením Issue na GitHubu.
+                            <h3>Něco nefunguje?</h3>
+                            <div>
+                                Našli jste v aplikaci něco, co nefunguje, nebo máte nápad, co by se dalo vylepšit? Dejte mi vědět vytvořením Issue na GitHubu.
+                            </div>
+                            <Button href="https://github.com/bliakher/uredni_desky/issues/new" variant="outline-primary" >Vytvořit issue</Button>
+
                         </div>
-                        <Button href="https://github.com/bliakher/uredni_desky/issues/new" variant="outline-primary" >Vytvořit issue</Button>
-                    </div>
-                    
+                    </Col>
+                </Row>   
             </Container>
         );
     }
