@@ -2,15 +2,16 @@ import React from 'react';
 import { useLocation } from 'react-router';
 import { BulletinData, getBulletinByIri, InfoRecord, TimeMoment, Document } from '../model/dataset';
 import { fetchOrganizationNameByIco } from '../model/query';
-import { Loader, Paging } from '../Utils';
+import { Loader, Paging, HoverTooltip } from '../Utils';
 import znak from '../statni_znak.png';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Stack from 'react-bootstrap/Stack'
-import { info } from 'console';
 import { Col, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { BsCalendar2Event as CalendarEventIcon, BsCalendar2X as CalendarXIcon,
+    BsCalendar2PlusFill as CalendarPlusIcon, BsCalendar2XFill as CalendarXFillIcon } from 'react-icons/bs';
 
 const BulletinDetail = () => {
     var params = new URLSearchParams(useLocation().search);
@@ -112,6 +113,8 @@ class InfoCards extends React.Component<{ data: Array<InfoRecord>}, {infoDisplay
     }
 }
 
+
+
 const Attachements = (props: {documents: Array<Document>}) => {
     if (props.documents.length === 0) {
         return (
@@ -149,6 +152,7 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
         var issuedStr = issued ? issued.to_string() : "Údaj chybí";
         var validTo = info.getDateValidTo();
         var validToStr = validTo ? validTo.to_string() : "Údaj chybí";
+        var isValid = (validTo && validTo.date) ? validTo.date >= new Date() : true;
         var documents = info.getDocuments().filter(document => document.getUrl() !== null); // take only documents with url
         return (
             <>
@@ -158,8 +162,22 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
                     </Card.Body>
                     <ListGroup className="list-group-flush">
                         <ListGroupItem>
-                            <div>{"Datum vyvěšení: " + issuedStr}</div>
-                            <div>{"Relevantní do: " + validToStr}</div>
+                            {/* <div>{"Datum vyvěšení: " + issuedStr}</div>
+                            <div>{"Relevantní do: " + validToStr}</div> */}
+                            <HoverTooltip tooltipText="Datum vyvěšení" innerElement={
+                                <div>
+                                    <CalendarEventIcon className="m-2"/>
+                                    {issuedStr}
+                                </div>
+                            }/>
+                            <HoverTooltip tooltipText="Relevantní do" innerElement={
+                                <div>
+                                    <CalendarXFillIcon className="m-2"/>
+                                    {isValid && validToStr}
+                                    {!isValid && <b>{validToStr}</b>}
+                                </div>
+                            }/>
+                           
                         </ListGroupItem>
                     {documents.length > 0 && (
                         <>
