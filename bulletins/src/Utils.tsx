@@ -2,7 +2,9 @@ import React, { ComponentClass, ReactComponentElement } from 'react';
 import { useLocation } from "react-router-dom";
 import Spinner from 'react-bootstrap/Spinner';
 import { Button, Row, Stack } from 'react-bootstrap';
-import Form from 'react-bootstrap/Form'
+import Form from 'react-bootstrap/Form';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 
 type OptionChangeCallback = (selected: string) => void;
@@ -89,6 +91,23 @@ const Loader = () => {
         </div>);
 }
 
+const HoverTooltip = (props: {tooltipText: string, innerElement: any}) => {
+    const renderTooltip = (tooltipProps: any) => (
+        <Tooltip id="button-tooltip" {...tooltipProps}>
+          {props.tooltipText}
+        </Tooltip>
+      );
+
+    return (
+        <OverlayTrigger
+            placement="top"
+            delay={{ show: 250, hide: 400 }}
+            overlay={renderTooltip}>
+            {props.innerElement}
+        </OverlayTrigger>
+    );
+}
+
 interface PagingProps {
     increment: number;
     totalCount: number;
@@ -169,4 +188,4 @@ const OutletWithQueryParam = (param: string, element: ComponentClass<{param: str
 // }
 
 export type { SelectorOptions, OptionChangeCallback, CheckboxOptions };
-export { RadioSelector, CheckboxGroup, Loader, Paging };
+export { RadioSelector, CheckboxGroup, Loader, Paging, HoverTooltip };

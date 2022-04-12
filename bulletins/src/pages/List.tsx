@@ -17,18 +17,18 @@ class Bulletin extends React.Component<{ data: BulletinData}> {
         super(props);
     }
 
-    getProviderTypeText(type: ProviderType) {
+    getProviderTypeTextandClass(type: ProviderType): {text: string, className: string} {
         switch (type) {
             case ProviderType.City:
-                return "Obec";
+                return {text: "Obec", className: "type-city"};
             case ProviderType.CityPart:
-                return "Městská část";
+                return {text: "Městská část", className: "type-city-part"};
             case ProviderType.Region:
-                return "Kraj";
+                return {text: "Kraj", className: "type-region"};
             case ProviderType.Government:
-                return "Organizační složka státu";
+                return {text: "Organizační složka státu", className: "type-government"};
             default:
-                return "Neznámý";
+                return {text: "Neznámý", className: "type-unknown"};
         }
     }
     
@@ -36,7 +36,7 @@ class Bulletin extends React.Component<{ data: BulletinData}> {
         var bulletin = this.props.data; // BulletinData
         var linkToDataset = "https://data.gov.cz/datová-sada?iri=" + bulletin.iri;
         var insides;
-        var badgeText = this.getProviderTypeText(bulletin.providerType);
+        var badge = this.getProviderTypeTextandClass(bulletin.providerType);
         return (
                 <Card className="flex-fill p-2" >
                     <Card.Header as="h5" className="d-inline">
@@ -46,8 +46,8 @@ class Bulletin extends React.Component<{ data: BulletinData}> {
                         <Card.Title as="h4">{bulletin.name}</Card.Title>
 
                         {bulletin.providerType !== ProviderType.Unknown && (
-                            <h6><Badge pill bg="primary">
-                                {badgeText}
+                            <h6><Badge pill bg={badge.className}>
+                                {badge.text}
                             </Badge></h6>)}
                     </Card.Body>
                     <Stack direction="horizontal">

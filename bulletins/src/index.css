@@ -34,5 +34,21 @@ tr.validation-severe {
 }
 
 tr.validation-warning {
-  background-color: #eed202;
+  background-color: #fff48f;
+}
+
+.bg-type-city {
+  background-color: #F89FAF;
+}
+.bg-type-city-part {
+  background-color: #E3904A;
+}
+.bg-type-region {
+  background-color: #36A8CA;
+}
+.bg-type-government {
+  background-color: #78AA94;
+}
+.bg-type-unknown {
+  background-color: #000000;
 }
