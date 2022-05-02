@@ -35,7 +35,6 @@ class Bulletin extends React.Component<{ data: BulletinData}> {
     render() {
         var bulletin = this.props.data; // BulletinData
         var linkToDataset = "https://data.gov.cz/datová-sada?iri=" + bulletin.iri;
-        var insides;
         var badge = this.getProviderTypeTextandClass(bulletin.providerType);
         return (
                 <Card className="flex-fill p-2" >
@@ -43,12 +42,13 @@ class Bulletin extends React.Component<{ data: BulletinData}> {
                         {bulletin.provider}
                     </Card.Header>
                     <Card.Body>
+                        {bulletin.providerType !== ProviderType.Unknown && (
+                                <h6><Badge pill bg={badge.className}>
+                                    {badge.text}
+                                </Badge></h6>)}
                         <Card.Title as="h4">{bulletin.name}</Card.Title>
 
-                        {bulletin.providerType !== ProviderType.Unknown && (
-                            <h6><Badge pill bg={badge.className}>
-                                {badge.text}
-                            </Badge></h6>)}
+        
                     </Card.Body>
                     <Stack direction="horizontal">
                         <Button href={"#/detail?iri=" + bulletin.iri} variant="outline-primary" size="sm" className="m-1">
@@ -93,11 +93,12 @@ class BulletinCards extends React.Component<{data: BulletinData[]}, {displayedCo
     }
 
     render() {
+        var displayedCount = this.props.data.length > this.state.displayedCount ? this.state.displayedCount : this.props.data.length;
         return (
             <Container fluid className="p-3">
                 <Row /*lg={3} md={2} sm={1}*/ className="justify-content-md-center">
                     { this.props.data
-                        .slice(0, this.state.displayedCount)
+                        .slice(0, displayedCount)
                         .map((bul) => (
                             <Col key={bul.source + Math.random().toString()} 
                                 className="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3 col-xxl-3 d-flex">
@@ -105,7 +106,8 @@ class BulletinCards extends React.Component<{data: BulletinData[]}, {displayedCo
                             </Col>
                     ))}
                 </Row>
-                <Paging totalCount={ this.props.data.length }  increment={ this.DISPLAY_INCREMENT } setDisplayCount={ this.setDisplayedCount }/>
+                <Paging displayedCount={displayedCount} totalCount={ this.props.data.length }  
+                    increment={ this.DISPLAY_INCREMENT } setDisplayCount={ this.setDisplayedCount }/>
             </Container>
         );
     }

@@ -109,34 +109,35 @@ const HoverTooltip = (props: {tooltipText: string, innerElement: any}) => {
 }
 
 interface PagingProps {
+    displayedCount: number;
     increment: number;
     totalCount: number;
     setDisplayCount: (newCount: number) => void;
 }
 
-class Paging extends React.Component<PagingProps, {displayedCount: number}> {
+class Paging extends React.Component<PagingProps> {
 
     constructor(props: PagingProps) {
         super(props);
-        this.state = { displayedCount: props.increment <= props.totalCount ? props.increment : props.totalCount };
+        // this.state = { displayedCount: props.increment <= props.totalCount ? props.increment : props.totalCount };
         this.handleShowMore = this.handleShowMore.bind(this);
         this.handleShowAll = this.handleShowAll.bind(this);
     }
 
     handleShowMore() {
         var total = this.props.totalCount;
-        var displayed = this.state.displayedCount;
+        var displayed = this.props.displayedCount;
         var increment = this.props.increment;
         if ( displayed + increment <= total) {
             displayed += increment;
         } else {
             displayed += (total - displayed);
         }
-        this.setState({displayedCount: displayed});
+        // this.setState({displayedCount: displayed});
         this.props.setDisplayCount(displayed);
     }
     handleShowAll() {
-        this.setState({displayedCount: this.props.totalCount});
+        // this.setState({displayedCount: this.props.totalCount});
         this.props.setDisplayCount(this.props.totalCount);
     } 
 
@@ -144,9 +145,9 @@ class Paging extends React.Component<PagingProps, {displayedCount: number}> {
         return (
             <Stack className="text-center justify-content-md-center">
                 <div>
-                    <p>Zobrazeno: {this.state.displayedCount} z {this.props.totalCount}</p>
+                    <p>Zobrazeno: {this.props.displayedCount} z {this.props.totalCount}</p>
                 </div>
-                { this.state.displayedCount !== this.props.totalCount && 
+                { this.props.displayedCount !== this.props.totalCount && 
                     <Stack direction="horizontal" className="text-center justify-content-md-center">
                         <div>
                                 <Button variant="light" onClick={this.handleShowMore}>Zobrazit další</Button>

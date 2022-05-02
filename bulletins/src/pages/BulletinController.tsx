@@ -110,7 +110,7 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
                 <Row className="justify-content-md-center">
                     <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex">
                         <ListGroup className="list-group-flush border border-secondary rounded">
-                            <ListGroupItem><h6>Vyberte poskytovatele:</h6></ListGroupItem>
+                            <ListGroupItem><h6>Vyberte právní formu poskytovatele:</h6></ListGroupItem>
                             <ListGroupItem>
                                 <CheckboxGroup options={optionsList} callback={this.handleCheckboxChange}/>
                             </ListGroupItem>
