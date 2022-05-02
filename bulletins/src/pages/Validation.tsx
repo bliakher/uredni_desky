@@ -217,8 +217,45 @@ const ValidationHeader = () => {
     return (
         <Row className="p-2 text-center ">
             <h2>Validace</h2>
+            <p>Tato část se věnuje kvalitě poskytovaných dat.</p>
         </Row>
     );
+}
+
+class TableExplanation extends React.Component {
+    constructor(props: any) {
+        super(props);
+    }
+    render() {
+        return (
+            <>
+                <div>
+                    <div>
+                        <b>Distribuce </b> 
+                        - uvádí, jestli bylo možné stáhnout distribuci datové sady z URL uvedeného v 
+                        <a href="https://data.gov.cz/" target="_blank"> NKOD</a>
+                    </div>
+                    <div>
+                        <b>Doporučené atributy </b> 
+                        - jestli metadata úřední desky obsahují všechny doporučené atributy podle 
+                        <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank"> specifikace</a> 
+                        (název desky, poskytovatel, URL atd.)
+                    </div>
+                    <div>
+                        <b>Počet informací </b> 
+                        - počet informací zveřejněných na dané úřední desce
+                    </div>
+                    <div>
+                        <b>Doporučené atributy informace </b> 
+                        - jestli všechny informace zveřejněné na desce obsahují ve svých metadatech všechny doporučené atributy podle 
+                        <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank"> specifikace</a> 
+                        (název informace, URL, IRI atd.)
+                    </div>
+                </div>
+            </>
+        );
+    }
+
 }
 
 
@@ -239,19 +276,21 @@ class ValidationTable extends React.Component<{data: BulletinData[]}> {
             </tr>
         );
     }
+    
     render() {
         var bulletins = this.props.data;
         var header = this.renderHeaderRow();
         return (
             <>
-            <Table bordered hover responsive>
-                <thead>
-                    { header }
-                </thead>
-                <tbody>
-                    { bulletins.map(bul => <ValidationRow data={bul} />) }
-                </tbody>
-            </Table>
+                <TableExplanation />
+                <Table bordered hover responsive>
+                    <thead>
+                        { header }
+                    </thead>
+                    <tbody>
+                        { bulletins.map(bul => <ValidationRow data={bul} />) }
+                    </tbody>
+                </Table>
             </>
         );
     }
