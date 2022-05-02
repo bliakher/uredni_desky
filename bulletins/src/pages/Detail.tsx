@@ -9,7 +9,7 @@ import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Stack from 'react-bootstrap/Stack'
-import { Col, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Col, Form, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { BsCalendar2Event as CalendarEventIcon, BsCalendar2X as CalendarXIcon,
     BsCalendar2PlusFill as CalendarPlusIcon, BsCalendar2XFill as CalendarXFillIcon } from 'react-icons/bs';
 
@@ -20,12 +20,23 @@ const BulletinDetail = () => {
     return (<BulletinDetailComplete iri={iri} />);
 }
 
-class BulletinDetailComplete extends React.Component<{iri: string}, {loaded: boolean, invalidIri: boolean, ownerName: string | null}> {
+interface BulletinDetailState {
+    loaded: boolean;
+    invalidIri: boolean;
+    ownerName: string | null;
+    finderOn: boolean;
+    finderValue: string;
+}
+
+class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDetailState> {
     data: BulletinData | null;
     constructor(props: {iri: string}) {
         super(props);
-        this.state = {loaded: false, invalidIri: false, ownerName: null }
+        this.state = {loaded: false, invalidIri: false, ownerName: null, finderOn: false, finderValue: "" };
         this.data = null;
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleCancel = this.handleCancel.bind(this);
     }
     async componentDidMount() {
         var data = await getBulletinByIri(this.props.iri);
@@ -44,10 +55,24 @@ class BulletinDetailComplete extends React.Component<{iri: string}, {loaded: boo
             }
         }
     }
+    handleChange(event: any) {
+        this.setState({finderValue: event.target.value});
+    }
+    handleSubmit() {
+        this.setState({finderOn: true});
+    }
+    handleCancel(event: any) {
+        this.setState({finderValue: "", finderOn: false});
+    }
     render() {
         if (this.state.loaded) {
             if (!this.state.invalidIri && this.data != null) {
-                var infoRecords = this.data.getInfoRecords();
+                var infoRecordsOrFalse = this.data.getInfoRecords();
+                var infoRecords = infoRecordsOrFalse ? infoRecordsOrFalse : [];
+                var filteredRecords = infoRecords.filter(record => {
+                    var name = record.getName();
+                    return name && name.toLowerCase().includes(this.state.finderValue.toLowerCase());
+                });
                 return ( 
                     <>
                         <Container>
@@ -58,8 +83,8 @@ class BulletinDetailComplete extends React.Component<{iri: string}, {loaded: boo
                                 <h3>{this.data.name}</h3>
                             </div>
 
-                            <Row>
-                                <Col md={{ span: 4, offset: 4 }}>
+                            <Row className="text-center justify-content-md-center">
+                                <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex">
                                     <ListGroup className="list-group-flush border border-secondary rounded">
                                         <ListGroupItem>Poskytovatel dat: {this.data.provider}</ListGroupItem>
                                         { this.state.ownerName != null &&
@@ -67,11 +92,32 @@ class BulletinDetailComplete extends React.Component<{iri: string}, {loaded: boo
                                             Provozovatel: {this.state.ownerName}
                                         </ListGroupItem>}
                                     </ListGroup>
+                                    
                                 </Col>
-                            
+                                <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex">
+                                    <ListGroup className="list-group-flush border border-secondary rounded">
+                                        <ListGroupItem><h6>Vyhledávání informace:</h6></ListGroupItem>
+                                        <ListGroupItem>
+                                            <Form onSubmit={this.handleSubmit} >
+                                                <Form.Group id="form-finder">
+                                                    
+                                                    <Form.Control type="text" id="finder" onChange={this.handleChange}/>
+                                                    {/* <input type="submit" value="Najít"/>
+                                                    <input type="cancel" value="Zrušit vyhledání" onClick={this.handleCancel}/> */}
+                                                    <Button type="submit" variant="outline-primary" className="m-2">
+                                                        Najít
+                                                    </Button>
+                                                    <Button type="reset" onClick={this.handleCancel} variant="outline-primary"  className="m-2">
+                                                        Zrušit vyhledání
+                                                    </Button>
+                                                </Form.Group>
+                                            </Form>
+                                        </ListGroupItem>
+                                    </ListGroup>
+                                </Col>
                             </Row>
                             
-                            <InfoCards data={ infoRecords? infoRecords : []} />
+                            <InfoCards data={ this.state.finderOn ? filteredRecords : infoRecords} />
                         </Container>
 
                     </>);
@@ -101,13 +147,14 @@ class InfoCards extends React.Component<{ data: Array<InfoRecord>}, {infoDisplay
         var infoRecords = this.props.data;
         infoRecords.sort(InfoRecord.compare); // sort by date issued
         infoRecords.reverse(); // reverse so the newest show first
+        var displayedCount = this.props.data.length > this.state.infoDisplayed ? this.state.infoDisplayed : this.props.data.length;
         return (
             <>
                     <Row className="text-center justify-content-md-center">
-                        {infoRecords.slice(0, this.state.infoDisplayed).map(record => 
+                        {infoRecords.slice(0, displayedCount).map(record => 
                             (<InfoCard data={record} key={(record.getName() || "") + Math.random().toString()} />))}
                     </Row>
-                    <Paging totalCount={ infoRecords.length }  increment={ this.INFO_QUANTUM } setDisplayCount={ this.setDisplayedCount } />
+                    <Paging displayedCount={displayedCount} totalCount={ infoRecords.length }  increment={ this.INFO_QUANTUM } setDisplayCount={ this.setDisplayedCount } />
             </>
         );
     }
@@ -152,7 +199,7 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
         var issuedStr = issued ? issued.to_string() : "Údaj chybí";
         var validTo = info.getDateValidTo();
         var validToStr = validTo ? validTo.to_string() : "Údaj chybí";
-        var isValid = (validTo && validTo.date) ? validTo.date >= new Date() : true;
+        var isValid = (validTo && validTo.date) ? validTo.date >= new Date() : true; // check valdity - validTo date is older than today
         var documents = info.getDocuments().filter(document => document.getUrl() !== null); // take only documents with url
         return (
             <>
