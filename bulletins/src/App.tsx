@@ -6,6 +6,7 @@ import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
 import { BulletinList} from "./pages/List";
 import Home from './pages/Home';
+import { Map } from './pages/Map';
 import NoPage from './pages/NoPage';
 import { Validation, ValidationDetail } from './pages/Validation';
 import { BulletinDetail } from './pages/Detail';
@@ -29,6 +30,7 @@ class App extends React.Component<{}, {data: SortedBulletins}> {
           <Routes>
               <Route index element={ <BulletinList /> } />
               <Route path="detail" element={ <BulletinDetail /> } />
+              <Route path="mapa" element={ <Map /> } />
               <Route path="validace">
                 <Route index element={ <Validation /> } />
                 <Route path="detail" element={ <ValidationDetail /> }/>
