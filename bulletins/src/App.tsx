@@ -11,6 +11,7 @@ import NoPage from './pages/NoPage';
 import { Validation, ValidationDetail } from './pages/Validation';
 import { BulletinDetail } from './pages/Detail';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 class App extends React.Component {
 

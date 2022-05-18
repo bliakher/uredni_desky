@@ -200,8 +200,8 @@ async function fetchAddressPointByIri(iri:string): Promise<{X: number, Y: number
         var openBracketPos = point.indexOf("(");
         var closeBracketPos = point.indexOf(")");
         point = point.substring(openBracketPos + 1, closeBracketPos);
-        var x = parseInt(point.split(" ")[0]);
-        var y = parseInt(point.split(" ")[1]);
+        var x = parseFloat(point.split(" ")[0]);
+        var y = parseFloat(point.split(" ")[1]);
         return {X: x, Y: y};
     } catch(error) {
         return null;
