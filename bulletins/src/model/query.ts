@@ -2,6 +2,7 @@ import formurlencoded from 'form-urlencoded';
 
 const nkod_sparql = "https://data.gov.cz/sparql";
 const rpp_sparql = "https://rpp-opendata.egon.gov.cz/odrpp/sparql";
+const cuzk_sparql = "https://linked.cuzk.cz.opendata.cz/sparql";
 
 const queryAllBulletinBoards: string = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> \
 PREFIX dcterms: <http://purl.org/dc/terms/> \
@@ -37,6 +38,7 @@ function getQueryForOrganizationTypeWithIco(icoList: Array<string>): string {
       ?OrganVerejneMoci a l-sgov-sbírka-111-2009-pojem:orgán-veřejné-moci . \
       OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-název-orgánu-veřejné-moci ?MaNazevOrganuVerejneMoci . FILTER (langMatches(LANG(?MaNazevOrganuVerejneMoci),'cs')) } \
       OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-identifikační-číslo-osoby-orgánu-veřejné-moci ?ico . } \
+      OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-adresu-sídla-orgánu-veřejné-moci ?sidlo . } \
       OPTIONAL { \
         ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-právní-formu-osoby ?pravniForma . \
         ?pravniForma skos:notation ?cisloPravniFormy ; \
@@ -115,6 +117,17 @@ function getSparqlQueryObj(query: string) {
     };
 }
 
+function getQueryAddressPointByIri(iri: string): string {
+    var identifier = "<" + iri + ">";
+    return "PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
+    PREFIX schema: <http://schema.org/> \
+    PREFIX locn: <http://www.w3.org/ns/locn#> \
+    SELECT DISTINCT * WHERE { "
+     + identifier + " a schema:Place . "
+     + identifier + " locn:geometry ?geometrie \
+    }";
+}
+
 async function fetchAllBulletins(){
     const response = await fetch(nkod_sparql, getSparqlQueryObj(queryAllBulletinBoards));
     return (await response.json()).results.bindings;
@@ -167,6 +180,18 @@ async function fetchOrganizationNameByIco(ico: string) {
     } catch(error) {
         return null;
     }
+}
+
+async function fetchAddressPointByIri(iri:string) {
+    var query = getQueryAddressPointByIri(iri);
+    try {
+        const response = await fetch(cuzk_sparql, getSparqlQueryObj(query));
+        var parsed = await response.json();
+        return parsed.results.bindings[0];
+    } catch(error) {
+        return null;
+    }
+
 }
 
 export { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri, fetchOrganizationNameByIco };
