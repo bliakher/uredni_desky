@@ -35,14 +35,14 @@ class Bulletin extends React.Component<{ data: BulletinData}> {
     render() {
         var bulletin = this.props.data; // BulletinData
         var linkToDataset = "https://data.gov.cz/datová-sada?iri=" + bulletin.iri;
-        var badge = this.getProviderTypeTextandClass(bulletin.providerType);
+        var badge = this.getProviderTypeTextandClass(bulletin.provider.type);
         return (
-                <Card className="flex-fill p-2" >
+                <Card >
                     <Card.Header as="h5" className="d-inline">
-                        {bulletin.provider}
+                        {bulletin.provider.name}
                     </Card.Header>
                     <Card.Body>
-                        {bulletin.providerType !== ProviderType.Unknown && (
+                        {bulletin.provider.type !== ProviderType.Unknown && (
                                 <h6><Badge pill bg={badge.className}>
                                     {badge.text}
                                 </Badge></h6>)}
@@ -101,7 +101,7 @@ class BulletinCards extends React.Component<{data: BulletinData[]}, {displayedCo
                         .slice(0, displayedCount)
                         .map((bul) => (
                             <Col key={bul.source + Math.random().toString()} 
-                                className="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3 col-xxl-3 d-flex">
+                                className="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3 col-xxl-3 d-flex p-2">
                                 <Bulletin data={bul}/>
                             </Col>
                     ))}

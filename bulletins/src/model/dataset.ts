@@ -1,5 +1,4 @@
-import { url } from "inspector";
-import  { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri }  from "./query";
+import  { fetchAllBulletins, fetchOrganizationTypes as fetchOrganizationInfo, fetchBulletinByIri, fetchAddressPointByIri }  from "./query";
 
 
 /* Metadata of a bulletin dataset in NKOD
@@ -78,12 +77,10 @@ enum ProviderType {
 class BulletinData {
     iri: string;
     name: string;
-    provider: string;
-    providerIri: string;
-    providerType: ProviderType;
+    provider: Provider;
     source: string;
     hasValidSource: boolean;
-    loadError: any;
+    loadError: Error;
     infoRecordsLoaded: boolean;
     distribution: BulletinDistribution | null; 
     infoRecords: Array<InfoRecord>;
@@ -91,12 +88,10 @@ class BulletinData {
     constructor(dataset: BulletinMetadata) {
         this.iri = dataset.dataset.value;
         this.name = dataset.name.value;
-        this.provider = dataset.provider.value;
-        this.providerIri = dataset.provider_iri.value;
-        this.providerType = ProviderType.Unknown;
+        this.provider = new Provider(dataset.provider.value, dataset.provider_iri.value, ProviderType.Unknown, "");
         this.source = dataset.source.value;
         this.hasValidSource = true;
-        this.loadError = null;
+        this.loadError = new Error();
         this.infoRecordsLoaded = false;
         this.distribution = null;
         this.infoRecords = [];
@@ -108,9 +103,9 @@ class BulletinData {
             var distributionObj = await response.json();
             this.distribution = new BulletinDistribution(distributionObj);
         }
-        catch (error) {
+        catch (error: any) {
             this.hasValidSource = false;
-            this.loadError = error
+            this.loadError = error;
         } 
     }
 
@@ -347,56 +342,94 @@ class Datasets {
     }
 
     getIcoFromIri(bulletin: BulletinData): string {
-        return bulletin.providerIri.substr("https://rpp-opendata.egon.gov.cz/odrpp/zdroj/orgán-veřejné-moci/".length, 8); 
+        return bulletin.provider.iri.substr("https://rpp-opendata.egon.gov.cz/odrpp/zdroj/orgán-veřejné-moci/".length, 8); 
     }
 
-    async assignProviderTypes() {
-        var typeMap = await fetchOrganizationTypes(this.getIcoListFromIri());
+    async fetchProviderInfo() {
+        var infoMap = await fetchOrganizationInfo(this.getIcoListFromIri());
         for (var bulletin of this.data) {
             var ico = this.getIcoFromIri(bulletin);
-            var type = typeMap.get(ico);
-            if (type === "801") {
-                bulletin.providerType = ProviderType.City;
-            }
-            if (type === "811") {
-                bulletin.providerType = ProviderType.CityPart;
-            }
-            if (type === "804") {
-                bulletin.providerType = ProviderType.Region;
-            }
-            if (type === "325") {
-                bulletin.providerType = ProviderType.Government;
-            }
+            var providerInfo = infoMap.get(ico);
+            var type = getProviderType(providerInfo ? providerInfo.typeNumber : "");
+            bulletin.provider.type = type;
+            bulletin.provider.residenceIri = providerInfo ? providerInfo.residenceIri : "";
         }
     }
 
-    async sortBulletinsByProviderType() {
-        var typeMap = await fetchOrganizationTypes(this.getIcoListFromIri());
-        var cities: BulletinData[] = [];
-        var cityParts: BulletinData[] = [];
-        var regions: BulletinData[]  = [];
-        var stateOrganizations: BulletinData[]  = [];
-        var other: BulletinData[]  = [];
-        for (var bulletin of this.data) {
-            var ico = this.getIcoFromIri(bulletin);
-            var type = typeMap.get(ico);
-            var category = other;
-            if (type === "801") {
-                category = cities;
-            }
-            if (type === "811") {
-                category = cityParts;
-            }
-            if (type === "804") {
-                category = regions;
-            }
-            if (type === "325") {
-                category = stateOrganizations;
-            }
-            category.push(bulletin);
-        }
-        this.dataCategories = {all: this.data, cities, cityParts, regions, government: stateOrganizations, other };
+    // async sortBulletinsByProviderType() {
+    //     var typeMap = await fetchOrganizationInfo(this.getIcoListFromIri());
+    //     var cities: BulletinData[] = [];
+    //     var cityParts: BulletinData[] = [];
+    //     var regions: BulletinData[]  = [];
+    //     var stateOrganizations: BulletinData[]  = [];
+    //     var other: BulletinData[]  = [];
+    //     for (var bulletin of this.data) {
+    //         var ico = this.getIcoFromIri(bulletin);
+    //         var type = typeMap.get(ico);
+    //         var category = other;
+    //         if (type === "801") {
+    //             category = cities;
+    //         }
+    //         if (type === "811") {
+    //             category = cityParts;
+    //         }
+    //         if (type === "804") {
+    //             category = regions;
+    //         }
+    //         if (type === "325") {
+    //             category = stateOrganizations;
+    //         }
+    //         category.push(bulletin);
+    //     }
+    //     this.dataCategories = {all: this.data, cities, cityParts, regions, government: stateOrganizations, other };
+    // }
+}
+
+interface ProviderObj {
+    nazev: {value: string};
+    cisloOVM: {value: string};
+    sidlo: {value: string};
+    cisloPravniFormy: {value: string};
+}
+
+class Provider {
+    name: string;
+    iri: string;
+    type: ProviderType;
+    residence: {X: number, Y: number};
+    residenceIri: string
+    constructor(name: string, iri: string, type: ProviderType, residenceIri: string) {
+        this.name = name;
+        this.iri = iri;
+        this.type = type;
+        this.residenceIri = residenceIri;
+        this.residence = {X: -1, Y: -1};
     }
+    async getProviderResidence() {
+        var point = await fetchAddressPointByIri(this.residenceIri);
+        if (point === null) return;
+        this.residence = point;
+    }
+}
+
+function getProviderType(typeCode: string): ProviderType {
+    var result = ProviderType.Unknown;
+    if (typeCode === "801") {
+        result = ProviderType.City;
+    }
+    else if (typeCode === "811") {
+        result = ProviderType.CityPart;
+    }
+    else if (typeCode === "804") {
+        result = ProviderType.Region;
+    }
+    else if (typeCode === "325") {
+        result = ProviderType.Government;
+    }
+    else {
+    
+    }
+    return result;
 }
 
 async function getBulletinByIri(iri: string): Promise<BulletinData | null> {
@@ -414,4 +447,4 @@ async function getBulletinByIri(iri: string): Promise<BulletinData | null> {
 }
 
 export type { SortedBulletins, MissingProperties };
-export { Datasets, BulletinData, InfoRecord, TimeMoment, Document, ProviderType, getBulletinByIri };
+export { Datasets, BulletinData, InfoRecord, TimeMoment, Document, ProviderType, Provider, getBulletinByIri };

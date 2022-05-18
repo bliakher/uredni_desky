@@ -17,26 +17,14 @@ const Layout = () => {
                     <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto">
                         <Nav.Link href="#/">Seznam</Nav.Link>
+                        <Nav.Link href="#/mapa">Mapa</Nav.Link>
                         <Nav.Link href="#/validace">Validace</Nav.Link>
                         <Nav.Link href="#/about">O projektu</Nav.Link>
-                        {/* <Link to="">Domů</Link>
-                        <Link to="seznam">Seznam</Link>
-                        <Link to="validace">Validace</Link> */}
                     </Nav>
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
-            {/* <nav>
-                    <div>
-                        <Link to="">Domů</Link>
-                    </div>
-                    <div>
-                        <Link to="seznam">Seznam</Link>
-                    </div>
-                    <div>
-                        <Link to="validace">Validace</Link>
-                    </div>
-            </nav> */}
+
         </>
     );
 }

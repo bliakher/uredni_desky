@@ -38,7 +38,7 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
     }
     async componentDidMount() {
         await this.datasets.fetchDatasets();
-        await this.datasets.assignProviderTypes();
+        await this.datasets.fetchProviderInfo();
         this.setState({loaded: true});
     }
     handleCheckboxChange(checkboxValue: string) {
@@ -84,10 +84,10 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
     }
 
     render() {
-        var data = this.datasets.data.filter(dataset => this.state.checkedProviders.has(dataset.providerType) );
+        var data = this.datasets.data.filter(dataset => this.state.checkedProviders.has(dataset.provider.type) );
         if (this.state.finderOn){
             data = data.filter(dataset => (dataset.name.toLowerCase().includes(this.state.finderValue.toLowerCase())
-                                || dataset.provider.toLowerCase().includes(this.state.finderValue.toLowerCase())));
+                                || dataset.provider.name.toLowerCase().includes(this.state.finderValue.toLowerCase())));
         }
         var optionsList = [
             {label: "Obce", value: "obce", checked: this.state.checkedProviders.has(ProviderType.City)}, 
@@ -105,10 +105,10 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
             );
         } 
         return (
-            <Container>
+            <Container className="justify-content-md-center">
                 <this.props.headerElement />
                 <Row className="justify-content-md-center">
-                    <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex">
+                    <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex p-2">
                         <ListGroup className="list-group-flush border border-secondary rounded">
                             <ListGroupItem><h6>Vyberte právní formu poskytovatele:</h6></ListGroupItem>
                             <ListGroupItem>
@@ -118,14 +118,14 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
                         {/* <div>Vyberte poskytovatele:</div>
                         <CheckboxGroup options={optionsList} callback={this.handleCheckboxChange}/> */}
                     </Col>
-                    <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex">
+                    <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex p-2">
                         <ListGroup className="list-group-flush border border-secondary rounded">
                             <ListGroupItem><h6>Vyhledávání desky:</h6></ListGroupItem>
                             <ListGroupItem>
                                 <Form onSubmit={this.handleSubmit} >
                                     <Form.Group id="form-finder">
                                         
-                                        <Form.Control type="text" id="finder" onChange={this.handleChange}/>
+                                        <Form.Control type="text" id="finder" onChange={this.handleChange} className="m-2"/>
                                         {/* <input type="submit" value="Najít"/>
                                         <input type="cancel" value="Zrušit vyhledání" onClick={this.handleCancel}/> */}
                                         <Button type="submit" variant="outline-primary" className="m-2">

@@ -3,11 +3,74 @@ import { Link, useParams, useLocation } from "react-router-dom";
 import { BulletinData, InfoRecord, getBulletinByIri } from '../model/dataset';
 import { MissingProperties } from '../model/dataset';
 import { RouterProps } from "react-router";
-import { BulletinDetail } from "./Detail";
-import { Row } from 'react-bootstrap';
+import { BulletinDetail, Attachements, InfoCards } from "./Detail";
+import { Card, ListGroup, ListGroupItem, Row } from 'react-bootstrap';
 import { BulletinController } from './BulletinController';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
+import { Paging, HoverTooltip, Loader } from '../Utils';
+import { BsCalendar2Event as CalendarEventIcon, BsCalendar2X as CalendarXIcon,
+    BsCalendar2PlusFill as CalendarPlusIcon, BsCalendar2XFill as CalendarXFillIcon } from 'react-icons/bs';
+
+class InfoCardValidation extends React.Component<{data: InfoRecord}> {
+    constructor(props: {data: InfoRecord}) {
+        super(props);
+    }
+    render() {
+        var info = this.props.data;
+        var name = info.getName()? info.getName() : "'Informace na úřední desce'";
+        var url = info.getUrl();
+        var issued = info.getDateIssued();
+        var issuedStr = issued ? issued.to_string() : "Údaj chybí";
+        var validTo = info.getDateValidTo();
+        var validToStr = validTo ? validTo.to_string() : "Údaj chybí";
+        var isValid = (validTo && validTo.date) ? validTo.date >= new Date() : true; // check valdity - validTo date is older than today
+        var documents = info.getDocuments().filter(document => document.getUrl() !== null); // take only documents with url
+        return (
+            <>
+                <Card style={{ width: '18rem' }} className="m-2">
+                    <Card.Body>
+                        <Card.Title>{name}</Card.Title>
+                    </Card.Body>
+                    <ListGroup className="list-group-flush">
+                        <ListGroupItem>
+                            {/* <div>{"Datum vyvěšení: " + issuedStr}</div>
+                            <div>{"Relevantní do: " + validToStr}</div> */}
+                            <HoverTooltip tooltipText="Datum vyvěšení" innerElement={
+                                <div>
+                                    <CalendarEventIcon className="m-2"/>
+                                    {issuedStr}
+                                </div>
+                            }/>
+                            <HoverTooltip tooltipText="Relevantní do" innerElement={
+                                <div>
+                                    <CalendarXFillIcon className="m-2"/>
+                                    {isValid && validToStr}
+                                    {!isValid && <b>{validToStr}</b>}
+                                </div>
+                            }/>
+                           
+                        </ListGroupItem>
+                    {documents.length > 0 && (
+                        <>
+                            <ListGroupItem>
+                                <h6>Přílohy:</h6>
+                                <Attachements documents={documents}/>
+                            </ListGroupItem> 
+                        </> )}
+                        <ListGroupItem>
+                            {url && <Button href={url} target="_blank" rel="noreferrer" variant="primary" >
+                                        Informace
+                                    </Button>}
+                        </ListGroupItem>
+                    </ListGroup>
+                    
+                </Card>
+            </>
+        );
+    }
+}
+
 
 function renderRecommendedProps(missingBulletinProps: Array<string>) {
     return (
@@ -46,7 +109,7 @@ function renderRecommendedInfoProps(missingInfoProps: Array<{name:string, missin
                 <>
                     <p>Informací celkem: {infoCount}</p>
                     <p style={{color: 'red'}}>Informace s chybějícími atributy: {missingInfoProps.length}</p>
-                    <ul>
+                    {/* <ul>
                         {missingInfoProps.map(info => (
                             <li key={info.name}>
                                 {info.name}
@@ -54,7 +117,7 @@ function renderRecommendedInfoProps(missingInfoProps: Array<{name:string, missin
                                     {info.missing.map(prop => <li key={prop}>{prop}</li>)}
                                 </ul>
                             </li>))}
-                    </ul>
+                    </ul> */}
                 </>
             }
             { missingInfoProps.length == 0 && 
@@ -67,12 +130,19 @@ function renderRecommendedInfoProps(missingInfoProps: Array<{name:string, missin
 function renderHeader(provider: string, bulletinName: string, iri: string) {
     return (
         <>
-            <h2>Validace úřední desky</h2>
-            <h3>
-                {bulletinName} 
-                <Link to={"/detail?iri=" + iri} >detail</Link>
-            </h3>
-            <p>Poskytovatel: {provider}</p>
+            <Row className="p-2 text-center ">
+                <h2>Validace úřední desky</h2>
+            </Row>
+            <Row className="p-2 text-center ">
+                <h4>
+                    {bulletinName} 
+                    <Button href={"#/detail?iri=" + iri} size="sm" variant="outline-primary" className="m-2  ">Zobrazit desku</Button>
+                </h4>
+            </Row>
+            <Row className="text-center ">
+                <p>Poskytovatel: {provider}</p>
+            </Row>
+            
         </>
     );
 }
@@ -89,12 +159,31 @@ function renderValidation(bulletin: BulletinData) {
             { !hasErrors && <p style={{color: 'green'}}>Validace v pořádku</p> }
 
             { !bulletin.hasValidSource && 
-                <p>Distribuci nebylo možné stáhnout z odkazu:
-                    <a href={bulletin.source} target="_blank"> {bulletin.source} </a>
-                </p>}
+                (
+                    <>
+                        <p>Distribuci nebylo možné stáhnout z odkazu: 
+                            <a href={bulletin.source} target="_blank">{bulletin.source}</a>
+                        </p>
+                        <p>
+                            {"Chybová hláška: " + bulletin.loadError.message}
+                        </p>
+                        
+                    </>
+                )
+                }
 
             { bulletin.hasValidSource && renderRecommendedProps(missing.bulletin) }
             { bulletin.hasValidSource && renderRecommendedInfoProps(missing.information, infoCount) }
+
+            { bulletin.hasValidSource &&
+                (<>
+                    <Row className="p-2 text-center ">
+                        <h4>Úřední deska</h4>
+                    </Row>
+                    <InfoCards data={info ? info : []} cardElement={InfoCardValidation}/>
+                </>)
+            }
+            
         </>
     );
 }
@@ -132,7 +221,7 @@ class ValidationDetailComplete extends React.Component<{iri: string}, {loaded: b
             if (!this.state.invalidIri && this.data != null) {
                 return (
                     <>
-                        { renderHeader(this.data.provider, this.data.name, this.data.iri) }
+                        { renderHeader(this.data.provider.name, this.data.name, this.data.iri) }
                         { renderValidation(this.data) }
                     </>);
                 
@@ -140,7 +229,7 @@ class ValidationDetailComplete extends React.Component<{iri: string}, {loaded: b
                 return (<p>Chyba: Nevalidní iri datasetu - nelze načíst.</p>)
             }
         } else {
-            return (<p>Načítá se...</p>);
+            return (<Loader />);
         }
         
     }
@@ -259,9 +348,15 @@ class TableExplanation extends React.Component {
 }
 
 
-class ValidationTable extends React.Component<{data: BulletinData[]}> {
+class ValidationTable extends React.Component<{data: BulletinData[]}, {displayedCount: number}> {
+    ROW_QUANTUM = 30;
     constructor(props: {data: BulletinData[]}) {
         super(props);
+        this.state = { displayedCount: props.data.length > this.ROW_QUANTUM ? this.ROW_QUANTUM : props.data.length };
+        this.setDisplayedCount = this.setDisplayedCount.bind(this);
+    }
+    setDisplayedCount(newCount: number): void {
+        this.setState({displayedCount: newCount});
     }
     renderHeaderRow() {
         return (
@@ -280,6 +375,7 @@ class ValidationTable extends React.Component<{data: BulletinData[]}> {
     render() {
         var bulletins = this.props.data;
         var header = this.renderHeaderRow();
+        var displayedCount = this.props.data.length > this.state.displayedCount ? this.state.displayedCount : this.props.data.length;
         return (
             <>
                 <TableExplanation />
@@ -288,9 +384,12 @@ class ValidationTable extends React.Component<{data: BulletinData[]}> {
                         { header }
                     </thead>
                     <tbody>
-                        { bulletins.map(bul => <ValidationRow data={bul} />) }
+                        { bulletins.slice(0, displayedCount)
+                            .map(bul => <ValidationRow data={bul} />) }
                     </tbody>
                 </Table>
+                <Paging displayedCount={displayedCount} totalCount={this.props.data.length} increment={this.ROW_QUANTUM} 
+                    setDisplayCount={this.setDisplayedCount}/>
             </>
         );
     }

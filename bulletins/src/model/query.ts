@@ -36,15 +36,16 @@ function getQueryForOrganizationTypeWithIco(icoList: Array<string>): string {
     PREFIX a-sgov-104-pojem: <https://slovník.gov.cz/agendový/104/pojem/> \
     SELECT * WHERE { \
       ?OrganVerejneMoci a l-sgov-sbírka-111-2009-pojem:orgán-veřejné-moci . \
-      OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-název-orgánu-veřejné-moci ?MaNazevOrganuVerejneMoci . FILTER (langMatches(LANG(?MaNazevOrganuVerejneMoci),'cs')) } \
+      OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-název-orgánu-veřejné-moci ?nazev . FILTER (langMatches(LANG(?nazev),'cs')) } \
       OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-identifikační-číslo-osoby-orgánu-veřejné-moci ?ico . } \
+      OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-identifikátor-orgánu-veřejné-moci ?cisloOVM . } \
       OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-adresu-sídla-orgánu-veřejné-moci ?sidlo . } \
       OPTIONAL { \
         ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-právní-formu-osoby ?pravniForma . \
         ?pravniForma skos:notation ?cisloPravniFormy ; \
                             skos:prefLabel ?nazevPravniFormy . \
       } \
-      FILTER ( STR(?ico) IN ( ";
+      FILTER ( STR(?cisloOVM) IN ( ";
     var first = true;
     for (var ico of icoList) {
         if (!first) query += ' , ';
@@ -133,7 +134,14 @@ async function fetchAllBulletins(){
     return (await response.json()).results.bindings;
 }
 
-async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<string, string>>  {
+interface OrganizationInfo {
+    name: string;
+    typeNumber: string;
+    residenceIri: string;
+}
+
+
+async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<string, OrganizationInfo>>  {
     var query = getQueryForOrganizationTypeWithIco(icoList);
     const response = await fetch(rpp_sparql, {
         "headers": {
@@ -144,13 +152,14 @@ async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<strin
         "method": "POST",
     });
     var typedOrganizations = (await response.json()).results.bindings;
-    var orgTypeMap = new Map(); 
+    var orgMap = new Map(); 
     for (var org of typedOrganizations) {
-        var ico: string = org.ico.value;
-        var type: string = org.cisloPravniFormy.value;
-        orgTypeMap.set(ico, type);
+        var cisloOVM: string = org.cisloOVM.value;
+        var type: string = org.cisloPravniFormy ? org.cisloPravniFormy.value : "";
+        var orgInfo: OrganizationInfo = {name: org.nazev.value, typeNumber: type, residenceIri: org.sidlo.value };
+        orgMap.set(cisloOVM, orgInfo);
     }
-    return orgTypeMap;
+    return orgMap;
 }
 
 async function fetchBulletinByIri(iri: string) {
@@ -182,16 +191,22 @@ async function fetchOrganizationNameByIco(ico: string) {
     }
 }
 
-async function fetchAddressPointByIri(iri:string) {
+async function fetchAddressPointByIri(iri:string): Promise<{X: number, Y: number} | null> {
     var query = getQueryAddressPointByIri(iri);
     try {
         const response = await fetch(cuzk_sparql, getSparqlQueryObj(query));
         var parsed = await response.json();
-        return parsed.results.bindings[0];
+        var point: string = parsed.results.bindings[0].geometrie.value; // format: POINT(14.438098371192977 50.07599430418954)
+        var openBracketPos = point.indexOf("(");
+        var closeBracketPos = point.indexOf(")");
+        point = point.substring(openBracketPos + 1, closeBracketPos);
+        var x = parseInt(point.split(" ")[0]);
+        var y = parseInt(point.split(" ")[1]);
+        return {X: x, Y: y};
     } catch(error) {
         return null;
     }
 
 }
 
-export { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri, fetchOrganizationNameByIco };
+export { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri, fetchOrganizationNameByIco, fetchAddressPointByIri };
