@@ -12,17 +12,13 @@ import { Validation, ValidationDetail } from './pages/Validation';
 import { BulletinDetail } from './pages/Detail';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-class App extends React.Component<{}, {data: SortedBulletins}> {
-  datasets: Datasets;
+class App extends React.Component {
 
   constructor(props: {}) {
     super(props)
-    this.datasets = new Datasets();
-    this.state = {data: this.datasets.dataCategories, }
   }
 
   render() {
-    var datasets = this.state.data;
     return (
       <>
         <HashRouter>
