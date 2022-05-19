@@ -406,6 +406,7 @@ class Provider {
         this.residence = {X: -1, Y: -1};
     }
     async fetchProviderResidence() {
+        if (this.residenceIri == "") return;
         var point = await fetchAddressPointByIri(this.residenceIri);
         if (point === null) return;
         this.residence = point;
