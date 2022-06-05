@@ -113,4 +113,4 @@ class BulletinCards extends React.Component<{data: BulletinData[]}, {displayedCo
     }
 }
 
-export { BulletinList, Bulletin };
+export { BulletinList, Bulletin, BulletinCards };

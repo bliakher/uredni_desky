@@ -1,7 +1,7 @@
 import React from 'react';
-import { Provider, Datasets, ProviderType, BulletinData } from '../model/dataset';
+import { Provider, SortedProviders, Datasets, ProviderType, BulletinData } from '../model/dataset';
 import { Loader } from '../Utils';
-import { Bulletin } from './List';
+import { Bulletin, BulletinCards } from './List';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { Col, Row } from 'react-bootstrap';
 import Card from 'react-bootstrap/Card';
@@ -22,24 +22,26 @@ const MapHeader = () => {
         <>
         <Row className="p-2 text-center">
             <h2>Mapa úředních desek</h2>
+            <p>Klikněte na bod v mapě pro výběr poskytovatele.</p>
         </Row>
-        <hr />
         </>
     );
 }
 
-class Map extends React.Component<{}, {loaded: boolean, selected: BulletinData | null}> {
+class Map extends React.Component<{}, {loaded: boolean, selected: string}> {
     data: Datasets;
+    providers: SortedProviders | null;
     map: mapboxgl.Map | null;
     markers: Array<mapboxgl.Marker>;
     mapContainer: React.RefObject<HTMLInputElement>;
     constructor(props: any) {
         super(props);
         this.data = new Datasets();
+        this.providers = null;
         this.mapContainer = React.createRef();
         this.map = null;
         this.markers = [];
-        this.state = {loaded: false, selected: null};
+        this.state = {loaded: false, selected: ""};
         this.handleMarkerClick = this.handleMarkerClick.bind(this);
     }
     async componentDidMount() {
@@ -47,6 +49,7 @@ class Map extends React.Component<{}, {loaded: boolean, selected: BulletinData |
         await this.data.fetchProviderInfo();
         // fetch all residence address points
         await this.data.fetchProviderResidences();
+        this.providers = new SortedProviders(this.data.data);
         this.setState({loaded: true});
         if (this.mapContainer.current) {
             this.map = new mapboxgl.Map({
@@ -59,22 +62,31 @@ class Map extends React.Component<{}, {loaded: boolean, selected: BulletinData |
         this.createMarkers();
         this.addMarkersToMap();
     }
-    handleMarkerClick(bulletinIdx: number) {
-        this.setState({selected: this.data.data[bulletinIdx]});
+    handleMarkerClick(providerIri: string) {
+        this.setState({selected: providerIri});
     }
     createMarkers() {
-        if (this.map !== null) {
-            for (let i = 0; i < this.data.data.length; i++) {
-                var bulletin = this.data.data[i];
-                var providerResidence = bulletin.provider.residence;
-                if (providerResidence.X === -1 || providerResidence.Y === -1) continue;
+        if (this.map !== null && this.providers !== null) {
+            this.providers.providers.forEach(provider => {
+                var residence = provider.residence;
+                if (residence.X === -1 || residence.Y === -1) return;
                 const marker = new mapboxgl.Marker(
-                    this.getMarkerStyle(bulletin.provider.type)
+                    this.getMarkerStyle(provider.type)
                 )
-                    .setLngLat([providerResidence.X, providerResidence.Y]);
-                marker.getElement().addEventListener('click', () => this.handleMarkerClick(i));
+                    .setLngLat([residence.X, residence.Y])
+                    .setPopup(
+                        new mapboxgl.Popup({
+                            closeButton: false
+                        })
+                            //.setHTML("<p>" + provider.name + "</p>")
+                            .setText(provider.name)
+                    );
+                marker.getElement().addEventListener('click', () => this.handleMarkerClick(provider.iri));
+                marker.getElement().addEventListener('mouseenter', () => (
+                    marker.getPopup().toggleClassName('not_displayed')
+                ))
                 this.markers.push(marker);
-            }
+            })
         }
     }
     addMarkersToMap() {
@@ -110,22 +122,19 @@ class Map extends React.Component<{}, {loaded: boolean, selected: BulletinData |
         return {color: color};
     }
     renderProviderInfo() {
-        if (this.state.selected) {
-            var bulletin = this.state.selected;
+            var provider = this.providers?.getProvider(this.state.selected);
+            var providerName = provider ? provider.name : "Poskytovatel není vybrán";
+            var bulletinsQ = this.providers?.getProviderBulletins(this.state.selected);
+            var bulletins = bulletinsQ ? bulletinsQ : [];
             return (
-                <Bulletin data={bulletin} />
-            );
-        }
-        else {
-            return (
-                <Card>
-                    <Card.Header as="h5">Úřední deska</Card.Header>
-                    <Card.Body>
-                        <Card.Title>Klikněte na bod v mapě pro zobrazení úřední desky</Card.Title>
-                    </Card.Body>
-                </Card>
-            );
-        }
+                <>
+                    <Row className="text-center justify-content-md-center">
+                        <h4>{providerName}</h4>
+                    </Row>
+                    {bulletins.length > 0 &&
+                        <BulletinCards data={bulletins} /> }
+                </>
+            )
     }
     render() {
         if (!this.state.loaded) {
@@ -139,17 +148,17 @@ class Map extends React.Component<{}, {loaded: boolean, selected: BulletinData |
         return (
             <>
                 <MapHeader />
-                <Row className="justify-content-md-center">
-                    <Col>
-                        {this.renderProviderInfo()}
-                    </Col>
-                </Row>
                 <Row className="text-center justify-content-md-center">
                     <Col className="col-12">
                         <div ref={this.mapContainer} className="map-container" style={{height:400}}/>
                     </Col>
                 </Row>
-                
+                <hr />
+                <Row className="justify-content-md-center">
+                    <Col>
+                        {this.renderProviderInfo()}
+                    </Col>
+                </Row>
             </>
         );
     }

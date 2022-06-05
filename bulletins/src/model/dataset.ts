@@ -382,6 +382,14 @@ class Datasets {
         }
     }
 
+    getProviders(): Map<string, Provider> {
+        var result = new Map<string, Provider>();
+        for (var bulletin of this.data) {
+            result.set(bulletin.provider.iri, bulletin.provider);
+        }
+        return result;
+    }
+
 }
 
 class Provider {
@@ -389,7 +397,7 @@ class Provider {
     iri: string;
     type: ProviderType;
     typeNumber: string;
-    residence: {X: number, Y: number};
+    residence: Point;
     residenceIri: string
     constructor(name: string, iri: string, type: ProviderType, typeNum: string, residenceIri: string) {
         this.name = name;
@@ -398,6 +406,40 @@ class Provider {
         this.typeNumber = typeNum;
         this.residenceIri = residenceIri;
         this.residence = {X: -1, Y: -1};
+    }
+}
+
+class SortedProviders {
+    providers: Map<string, Provider>;
+    providerBulletins: Map<string, Array<BulletinData>>;
+    constructor(bulletins: BulletinData[]) {
+        this.providers = new Map();
+        this.providerBulletins = new Map();
+        this.sortBulletinsByProviders(bulletins);
+    }
+    sortBulletinsByProviders(bulletins: BulletinData[]) {
+        for (var bulletin of bulletins) {
+            var iri = bulletin.provider.iri;
+            this.providers.set(iri, bulletin.provider);
+            var curBulletins = this.providerBulletins.get(iri);
+            if (curBulletins) {
+                curBulletins.push(bulletin);
+                this.providerBulletins.set(iri, curBulletins);
+            } else {
+                this.providerBulletins.set(iri, [bulletin]);
+            }
+        }
+    }
+    getProviderIris(): IterableIterator<string> {
+        return this.providers.keys();
+    }
+    getProvider(providerIri: string): Provider | null {
+        var provider = this.providers.get(providerIri);
+        return provider || null;
+    }
+    getProviderBulletins(providerIri: string): BulletinData[] | null {
+        var bulletins = this.providerBulletins.get(providerIri);
+        return bulletins || null;
     }
 }
 
@@ -436,4 +478,4 @@ async function getBulletinByIri(iri: string): Promise<BulletinData | null> {
 }
 
 export type { SortedBulletins, MissingProperties };
-export { Datasets, BulletinData, InfoRecord, TimeMoment, Document, ProviderType, Provider, getBulletinByIri };
+export { Datasets, BulletinData, InfoRecord, TimeMoment, Document, ProviderType, Provider, SortedProviders, getBulletinByIri };
