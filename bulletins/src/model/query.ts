@@ -129,6 +129,22 @@ function getQueryAddressPointByIri(iri: string): string {
     }";
 }
 
+function getQueryAddressPointsByIris(iriList: Array<string>): string {
+    var query = "PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
+    PREFIX schema: <http://schema.org/> \
+    PREFIX locn: <http://www.w3.org/ns/locn#> \
+    SELECT DISTINCT * \
+    WHERE { \
+     ?iri a schema:Place ; \
+         locn:geometry ?geometrie . \
+      VALUES ?iri {";
+    for (var iri of iriList) {
+        query += "<" + iri + ">" + " ";
+    }
+    query += "} }";
+    return query;
+}
+
 async function fetchAllBulletins(){
     const response = await fetch(nkod_sparql, getSparqlQueryObj(queryAllBulletinBoards));
     return (await response.json()).results.bindings;
@@ -191,22 +207,49 @@ async function fetchOrganizationNameByIco(ico: string) {
     }
 }
 
-async function fetchAddressPointByIri(iri:string): Promise<{X: number, Y: number} | null> {
+type Point = {X: number, Y: number};
+type PointMap = Map<string,Point>;
+
+function parsePoint(point: string): Point {
+    // format: POINT(14.438098371192977 50.07599430418954)
+    var openBracketPos = point.indexOf("(");
+    var closeBracketPos = point.indexOf(")");
+    point = point.substring(openBracketPos + 1, closeBracketPos);
+    var x = parseFloat(point.split(" ")[0]);
+    var y = parseFloat(point.split(" ")[1]);
+    return {X: x, Y: y};
+}
+
+async function fetchAddressPointByIri(iri:string): Promise<Point | null> {
     var query = getQueryAddressPointByIri(iri);
     try {
         const response = await fetch(cuzk_sparql, getSparqlQueryObj(query));
         var parsed = await response.json();
-        var point: string = parsed.results.bindings[0].geometrie.value; // format: POINT(14.438098371192977 50.07599430418954)
-        var openBracketPos = point.indexOf("(");
-        var closeBracketPos = point.indexOf(")");
-        point = point.substring(openBracketPos + 1, closeBracketPos);
-        var x = parseFloat(point.split(" ")[0]);
-        var y = parseFloat(point.split(" ")[1]);
-        return {X: x, Y: y};
+        var point: string = parsed.results.bindings[0].geometrie.value; 
+        return parsePoint(point);
     } catch(error) {
         return null;
     }
 
 }
 
-export { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri, fetchOrganizationNameByIco, fetchAddressPointByIri };
+
+async function fetchAddressPointsByIris(iriList: Array<string>): Promise<PointMap | null> {
+    var query = getQueryAddressPointsByIris(iriList);
+    var result = new Map<string,Point>();
+    try {
+        const response = await fetch(cuzk_sparql, getSparqlQueryObj(query));
+        var parsed = await response.json();
+        for (var obj of parsed.results.bindings) {
+            var iri = obj.iri.value;
+            var point = parsePoint(obj.geometrie.value);
+            result.set(iri, point);
+        }
+        return result;
+    } catch (error) {
+        return null;
+    }
+}
+
+export type { Point, PointMap };
+export { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri, fetchOrganizationNameByIco, fetchAddressPointsByIris };

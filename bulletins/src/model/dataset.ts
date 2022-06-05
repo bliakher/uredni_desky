@@ -1,5 +1,5 @@
-import  { fetchAllBulletins, fetchOrganizationTypes as fetchOrganizationInfo, fetchBulletinByIri, fetchAddressPointByIri }  from "./query";
-
+import  { fetchAllBulletins, fetchOrganizationTypes as fetchOrganizationInfo, fetchBulletinByIri, fetchAddressPointsByIris }  from "./query";
+import type { Point, PointMap } from './query';
 
 /* Metadata of a bulletin dataset in NKOD
 */
@@ -88,7 +88,7 @@ class BulletinData {
     constructor(dataset: BulletinMetadata) {
         this.iri = dataset.dataset.value;
         this.name = dataset.name.value;
-        this.provider = new Provider(dataset.provider.value, dataset.provider_iri.value, ProviderType.Unknown, "");
+        this.provider = new Provider(dataset.provider.value, dataset.provider_iri.value, ProviderType.Unknown, "", "");
         this.source = dataset.source.value;
         this.hasValidSource = true;
         this.loadError = new Error();
@@ -345,71 +345,59 @@ class Datasets {
         return bulletin.provider.iri.substr("https://rpp-opendata.egon.gov.cz/odrpp/zdroj/orgán-veřejné-moci/".length, 8); 
     }
 
+    getResidenceIriList(): Array<string> {
+        var iris = this.data.map(bulletin => bulletin.provider.residenceIri);
+        var filtered =  iris.filter(iri => iri !== "");
+        var unique = new Set(filtered);
+        return Array.from(unique);
+    }
+
     async fetchProviderInfo() {
         var infoMap = await fetchOrganizationInfo(this.getIcoListFromIri());
         for (var bulletin of this.data) {
             var ico = this.getIcoFromIri(bulletin);
             var providerInfo = infoMap.get(ico);
-            var type = getProviderType(providerInfo ? providerInfo.typeNumber : "");
+            var typeNumber = providerInfo ? providerInfo.typeNumber : "";
+            bulletin.provider.typeNumber = typeNumber;
+            var type = getProviderType(typeNumber);
             bulletin.provider.type = type;
             bulletin.provider.residenceIri = providerInfo ? providerInfo.residenceIri : "";
         }
     }
 
-    // async sortBulletinsByProviderType() {
-    //     var typeMap = await fetchOrganizationInfo(this.getIcoListFromIri());
-    //     var cities: BulletinData[] = [];
-    //     var cityParts: BulletinData[] = [];
-    //     var regions: BulletinData[]  = [];
-    //     var stateOrganizations: BulletinData[]  = [];
-    //     var other: BulletinData[]  = [];
-    //     for (var bulletin of this.data) {
-    //         var ico = this.getIcoFromIri(bulletin);
-    //         var type = typeMap.get(ico);
-    //         var category = other;
-    //         if (type === "801") {
-    //             category = cities;
-    //         }
-    //         if (type === "811") {
-    //             category = cityParts;
-    //         }
-    //         if (type === "804") {
-    //             category = regions;
-    //         }
-    //         if (type === "325") {
-    //             category = stateOrganizations;
-    //         }
-    //         category.push(bulletin);
-    //     }
-    //     this.dataCategories = {all: this.data, cities, cityParts, regions, government: stateOrganizations, other };
-    // }
-}
+    async fetchProviderResidences() {
+        var pointMap = await fetchAddressPointsByIris(this.getResidenceIriList());
+        if (pointMap !== null) {
+            this.asignProviderResidences(pointMap);
+        }
+    }
 
-interface ProviderObj {
-    nazev: {value: string};
-    cisloOVM: {value: string};
-    sidlo: {value: string};
-    cisloPravniFormy: {value: string};
+    asignProviderResidences(pointmap: PointMap) {
+        for (var bulletin of this.data) {
+            var iri = bulletin.provider.residenceIri;
+            var residencePoint = pointmap.get(iri);
+            if (residencePoint) {
+                bulletin.provider.residence = residencePoint;
+            }
+        }
+    }
+
 }
 
 class Provider {
     name: string;
     iri: string;
     type: ProviderType;
+    typeNumber: string;
     residence: {X: number, Y: number};
     residenceIri: string
-    constructor(name: string, iri: string, type: ProviderType, residenceIri: string) {
+    constructor(name: string, iri: string, type: ProviderType, typeNum: string, residenceIri: string) {
         this.name = name;
         this.iri = iri;
         this.type = type;
+        this.typeNumber = typeNum;
         this.residenceIri = residenceIri;
         this.residence = {X: -1, Y: -1};
-    }
-    async fetchProviderResidence() {
-        if (this.residenceIri == "") return;
-        var point = await fetchAddressPointByIri(this.residenceIri);
-        if (point === null) return;
-        this.residence = point;
     }
 }
 

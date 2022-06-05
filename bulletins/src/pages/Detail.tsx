@@ -82,11 +82,11 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
                             <div className="text-center justify-content-md-center">
                                 <h3>{this.data.name}</h3>
                             </div>
-
-                            <Row className="text-center justify-content-md-center">
-                                <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex">
+                            {/**  className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex"  */}
+                            <Row className="text-center justify-content-md-center d-flex align-items-center">
+                                <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex" >
                                     <ListGroup className="list-group-flush border border-secondary rounded">
-                                        <ListGroupItem>Poskytovatel dat: {this.data.provider}</ListGroupItem>
+                                        <ListGroupItem>Poskytovatel dat: {this.data.provider.name}</ListGroupItem>
                                         { this.state.ownerName != null &&
                                         <ListGroupItem>
                                             Provozovatel: {this.state.ownerName}
@@ -94,7 +94,7 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
                                     </ListGroup>
                                     
                                 </Col>
-                                <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex">
+                                <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex" >
                                     <ListGroup className="list-group-flush border border-secondary rounded">
                                         <ListGroupItem><h6>Vyhledávání informace:</h6></ListGroupItem>
                                         <ListGroupItem>
@@ -116,8 +116,22 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
                                     </ListGroup>
                                 </Col>
                             </Row>
+
+                            {this.state.loaded && !this.data.hasValidSource && (
+                                <Row className="text-center justify-content-md-center">
+                                    <p>Data nebylo možné načíst.</p>
+                                </Row>
+                            )}
                             
-                            <InfoCards data={ this.state.finderOn ? filteredRecords : infoRecords} />
+                            <InfoCards data={ this.state.finderOn ? filteredRecords : infoRecords} cardElement={InfoCard}/>
+
+                            <Row className="text-center justify-content-md-center">
+                                <Col>
+                                    <Button href={"#/validace/detail?iri=" + this.data.iri} variant="outline-primary">
+                                        Validovat úřední desku
+                                    </Button>
+                                </Col>
+                            </Row>
                         </Container>
 
                     </>);
@@ -131,9 +145,9 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
     }
 }
 
-class InfoCards extends React.Component<{ data: Array<InfoRecord>}, {infoDisplayed: number}> {
+class InfoCards extends React.Component<{ data: Array<InfoRecord>, cardElement: any}, {infoDisplayed: number}> {
     INFO_QUANTUM = 10; // number of infos loaded on one load
-    constructor(props: { data: Array<InfoRecord>}) {
+    constructor(props: { data: Array<InfoRecord>, cardElement: any}) {
         super(props);
         this.state = {
             infoDisplayed: this.props.data.length >= this.INFO_QUANTUM ? this.INFO_QUANTUM : this.props.data.length,
@@ -152,7 +166,7 @@ class InfoCards extends React.Component<{ data: Array<InfoRecord>}, {infoDisplay
             <>
                     <Row className="text-center justify-content-md-center">
                         {infoRecords.slice(0, displayedCount).map(record => 
-                            (<InfoCard data={record} key={(record.getName() || "") + Math.random().toString()} />))}
+                            (<this.props.cardElement data={record} key={(record.getName() || "") + Math.random().toString()} />))}
                     </Row>
                     <Paging displayedCount={displayedCount} totalCount={ infoRecords.length }  increment={ this.INFO_QUANTUM } setDisplayCount={ this.setDisplayedCount } />
             </>
@@ -246,4 +260,4 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
     }
 }
 
-export { BulletinDetail };
+export { BulletinDetail, Attachements, InfoCards };

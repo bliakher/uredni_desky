@@ -6,7 +6,7 @@ import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
 import { BulletinList} from "./pages/List";
 import Home from './pages/Home';
-import { BulletinMap, Map } from './pages/Map';
+import { Map } from './pages/Map';
 import NoPage from './pages/NoPage';
 import { Validation, ValidationDetail } from './pages/Validation';
 import { BulletinDetail } from './pages/Detail';
