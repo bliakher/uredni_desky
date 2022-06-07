@@ -1,9 +1,10 @@
 import React from 'react';
-import { Row } from 'react-bootstrap';
+import { Col, ListGroup, Row } from 'react-bootstrap';
 import { BulletinData, Datasets } from '../model/dataset';
 import { Loader } from '../Utils';
 
 import Plotly from 'plotly.js-dist-min';
+import { Link } from 'react-router-dom';
 
 
 const Header = () => {
@@ -57,8 +58,8 @@ class ProviderStatistics extends React.Component {
     }
     render() {
         return (
-            <Row>
-                <h3>Statistika poskytovatelů úředních desek</h3>
+            <Row className="text-center justify-content-md-center">
+                <h4>Statistika poskytovatelů úředních desek</h4>
             </Row>
         );
     }
@@ -105,7 +106,23 @@ class ValidationStatistics extends React.Component<{data: BulletinData[]}> {
         this.pieContainer = React.createRef();
         this.params = this.initParams();
     }
-
+    componentDidMount() {
+        var values = [this.params.correctPerc, this.params.notLoadedPerc, this.params.incorrectLoadedPerc];
+        var labels = ["Bez nedostatků", "Nelze stáhnout distribuci", "Chybějící doporučené atributy"];
+        var data: {values: number[], labels: string[], type: ("pie" | undefined)}[] = [{
+            values: values,
+            labels: labels,
+            type: 'pie'
+        }];
+        // {height: number, width: number, grid: { rows: number, columns: number, pattern: ('independent' | 'coupled') }}
+        var layout = {
+            height: 300,
+            width: 500
+          };
+        if (this.pieContainer.current) {
+            Plotly.newPlot(this.pieContainer.current, data, layout);
+        }
+    }
     initParams() {
         var allMissing = [];
         var notLoaded = 0;
@@ -136,34 +153,64 @@ class ValidationStatistics extends React.Component<{data: BulletinData[]}> {
         return new ValidationParams(count, notLoaded, correctCount, bulletinError, infoError);
     }
     getPieData() {
-        var data = [this.params.correctPerc]
+        var values = [this.params.correctPerc, this.params.notLoadedPerc, this.params.incorrectLoaded];
+        var labels = ["Bez nedostatků", "Nelze stáhnout distribuci", "Chybějící doporučené atributy"];
+        return [{
+            values: values,
+            labels: labels,
+            type: "pie"
+        }];
+    }
+    renderStatText() {
+        return (
+            <>
+            <ListGroup>
+                <ListGroup.Item>
+                    {"Celkem úředních desek: " + this.params.count}
+                </ListGroup.Item>
+                <ListGroup.Item>
+                    {"Nelze načíst distribuci u " + this.params.notLoaded + " desek (" + this.params.notLoadedPerc + " %)."}
+                </ListGroup.Item>
+                <ListGroup.Item>
+                    {"Z načtených, nalezeny nedostatky u " + this.params.incorrectLoaded + " desek (" + this.params.incorrectLoadedPerc + " %)."}
+                    <ul>
+                        <li>
+                            {"Z toho " + this.params.bulletinError + " desek (" + this.params.bulletinPerc + " %) nemá všechny doporučené atributy v metadatech celé desky."}
+                        </li>
+                        <li>
+                            {"A " + this.params.infoError + " desek (" + this.params.infoPerc + " %) nemá všechny doporučené atributy u všech informací, zveřejněných na desce." }
+                        </li>
+                    </ul>
+                </ListGroup.Item>
+                <ListGroup.Item>
+                    {"Celkem úředních desek s nedostatky: " + this.params.withErrors + " (" + this.params.withErrorsPerc + " %)"}
+                </ListGroup.Item>
+            </ListGroup>
+            </>
+        );
     }
     render() {
         return (
             <>
-                <Row>
-                    <h3>Validace úředních desek - statistika</h3>
+                <Row className="text-center justify-content-md-center">
+                    <h4>Validace úředních desek</h4>
                 </Row>
-                <ul>
-                    <li>
-                        {"Celkem úředních desek: " + this.params.count}
-                    </li>
-                    <li>
-                        {"Nelze načíst distribuci u " + this.params.notLoaded + " desek (" + this.params.notLoadedPerc + " %)."}
-                    </li>
-                    <li>
-                        {"Z načtených, nalezeny nedostatky u " + this.params.incorrectLoaded + " desek (" + this.params.incorrectLoadedPerc + " %)."}
-                    </li>
-                    <li>
-                        {"Z toho " + this.params.bulletinError + " desek (" + this.params.bulletinPerc + " %) nemá všechny doporučené atributy v metadatech celé desky."}
-                    </li>
-                    <li>
-                        {"A " + this.params.infoError + " desek (" + this.params.infoPerc + " %) nemá všechny doporučené atributy u všech informací, zveřejněných na desce." }
-                    </li>
-                    <li>
-                        {"Celkem úředních desek s nedostatky: " + this.params.withErrors + " (" + this.params.withErrorsPerc + " %)"}
-                    </li>
-                </ul>
+                <Row className="text-center justify-content-md-center">
+                    <Col className="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6 d-flex p-2 m-2">
+                        <p>
+                            Validaci provádíme na základě <a href="https://ofn.gov.cz/úředn%C3%AD-desky/2021-07-20/">specifikace</a> OFN pro úřední desky, která obsahuje seznam doporučených atributů, které by zveřejněná deska měla obsahovat.
+                            Podrobnější informace a validaci konkrétních úředních desek naleznete v sekci <a href="#/validace">Validace</a>.
+                        </p>
+                    </Col>
+                </Row>
+                <Row className="justify-content-md-center">
+                    <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex">
+                        { this.renderStatText() }
+                    </Col>
+                    <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
+                        <div ref={ this.pieContainer } />
+                    </Col>
+                </Row>
             </>
         );
         
