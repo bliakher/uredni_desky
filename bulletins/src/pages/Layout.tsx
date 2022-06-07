@@ -19,6 +19,7 @@ const Layout = () => {
                         <Nav.Link href="#/">Seznam</Nav.Link>
                         <Nav.Link href="#/mapa">Mapa</Nav.Link>
                         <Nav.Link href="#/validace">Validace</Nav.Link>
+                        <Nav.Link href="#/statistiky">Statistiky</Nav.Link>
                         <Nav.Link href="#/about">O projektu</Nav.Link>
                     </Nav>
                     </Navbar.Collapse>

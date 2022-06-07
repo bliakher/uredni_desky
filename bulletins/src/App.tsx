@@ -12,6 +12,7 @@ import { Validation, ValidationDetail } from './pages/Validation';
 import { BulletinDetail } from './pages/Detail';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { Statistics } from './pages/Statistics';
 
 class App extends React.Component {
 
@@ -32,6 +33,7 @@ class App extends React.Component {
                 <Route index element={ <Validation /> } />
                 <Route path="detail" element={ <ValidationDetail /> }/>
               </Route>
+              <Route path="statistiky" element={ <Statistics /> }/>
               <Route path="about" element={ <Home /> } />
               <Route path="*" element={ <NoPage /> } />
           </Routes>
