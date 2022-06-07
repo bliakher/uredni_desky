@@ -1,4 +1,5 @@
 import formurlencoded from 'form-urlencoded';
+import type { ProviderTypeCountMap, ProviderTypeLabelMap } from './dataset';
 
 const nkod_sparql = "https://data.gov.cz/sparql";
 const rpp_sparql = "https://rpp-opendata.egon.gov.cz/odrpp/sparql";
@@ -107,28 +108,6 @@ function getQueryOrganizationInfoByIco(ico: string): string {
     }";
 }
 
-function getSparqlQueryObj(query: string) {
-    return {
-        "headers": {
-            "accept": "application/json",
-            "content-type": "application/sparql-query",
-        },
-        "body": query,
-        "method": "POST",
-    };
-}
-
-function getQueryAddressPointByIri(iri: string): string {
-    var identifier = "<" + iri + ">";
-    return "PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
-    PREFIX schema: <http://schema.org/> \
-    PREFIX locn: <http://www.w3.org/ns/locn#> \
-    SELECT DISTINCT * WHERE { "
-     + identifier + " a schema:Place . "
-     + identifier + " locn:geometry ?geometrie \
-    }";
-}
-
 function getQueryAddressPointsByIris(iriList: Array<string>): string {
     var query = "PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
     PREFIX schema: <http://schema.org/> \
@@ -145,8 +124,43 @@ function getQueryAddressPointsByIris(iriList: Array<string>): string {
     return query;
 }
 
+const queryAllOrganizationTypes = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#> \
+PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
+PREFIX a-sgov-104-pojem: <https://slovník.gov.cz/agendový/104/pojem/> \
+SELECT ?cislo ?nazev (COUNT(?ovm) AS ?pocetOvm) WHERE { \
+  ?ovm a l-sgov-sbírka-111-2009-pojem:orgán-veřejné-moci ; \
+   					l-sgov-sbírka-111-2009-pojem:má-právní-formu-osoby ?pravniForma . \
+  ?pravniForma skos:notation ?cislo ; \
+                            skos:prefLabel ?nazev . FILTER (langMatches(LANG(?nazev), 'cs')) \
+} \
+GROUP BY ?pravniForma ?cislo ?nazev";
+
+function getNKODQueryObj(query: string) {
+    return {
+        "headers": {
+            "accept": "application/json",
+            "content-type": "application/sparql-query",
+        },
+        "body": query,
+        "method": "POST",
+    };
+}
+
+function getRPPQueryObj(query: string) {
+    return {
+        "headers": {
+            "accept": "application/sparql-results+json",
+            "content-type": "application/x-www-form-urlencoded",
+        },
+        "body": formurlencoded({query : query}),
+        "method": "POST",
+    };
+}
+
+
+
 async function fetchAllBulletins(){
-    const response = await fetch(nkod_sparql, getSparqlQueryObj(queryAllBulletinBoards));
+    const response = await fetch(nkod_sparql, getNKODQueryObj(queryAllBulletinBoards));
     return (await response.json()).results.bindings;
 }
 
@@ -156,23 +170,16 @@ interface OrganizationInfo {
     residenceIri: string;
 }
 
-
 async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<string, OrganizationInfo>>  {
     var query = getQueryForOrganizationTypeWithIco(icoList);
-    const response = await fetch(rpp_sparql, {
-        "headers": {
-            "accept": "application/sparql-results+json",
-            "content-type": "application/x-www-form-urlencoded",
-        },
-        "body": formurlencoded({query : query}),
-        "method": "POST",
-    });
+    const response = await fetch(rpp_sparql, getRPPQueryObj(query));
     var typedOrganizations = (await response.json()).results.bindings;
     var orgMap = new Map(); 
     for (var org of typedOrganizations) {
         var cisloOVM: string = org.cisloOVM.value;
         var type: string = org.cisloPravniFormy ? org.cisloPravniFormy.value : "";
-        var orgInfo: OrganizationInfo = {name: org.nazev.value, typeNumber: type, residenceIri: org.sidlo.value };
+        var residence = org.sidlo ? org.sidlo.value : "";
+        var orgInfo: OrganizationInfo = {name: org.nazev.value, typeNumber: type, residenceIri: residence};
         orgMap.set(cisloOVM, orgInfo);
     }
     return orgMap;
@@ -180,7 +187,7 @@ async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<strin
 
 async function fetchBulletinByIri(iri: string) {
     try {
-        const response = await fetch(nkod_sparql, getSparqlQueryObj(getQueryBulletinByIri(iri)));
+        const response = await fetch(nkod_sparql, getNKODQueryObj(getQueryBulletinByIri(iri)));
         var parsed = await response.json();
         return parsed.results.bindings;
     } catch(error) {
@@ -192,14 +199,7 @@ async function fetchBulletinByIri(iri: string) {
 async function fetchOrganizationNameByIco(ico: string) {
     var query = getQueryOrganizationInfoByIco(ico);
     try {
-        const response = await fetch(rpp_sparql,  {
-            "headers": {
-                "accept": "application/sparql-results+json",
-                "content-type": "application/x-www-form-urlencoded",
-            },
-            "body": formurlencoded({query : query}),
-            "method": "POST",
-        });
+        const response = await fetch(rpp_sparql, getRPPQueryObj(query));
         var parsed = await response.json();
         return parsed.results.bindings[0].nazev.value;
     } catch(error) {
@@ -220,26 +220,12 @@ function parsePoint(point: string): Point {
     return {X: x, Y: y};
 }
 
-async function fetchAddressPointByIri(iri:string): Promise<Point | null> {
-    var query = getQueryAddressPointByIri(iri);
-    try {
-        const response = await fetch(cuzk_sparql, getSparqlQueryObj(query));
-        var parsed = await response.json();
-        var point: string = parsed.results.bindings[0].geometrie.value; 
-        return parsePoint(point);
-    } catch(error) {
-        return null;
-    }
-
-}
-
-
 async function fetchAddressPointsByIris(iriList: Array<string>): Promise<PointMap | null> {
     var query = getQueryAddressPointsByIris(iriList);
     var result = new Map<string,Point>();
     try {
-        const response = await fetch(cuzk_sparql, getSparqlQueryObj(query));
-        var parsed = await response.json();
+        const response = await fetch(cuzk_sparql, getNKODQueryObj(query));
+        const parsed = await response.json();
         for (var obj of parsed.results.bindings) {
             var iri = obj.iri.value;
             var point = parsePoint(obj.geometrie.value);
@@ -251,5 +237,24 @@ async function fetchAddressPointsByIris(iriList: Array<string>): Promise<PointMa
     }
 }
 
+async function fetchAllOrganizationTypes(): Promise<{labels: ProviderTypeLabelMap, counts: ProviderTypeCountMap} | null > {
+    try {
+        const response = await fetch(rpp_sparql, getRPPQueryObj(queryAllOrganizationTypes));
+        const parsed = await response.json();
+        var labelMap = new Map();
+        var countMap = new Map();
+        for (var obj of parsed.results.bindings) {
+            var type = obj.cislo.value;
+            var label = obj.nazev.value;
+            var count = parseInt(obj.pocetOvm.value);
+            labelMap.set(type, label);
+            countMap.set(type, count);
+        }
+        return {labels: labelMap, counts: countMap};
+    } catch(error) {
+        return null;
+    }
+}
+
 export type { Point, PointMap };
-export { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri, fetchOrganizationNameByIco, fetchAddressPointsByIris };
+export { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri, fetchOrganizationNameByIco, fetchAddressPointsByIris, fetchAllOrganizationTypes };

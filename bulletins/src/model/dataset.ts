@@ -1,4 +1,5 @@
-import  { fetchAllBulletins, fetchOrganizationTypes as fetchOrganizationInfo, fetchBulletinByIri, fetchAddressPointsByIris }  from "./query";
+import  { fetchAllBulletins, fetchOrganizationTypes as fetchOrganizationInfo, 
+    fetchBulletinByIri, fetchAddressPointsByIris, fetchOrganizationTypes, fetchAllOrganizationTypes }  from "./query";
 import type { Point, PointMap } from './query';
 
 /* Metadata of a bulletin dataset in NKOD
@@ -37,7 +38,7 @@ class BulletinDistribution {
         const page = "stránka";
         return this.getProperty(page);
     }
-    getPublisher(): { ičo: string} | false {
+    getPublisher(): { ičo: string, identifikátor_ovm: string} | false {
         const publisher = "provozovatel";
         return this.getProperty(publisher);
         
@@ -291,6 +292,9 @@ interface SortedBulletins {
     other: BulletinData[];
 }
 
+type ProviderTypeCountMap = Map<string, number>;
+type ProviderTypeLabelMap = Map<string, string>;
+
 /* Wrapper for all bulletin datasets
 */
 class Datasets {
@@ -327,9 +331,18 @@ class Datasets {
     getIcoList(): Array<string> {
         var icoList : string[] = this.data.map(bulletin => {
             var distribution = bulletin.getDistribution();
-            if (distribution == null) return "";
+            if (distribution == null) {
+                return this.getIcoFromIri(bulletin);
+            }
             var publisher = distribution.getPublisher();
-            return publisher ? publisher.ičo : "";
+            if (publisher) {
+                if (publisher.ičo) return publisher.ičo;
+                if (publisher.identifikátor_ovm) {
+                    return publisher.identifikátor_ovm;
+                }
+            } 
+            console.log(bulletin.iri);
+            return "";
         });
         return icoList.filter(ico => ico != "");
     }
@@ -390,6 +403,22 @@ class Datasets {
         return result;
     }
 
+    async filterInnerProvidersByType(): Promise<ProviderTypeCountMap> {
+        var ico = this.getIcoList();
+        // console.log(ico);
+        var providerInfo = await fetchOrganizationTypes(ico);
+        var typeToCount = new Map<string, number>();
+        providerInfo.forEach((orgInfo, key) => {
+            //if (orgInfo.typeNumber === "") console.log(key);
+            var curCount = typeToCount.get(orgInfo.typeNumber);
+            var newCount = curCount ? curCount + 1 : 1;
+            typeToCount.set(orgInfo.typeNumber, newCount);
+        });
+        return typeToCount;
+    }
+    async getAllProviderTypes(): Promise<{labels: ProviderTypeLabelMap, counts: ProviderTypeCountMap} | null> {
+        return await fetchAllOrganizationTypes();
+    }
 }
 
 class Provider {
@@ -477,5 +506,5 @@ async function getBulletinByIri(iri: string): Promise<BulletinData | null> {
     return new BulletinData(dataWithIri);
 }
 
-export type { SortedBulletins, MissingProperties };
+export type { SortedBulletins, MissingProperties, ProviderTypeCountMap, ProviderTypeLabelMap };
 export { Datasets, BulletinData, InfoRecord, TimeMoment, Document, ProviderType, Provider, SortedProviders, getBulletinByIri };

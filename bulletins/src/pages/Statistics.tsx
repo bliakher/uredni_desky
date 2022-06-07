@@ -1,10 +1,10 @@
 import React from 'react';
 import { Col, ListGroup, Row } from 'react-bootstrap';
+import type { ProviderTypeCountMap, ProviderTypeLabelMap } from '../model/dataset';
 import { BulletinData, Datasets } from '../model/dataset';
 import { Loader } from '../Utils';
 
 import Plotly from 'plotly.js-dist-min';
-import { Link } from 'react-router-dom';
 
 
 const Header = () => {
@@ -22,14 +22,28 @@ const Header = () => {
 
 class Statistics extends React.Component<{}, {loaded: boolean}> {
     data: Datasets;
+    providerCounts: ProviderTypeCountMap;
+    maxProviderCounts: ProviderTypeCountMap;
+    providerLabels: ProviderTypeLabelMap;
+    
     constructor(props: any) {
         super(props);
         this.state = {loaded : false};
         this.data = new Datasets();
+        this.providerCounts = new Map();
+        this.maxProviderCounts = new Map();
+        this.providerLabels = new Map();
     }
     async componentDidMount() {
         await this.data.fetchDatasets();
         await this.data.fetchAllDistibutions();
+        this.providerCounts = await this.data.filterInnerProvidersByType();
+        var maps = await this.data.getAllProviderTypes();
+        if (maps) {
+            this.maxProviderCounts = maps.counts;
+            this.providerLabels = maps.labels;
+        }
+
         this.setState({loaded: true});
     }
     render() {
@@ -44,23 +58,127 @@ class Statistics extends React.Component<{}, {loaded: boolean}> {
         return (
             <>
                 <Header />
+                <hr />
                 <ValidationStatistics data={this.data.data} />
-                <ProviderStatistics />
+                <hr />
+                <ProviderStatistics providerCounts={this.providerCounts} maxProviderCounts={this.maxProviderCounts} 
+                    providerLabels={this.providerLabels}/>
             </>
         );
 
     }
 }
 
-class ProviderStatistics extends React.Component {
-    constructor(props: any) {
+interface ProviderStatProps {
+    providerCounts: ProviderTypeCountMap;
+    maxProviderCounts: ProviderTypeCountMap;
+    providerLabels: ProviderTypeLabelMap;
+}
+
+class ProviderStatistics extends React.Component<ProviderStatProps> {
+    multiplePieContainer: React.RefObject<HTMLInputElement>;
+    otherPieContainer: React.RefObject<HTMLInputElement>;
+    constructor(props: ProviderStatProps) {
         super(props);
+        this.multiplePieContainer = React.createRef();
+        this.otherPieContainer = React.createRef();
+    }
+    componentDidMount() {
+        // console.log(this.props.providerCounts);
+        this.createCharts();
+    }
+    getProvidersCount() {
+        var result = new Map(); // map: provider type number -> [count of all OVM, count of providers]
+        this.props.providerCounts.forEach((count, providerType) => {
+            if (providerType !== "") {
+                var maxCountVal = this.props.maxProviderCounts.get(providerType);
+                var maxCount = maxCountVal ? maxCountVal : -1;
+                var total = count + maxCount;
+                // console.log(count, maxCount, total, count / total, maxCount / total);
+                var countPerc = Math.round(count / total * 10000) / 100;
+                var maxCountPerc = Math.round(maxCount / total * 10000) / 100;
+                result.set(providerType, [maxCountPerc, countPerc]);
+            }
+        });
+        return result;
+    }
+    createCharts() {
+        var labels = ["OVM celkem", "OVM poskytující úřední desku jako otevřená data"];
+        var data: {
+            values: number[],
+            labels: string[],
+            type: 'pie' | undefined,
+            title: {text: string},
+            domain: {
+                row: number,
+                col: number
+            } 
+        }[] = [];
+        var valueMap = this.getProvidersCount();
+        var curChart = 0;
+        valueMap.forEach((counts, type) => {
+            var typeName = this.props.providerLabels.get(type);
+            var dataObj: {
+                values: number[],
+                labels: string[],
+                type: 'pie' | undefined,
+                title: {text: string},
+                domain: {
+                    row: number,
+                    col: number
+                } 
+            } = {
+                values: counts,
+                labels: labels,
+                type: 'pie',
+                title: {text: typeName? typeName : ""},
+                domain: {
+                    row: Math.floor(curChart / 2),
+                    col: curChart % 2
+                } 
+            }
+            data.push(dataObj);
+            curChart++;
+        });
+        var chartCount = valueMap.size % 2 == 0 ? valueMap.size : valueMap.size + 1;
+        var rowCount = chartCount / 2;
+        console.log(rowCount);
+        var layout: {
+            height: number,
+            width: number,
+            grid: {rows: number, columns: number, xgap: number},
+            xaxis: {domain: number[]}
+        } = {
+            height: 800,
+            width: 1000,
+            grid: {rows: rowCount, columns: 2, xgap: 0.1},
+            xaxis: {domain: [0, 0.5]}
+        };
+        if (this.multiplePieContainer.current) {
+            Plotly.newPlot(this.multiplePieContainer.current, data, layout);
+        }
+        console.log(data);
     }
     render() {
         return (
-            <Row className="text-center justify-content-md-center">
-                <h4>Statistika poskytovatelů úředních desek</h4>
-            </Row>
+            <>
+                <Row className="text-center justify-content-md-center">
+                    <h4>Statistika poskytovatelů úředních desek</h4>
+                </Row>
+                <Row className="text-center justify-content-md-center">
+                    <Col className="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6 d-flex p-2 m-2">
+                        <p>
+                            Poskytovatele dat z úředních desek můžeme rozdělit do kategorií podle jejich právní formy. 
+                            Data o právní formě orgánů veřejné moci získáváme z Registu práv a povinností (<a href="https://www.szrcr.cz/cs/registr-prav-a-povinnosti">RPP</a>).
+                            Tato statistika udává, kolik z existujících orgánů veřejné moci v každé kategorii zveřejňuje svoji úřední desku jako otevřená data.
+                            Jednotlivé úřední desky je možné si prohlédnout v sekci <a href="#/seznam">Seznam</a>.
+                        </p>
+                    </Col>
+                </Row>
+                <Row>
+                    <div ref={this.multiplePieContainer} />
+                </Row>
+            </>
         );
     }
 }
