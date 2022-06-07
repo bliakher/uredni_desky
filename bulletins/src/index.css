@@ -12,23 +12,6 @@ code {
     monospace;
 }
 
-div.bulletin {
-  border: solid 1px;
-  border-color: black;
-}
-
-span * {
-  display: inline-block;
-}
-
-table * {
-  border: solid 1px black;
-}
-
-div {
-  margin: 5px;
-}
-
 tr.validation-severe {
   background-color: #fc7676 ;
 }
