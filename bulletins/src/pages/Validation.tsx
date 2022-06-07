@@ -252,7 +252,7 @@ class ValidationRow extends React.Component<{data: BulletinData}, {loaded: boole
         var name = this.props.data.name;
         return (
             <tr>
-                <td>{provider}</td>
+                <td>{provider.name}</td>
                 <td>{name}</td>
                 <td colSpan={6}>Načítá se...</td>
             </tr>
@@ -275,7 +275,7 @@ class ValidationRow extends React.Component<{data: BulletinData}, {loaded: boole
         
         return (
             <tr className={"p-2 " + errorLevelClass}>
-                <td>{provider}</td>
+                <td>{provider.name}</td>
                 <td>{name}</td>
                 <td className="text-center">{distribution? this.ok : this.notOk }</td>
                 <td className="text-center">{distribution? missingBulletin : this.noValue }</td>
@@ -371,9 +371,11 @@ class ValidationTable extends React.Component<{data: BulletinData[]}, {displayed
             </tr>
         );
     }
+
     
     render() {
         var bulletins = this.props.data;
+        // console.log(bulletins.length);
         var header = this.renderHeaderRow();
         var displayedCount = this.props.data.length > this.state.displayedCount ? this.state.displayedCount : this.props.data.length;
         return (
@@ -385,11 +387,11 @@ class ValidationTable extends React.Component<{data: BulletinData[]}, {displayed
                     </thead>
                     <tbody>
                         { bulletins.slice(0, displayedCount)
-                            .map(bul => <ValidationRow data={bul} />) }
+                            .map(bul => <ValidationRow data={bul} key={bul.iri}/>) }
                     </tbody>
                 </Table>
-                <Paging displayedCount={displayedCount} totalCount={this.props.data.length} increment={this.ROW_QUANTUM} 
-                    setDisplayCount={this.setDisplayedCount}/>
+                {/* <Paging displayedCount={displayedCount} totalCount={this.props.data.length} increment={this.ROW_QUANTUM} 
+                    setDisplayCount={this.setDisplayedCount}/> */}
             </>
         );
     }
