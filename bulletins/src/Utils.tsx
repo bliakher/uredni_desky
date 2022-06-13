@@ -86,7 +86,7 @@ class CheckboxGroup extends React.Component<CheckboxOptions> {
 
 const Loader = () => {
     return (
-        <div className="text-center justify-content-md-center">
+        <div className="text-center justify-content-md-center m-2">
             <Spinner animation="grow" size="sm" role="status"/> Načítá se...
         </div>);
 }

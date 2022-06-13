@@ -11,7 +11,7 @@ import Row from 'react-bootstrap/Row';
 import Stack from 'react-bootstrap/Stack'
 import { Col, Form, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { BsCalendar2Event as CalendarEventIcon, BsCalendar2X as CalendarXIcon,
-    BsCalendar2PlusFill as CalendarPlusIcon, BsCalendar2XFill as CalendarXFillIcon } from 'react-icons/bs';
+    BsCalendar2PlusFill as CalendarPlusIcon, BsCalendar2XFill as CalendarXFillIcon, BsLink45Deg as LinkIcon } from 'react-icons/bs';
 
 const BulletinDetail = () => {
     var params = new URLSearchParams(useLocation().search);
@@ -80,7 +80,12 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
                                 <img alt="logo" src={znak} width="50" height="60" className="d-inline-block align-top m-2" />
                             </div>
                             <div className="text-center justify-content-md-center m-2">
-                                <h3>{this.data.name}</h3>
+                                <h3>
+                                    {this.data.name + " "} 
+                                    <a href={"https://data.gov.cz/datová-sada?iri=" + this.props.iri} target="_blank" rel="noreferrer">
+                                        <LinkIcon />
+                                    </a>
+                                </h3>
                             </div>
                             {/**  className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex"  */}
                             <Row className="text-center justify-content-md-center d-flex align-items-center">
