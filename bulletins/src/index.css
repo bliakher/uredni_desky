@@ -12,6 +12,10 @@ code {
     monospace;
 }
 
+.outdated {
+  color: #9e2c24;
+}
+
 tr.validation-severe {
   background-color: #fc7676 ;
 }
