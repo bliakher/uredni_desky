@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router';
 import { BulletinData, getBulletinByIri, InfoRecord, TimeMoment, Document } from '../model/dataset';
 import { fetchOrganizationNameByIco } from '../model/query';
-import { Loader, Paging, HoverTooltip } from '../Utils';
+import { Loader, Paging, HoverTooltip, SimplePaging } from '../Utils';
 import znak from '../statni_znak.png';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
@@ -77,9 +77,9 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
                     <>
                         <Container>
                             <div className="text-center">
-                                <img alt="logo" src={znak} width="50" height="60" className="d-inline-block align-top" />
+                                <img alt="logo" src={znak} width="50" height="60" className="d-inline-block align-top m-2" />
                             </div>
-                            <div className="text-center justify-content-md-center">
+                            <div className="text-center justify-content-md-center m-2">
                                 <h3>{this.data.name}</h3>
                             </div>
                             {/**  className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex"  */}
@@ -145,30 +145,43 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
     }
 }
 
-class InfoCards extends React.Component<{ data: Array<InfoRecord>, cardElement: any}, {infoDisplayed: number}> {
+class InfoCards extends React.Component<{ data: Array<InfoRecord>, cardElement: any}, {displayedCount: number}> {
     INFO_QUANTUM = 10; // number of infos loaded on one load
     constructor(props: { data: Array<InfoRecord>, cardElement: any}) {
         super(props);
         this.state = {
-            infoDisplayed: this.props.data.length >= this.INFO_QUANTUM ? this.INFO_QUANTUM : this.props.data.length,
+            displayedCount: this.props.data.length >= this.INFO_QUANTUM ? this.INFO_QUANTUM : this.props.data.length,
         };
-        this.setDisplayedCount = this.setDisplayedCount.bind(this);
+        this.handleShowMore = this.handleShowMore.bind(this);
+        this.handleShowAll = this.handleShowAll.bind(this);
     }
-    setDisplayedCount(newCount: number): void {
-        this.setState( {infoDisplayed: newCount} );
+    handleShowMore() {
+        var total = this.props.data.length;
+        var displayed = this.state.displayedCount;
+        var increment = this.INFO_QUANTUM;
+        if ( displayed + increment <= total) {
+            displayed += increment;
+        } else {
+            displayed += (total - displayed);
+        }
+        this.setState({displayedCount: displayed});
+    }
+    handleShowAll() {
+        var total = this.props.data.length;
+        this.setState({displayedCount: total});
     }
     render() {
         var infoRecords = this.props.data;
         infoRecords.sort(InfoRecord.compare); // sort by date issued
         infoRecords.reverse(); // reverse so the newest show first
-        var displayedCount = this.props.data.length > this.state.infoDisplayed ? this.state.infoDisplayed : this.props.data.length;
+        var displayed = this.state.displayedCount < this.props.data.length ? this.state.displayedCount : this.props.data.length;
         return (
             <>
                     <Row className="text-center justify-content-md-center">
-                        {infoRecords.slice(0, displayedCount).map(record => 
+                        {infoRecords.slice(0, displayed).map(record => 
                             (<this.props.cardElement data={record} key={(record.getName() || "") + Math.random().toString()} />))}
                     </Row>
-                    <Paging displayedCount={displayedCount} totalCount={ infoRecords.length }  increment={ this.INFO_QUANTUM } setDisplayCount={ this.setDisplayedCount } />
+                    <SimplePaging displayed={displayed} total={this.props.data.length} handleMore={this.handleShowMore} handleAll={this.handleShowAll} />
             </>
         );
     }
@@ -223,8 +236,6 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
                     </Card.Body>
                     <ListGroup className="list-group-flush">
                         <ListGroupItem>
-                            {/* <div>{"Datum vyvěšení: " + issuedStr}</div>
-                            <div>{"Relevantní do: " + validToStr}</div> */}
                             <HoverTooltip tooltipText="Datum vyvěšení" innerElement={
                                 <div>
                                     <CalendarEventIcon className="m-2"/>
@@ -235,7 +246,7 @@ class InfoCard extends React.Component<{data: InfoRecord}> {
                                 <div>
                                     <CalendarXFillIcon className="m-2"/>
                                     {isValid && validToStr}
-                                    {!isValid && <b>{validToStr}</b>}
+                                    {!isValid && <b className="outdated">{validToStr}</b>}
                                 </div>
                             }/>
                            

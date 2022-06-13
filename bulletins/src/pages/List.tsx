@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BulletinData, InfoRecord, SortedBulletins, ProviderType } from '../model/dataset';
-import { SelectorOptions, OptionChangeCallback, RadioSelector, Paging } from '../Utils';
+import { SimplePaging } from '../Utils';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
@@ -10,6 +10,7 @@ import Badge from 'react-bootstrap/Badge';
 import {BulletinController } from './BulletinController';
 import { Col } from 'react-bootstrap';
 import Stack from 'react-bootstrap/Stack'
+import { stat } from 'fs';
 
 
 class Bulletin extends React.Component<{ data: BulletinData}> {
@@ -87,18 +88,37 @@ class BulletinCards extends React.Component<{data: BulletinData[]}, {displayedCo
         super(props);
         this.state = { displayedCount: this.DISPLAY_INCREMENT <= props.data.length ? this.DISPLAY_INCREMENT : props.data.length };
         this.setDisplayedCount = this.setDisplayedCount.bind(this);
+        this.handleShowMore = this.handleShowMore.bind(this);
+        this.handleShowAll = this.handleShowAll.bind(this);
     }
     setDisplayedCount(newCount: number): void {
         this.setState( {displayedCount: newCount} );
     }
 
+        handleShowMore() {
+            var total = this.props.data.length;
+            var displayed = this.state.displayedCount;
+            var increment = this.DISPLAY_INCREMENT;
+            if ( displayed + increment <= total) {
+                displayed += increment;
+            } else {
+                displayed += (total - displayed);
+            }
+            this.setState({displayedCount: displayed});
+        }
+        handleShowAll() {
+            var total = this.props.data.length;
+            this.setState({displayedCount: total});
+        }
+
     render() {
-        var displayedCount = this.props.data.length > this.state.displayedCount ? this.state.displayedCount : this.props.data.length;
+        var displayed = this.state.displayedCount < this.props.data.length ? this.state.displayedCount : this.props.data.length;
+
         return (
             <Container fluid className="p-3">
                 <Row /*lg={3} md={2} sm={1}*/ className="justify-content-md-center">
                     { this.props.data
-                        .slice(0, displayedCount)
+                        .slice(0, displayed)
                         .map((bul) => (
                             <Col key={bul.source + Math.random().toString()} 
                                 className="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3 col-xxl-3 d-flex p-2">
@@ -106,8 +126,10 @@ class BulletinCards extends React.Component<{data: BulletinData[]}, {displayedCo
                             </Col>
                     ))}
                 </Row>
-                <Paging displayedCount={displayedCount} totalCount={ this.props.data.length }  
-                    increment={ this.DISPLAY_INCREMENT } setDisplayCount={ this.setDisplayedCount }/>
+                {/* <Paging displayedCount={displayedCount} totalCount={ this.props.data.length }  
+                    increment={ this.DISPLAY_INCREMENT } setDisplayCount={ this.setDisplayedCount }/> */}
+                <SimplePaging displayed={displayed} total={this.props.data.length}
+                    handleMore={this.handleShowMore} handleAll={this.handleShowAll} />
             </Container>
         );
     }

@@ -8,7 +8,7 @@ import { Card, ListGroup, ListGroupItem, Row } from 'react-bootstrap';
 import { BulletinController } from './BulletinController';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
-import { Paging, HoverTooltip, Loader } from '../Utils';
+import { SimplePaging, HoverTooltip, Loader } from '../Utils';
 import { BsCalendar2Event as CalendarEventIcon, BsCalendar2X as CalendarXIcon,
     BsCalendar2PlusFill as CalendarPlusIcon, BsCalendar2XFill as CalendarXFillIcon } from 'react-icons/bs';
 
@@ -353,10 +353,8 @@ class ValidationTable extends React.Component<{data: BulletinData[]}, {displayed
     constructor(props: {data: BulletinData[]}) {
         super(props);
         this.state = { displayedCount: props.data.length > this.ROW_QUANTUM ? this.ROW_QUANTUM : props.data.length };
-        this.setDisplayedCount = this.setDisplayedCount.bind(this);
-    }
-    setDisplayedCount(newCount: number): void {
-        this.setState({displayedCount: newCount});
+        this.handleShowMore = this.handleShowMore.bind(this);
+        this.handleShowAll = this.handleShowAll.bind(this);
     }
     renderHeaderRow() {
         return (
@@ -372,12 +370,27 @@ class ValidationTable extends React.Component<{data: BulletinData[]}, {displayed
         );
     }
 
+    handleShowMore() {
+        var total = this.props.data.length;
+        var displayed = this.state.displayedCount;
+        var increment = this.ROW_QUANTUM;
+        if ( displayed + increment <= total) {
+            displayed += increment;
+        } else {
+            displayed += (total - displayed);
+        }
+        this.setState({displayedCount: displayed});
+    }
+    handleShowAll() {
+        var total = this.props.data.length;
+        this.setState({displayedCount: total});
+    }
     
     render() {
         var bulletins = this.props.data;
         // console.log(bulletins.length);
         var header = this.renderHeaderRow();
-        var displayedCount = this.props.data.length > this.state.displayedCount ? this.state.displayedCount : this.props.data.length;
+        var displayed = this.state.displayedCount < this.props.data.length ? this.state.displayedCount : this.props.data.length;
         return (
             <>
                 <TableExplanation />
@@ -386,12 +399,13 @@ class ValidationTable extends React.Component<{data: BulletinData[]}, {displayed
                         { header }
                     </thead>
                     <tbody>
-                        { bulletins.slice(0, displayedCount)
-                            .map(bul => <ValidationRow data={bul} key={bul.iri}/>) }
+                        { bulletins.slice(0, displayed)
+                            .map(bul => <ValidationRow data={bul} key={bul.iri + Math.random().toString()}/>) }
                     </tbody>
                 </Table>
-                {/* <Paging displayedCount={displayedCount} totalCount={this.props.data.length} increment={this.ROW_QUANTUM} 
-                    setDisplayCount={this.setDisplayedCount}/> */}
+                <SimplePaging displayed={displayed} total={this.props.data.length}
+                    handleMore={this.handleShowMore} handleAll={this.handleShowAll} />
+                
             </>
         );
     }
