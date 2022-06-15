@@ -1,18 +1,18 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { BulletinData, Datasets, SortedBulletins } from './model/dataset';
 import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
 import { BulletinList } from "./pages/List";
 import Home from './pages/Home';
 import { Map } from './pages/Map';
 import NoPage from './pages/NoPage';
-import { Validation, ValidationDetail } from './pages/Validation';
+import { Validation } from './pages/validation/Validation';
+import { ValidationDetail } from './pages/validation/ValidationDetail';
 import { BulletinDetail } from './pages/Detail';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Statistics } from './pages/Statistics';
+import { Statistics } from './pages/statistics/Statistics';
 
 class App extends React.Component {
 
