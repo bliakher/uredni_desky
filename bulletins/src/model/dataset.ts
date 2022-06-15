@@ -1,26 +1,28 @@
-import  { fetchAllBulletins, fetchOrganizationTypes as fetchOrganizationInfo, 
-    fetchBulletinByIri, fetchAddressPointsByIris, fetchOrganizationTypes, fetchAllOrganizationTypes }  from "./query";
+import {
+    fetchAllBulletins, fetchOrganizationTypes as fetchOrganizationInfo,
+    fetchBulletinByIri, fetchAddressPointsByIris, fetchOrganizationTypes, fetchAllOrganizationTypes
+} from "./query";
 import type { Point, PointMap } from './query';
 
 /* Metadata of a bulletin dataset in NKOD
 */
 interface BulletinMetadata {
-    dataset: {value: string};
-    name: {value: string};
-    description: {value: string};
-    provider: {value: string};
-    provider_iri : {value: string};
-    source: {value: string};
+    dataset: { value: string };
+    name: { value: string };
+    description: { value: string };
+    provider: { value: string };
+    provider_iri: { value: string };
+    source: { value: string };
 }
 
 /* Class representing the bulletin board distribution 
 * with parameters according to the OFN
 */
 class BulletinDistribution {
-    private data: any; // inner data object
     private recommendedProperties = ["@context", "typ", "iri", "stránka", "provozovatel"];
-    constructor(data: any) {
-        this.data = data;
+    constructor(
+        private data: any // inner data object
+    ) {
     }
     private hasProperty(propertyName: string): boolean {
         return this.data.hasOwnProperty(propertyName);
@@ -38,10 +40,10 @@ class BulletinDistribution {
         const page = "stránka";
         return this.getProperty(page);
     }
-    getPublisher(): { ičo: string, identifikátor_ovm: string} | false {
+    getPublisher(): { ičo: string, identifikátor_ovm: string } | false {
         const publisher = "provozovatel";
         return this.getProperty(publisher);
-        
+
     }
     getInformation(): Array<any> | false { // ToDo: type
         const info = "informace";
@@ -56,21 +58,16 @@ class BulletinDistribution {
         }
         return missing;
     }
-    
+
 }
 
 interface MissingProperties {
     bulletin: Array<string>;
-    information: Array<{name:string, missing: Array<string>}>
+    information: Array<{ name: string, missing: Array<string> }>
 }
 
 enum ProviderType {
-    Unknown,
-    City,
-    CityPart,
-    Region,
-    Government,
-    Error,
+    Unknown, City, CityPart, Region, Government, Error,
 }
 
 /* Wrapper for bulletin board dataset
@@ -83,7 +80,7 @@ class BulletinData {
     hasValidSource: boolean;
     loadError: Error;
     infoRecordsLoaded: boolean;
-    distribution: BulletinDistribution | null; 
+    distribution: BulletinDistribution | null;
     infoRecords: Array<InfoRecord>;
 
     constructor(dataset: BulletinMetadata) {
@@ -107,7 +104,7 @@ class BulletinData {
         catch (error: any) {
             this.hasValidSource = false;
             this.loadError = error;
-        } 
+        }
     }
 
     getDistribution(): BulletinDistribution | null {
@@ -117,13 +114,13 @@ class BulletinData {
     getInfoRecords(): Array<InfoRecord> | false {
         if (this.distribution == null) {
             return false;
-        } 
+        }
 
         if (!this.infoRecordsLoaded) {
             var information = this.distribution.getInformation();
             if (information) {
                 this.infoRecords = information.map(info => new InfoRecord(info));
-            } 
+            }
             this.infoRecordsLoaded = true;
         }
         return this.infoRecords;
@@ -145,14 +142,14 @@ class BulletinData {
             }
         }
         var missingPropBulletin = this.distribution != null ? this.distribution.getMissingRecommendedProperties() : [];
-        return {bulletin: missingPropBulletin, information: missingPropInfo};
+        return { bulletin: missingPropBulletin, information: missingPropInfo };
 
     }
 }
 
 class Document {
     data: any;
-    constructor (documentObj: any) {
+    constructor(documentObj: any) {
         this.data = documentObj
     }
     private hasProperty(propertyName: string): boolean {
@@ -164,7 +161,7 @@ class Document {
         }
         return null;
     }
-    getName() : string | null {
+    getName(): string | null {
         var nameObj = this.getProperty("název");
         return nameObj?.cs ?? null;
     }
@@ -192,7 +189,7 @@ class TimeMoment {
         }
         return "nespecifikováno";
     }
-    static compare(a: TimeMoment, b:TimeMoment): number {
+    static compare(a: TimeMoment, b: TimeMoment): number {
         if (a.date === null && b.date === null) {
             return 0;
         } else if (a.date === null) {
@@ -218,7 +215,7 @@ class InfoRecord {
     constructor(info: any) {
         this.data = info;
     }
-    static compare(a: InfoRecord, b: InfoRecord) : number {
+    static compare(a: InfoRecord, b: InfoRecord): number {
         var aDate = a.getDateIssued() ?? new TimeMoment(null);
         var bDate = b.getDateIssued() ?? new TimeMoment(null);
         return TimeMoment.compare(aDate, bDate);
@@ -280,7 +277,6 @@ class InfoRecord {
         }
         return missing;
     }
-
 }
 
 interface SortedBulletins {
@@ -307,7 +303,7 @@ class Datasets {
         this.isLoaded = false;
         this.metadata = [];
         this.data = [];
-        this.dataCategories = {all: [],cities: [], cityParts: [],regions: [], government: [], other: [] };
+        this.dataCategories = { all: [], cities: [], cityParts: [], regions: [], government: [], other: [] };
     }
 
     async fetchDatasets(): Promise<void> {
@@ -329,7 +325,7 @@ class Datasets {
     }
 
     getIcoList(): Array<string> {
-        var icoList : string[] = this.data.map(bulletin => {
+        var icoList: string[] = this.data.map(bulletin => {
             var distribution = bulletin.getDistribution();
             if (distribution == null) {
                 return this.getIcoFromIri(bulletin);
@@ -340,7 +336,7 @@ class Datasets {
                 if (publisher.identifikátor_ovm) {
                     return publisher.identifikátor_ovm;
                 }
-            } 
+            }
             console.log(bulletin.iri);
             return "";
         });
@@ -355,12 +351,12 @@ class Datasets {
     }
 
     getIcoFromIri(bulletin: BulletinData): string {
-        return bulletin.provider.iri.substr("https://rpp-opendata.egon.gov.cz/odrpp/zdroj/orgán-veřejné-moci/".length, 8); 
+        return bulletin.provider.iri.substr("https://rpp-opendata.egon.gov.cz/odrpp/zdroj/orgán-veřejné-moci/".length, 8);
     }
 
     getResidenceIriList(): Array<string> {
         var iris = this.data.map(bulletin => bulletin.provider.residenceIri);
-        var filtered =  iris.filter(iri => iri !== "");
+        var filtered = iris.filter(iri => iri !== "");
         var unique = new Set(filtered);
         return Array.from(unique);
     }
@@ -404,6 +400,7 @@ class Datasets {
     }
 
     async filterInnerProvidersByType(): Promise<ProviderTypeCountMap> {
+        console.log("start filter");
         var ico = this.getIcoList();
         // console.log(ico);
         var providerInfo = await fetchOrganizationTypes(ico);
@@ -416,7 +413,7 @@ class Datasets {
         });
         return typeToCount;
     }
-    async getAllProviderTypes(): Promise<{labels: ProviderTypeLabelMap, counts: ProviderTypeCountMap} | null> {
+    async getAllProviderTypes(): Promise<{ labels: ProviderTypeLabelMap, counts: ProviderTypeCountMap } | null> {
         return await fetchAllOrganizationTypes();
     }
 }
@@ -434,7 +431,7 @@ class Provider {
         this.type = type;
         this.typeNumber = typeNum;
         this.residenceIri = residenceIri;
-        this.residence = {X: -1, Y: -1};
+        this.residence = { X: -1, Y: -1 };
     }
 }
 
@@ -487,7 +484,7 @@ function getProviderType(typeCode: string): ProviderType {
         result = ProviderType.Government;
     }
     else {
-    
+        // TODO ?
     }
     return result;
 }
@@ -496,11 +493,11 @@ async function getBulletinByIri(iri: string): Promise<BulletinData | null> {
     var data = await fetchBulletinByIri(iri); // BulletinMetadata but without iri
     if (data == null || data.length == 0) return null;
     var dataWithIri: BulletinMetadata = { // add iri
-        dataset: {value: iri},
+        dataset: { value: iri },
         name: data[0].name,
         description: data[0].description,
         provider: data[0].provider,
-        provider_iri : data[0].provider_iri,
+        provider_iri: data[0].provider_iri,
         source: data[0].source
     }
     return new BulletinData(dataWithIri);

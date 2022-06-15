@@ -4,7 +4,7 @@ import './App.css';
 import { BulletinData, Datasets, SortedBulletins } from './model/dataset';
 import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
-import { BulletinList} from "./pages/List";
+import { BulletinList } from "./pages/List";
 import Home from './pages/Home';
 import { Map } from './pages/Map';
 import NoPage from './pages/NoPage';
@@ -24,18 +24,18 @@ class App extends React.Component {
     return (
       <>
         <HashRouter>
-          <Layout/>
+          <Layout />
           <Routes>
-              <Route index element={ <BulletinList /> } />
-              <Route path="detail" element={ <BulletinDetail /> } />
-              <Route path="mapa" element={ <Map /> } />
-              <Route path="validace">
-                <Route index element={ <Validation /> } />
-                <Route path="detail" element={ <ValidationDetail /> }/>
-              </Route>
-              <Route path="statistiky" element={ <Statistics /> }/>
-              <Route path="about" element={ <Home /> } />
-              <Route path="*" element={ <NoPage /> } />
+            <Route index element={<BulletinList />} />
+            <Route path="detail" element={<BulletinDetail />} />
+            <Route path="mapa" element={<Map />} />
+            <Route path="validace">
+              <Route index element={<Validation />} />
+              <Route path="detail" element={<ValidationDetail />} />
+            </Route>
+            <Route path="statistiky" element={<Statistics />} />
+            <Route path="about" element={<Home />} />
+            <Route path="*" element={<NoPage />} />
           </Routes>
         </HashRouter>
       </>
