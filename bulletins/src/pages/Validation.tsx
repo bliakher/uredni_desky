@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link, useParams, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { BulletinData, InfoRecord, getBulletinByIri } from '../model/dataset';
-import { MissingProperties } from '../model/dataset';
+import { CancelablePromise, makeCancelable } from '../model/cancelablePromise';
 import { RouterProps } from "react-router";
 import { BulletinDetail, Attachements, InfoCards } from "./Detail";
 import { Card, ListGroup, ListGroupItem, Row } from 'react-bootstrap';
@@ -239,13 +239,20 @@ class ValidationRow extends React.Component<{data: BulletinData}, {loaded: boole
     ok = "Ano";
     notOk = "Ne";
     noValue = "-";
+
+    fetchDistributionPromise: CancelablePromise | null;
     constructor(props: {data: BulletinData}) {
         super(props);
         this.state = {loaded: false};
+        this.fetchDistributionPromise = null;
     }
     async componentDidMount() {
-        await this.props.data.fetchDistribution();
+        this.fetchDistributionPromise = makeCancelable(this.props.data.fetchDistribution());
+        await this.fetchDistributionPromise.promise;
         this.setState({loaded: true});
+    }
+    componentWillUnmount() {
+        if (this.fetchDistributionPromise) this.fetchDistributionPromise.cancel();
     }
     renderWaiting() {
         var provider = this.props.data.provider;

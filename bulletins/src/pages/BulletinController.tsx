@@ -1,6 +1,7 @@
 import React from 'react';
 import { Col, Container, ListGroup, ListGroupItem, Row, Button } from 'react-bootstrap';
 import { BulletinData, Datasets, ProviderType } from '../model/dataset';
+import { CancelablePromise, makeCancelable } from '../model/cancelablePromise';
 import { Loader, CheckboxGroup, OptionChangeCallback } from '../Utils';
 import Form from 'react-bootstrap/Form';
 
@@ -20,6 +21,8 @@ interface BulletinControllerState {
 
 class BulletinController extends React.Component<BulletinControllerProps, BulletinControllerState> {
     datasets: Datasets;
+    fetchDatasetsPromise: CancelablePromise | null;
+    fetchProvidersPromise: CancelablePromise | null;
     constructor(props: BulletinControllerProps) {
         super(props);
         this.state = { 
@@ -35,11 +38,19 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
+        this.fetchDatasetsPromise = null;
+        this.fetchProvidersPromise = null;
     }
     async componentDidMount() {
-        await this.datasets.fetchDatasets();
-        await this.datasets.fetchProviderInfo();
+        this.fetchDatasetsPromise = makeCancelable(this.datasets.fetchDatasets());
+        await this.fetchDatasetsPromise.promise;
+        this.fetchProvidersPromise = makeCancelable(this.datasets.fetchProviderInfo());
+        await this.fetchProvidersPromise.promise;
         this.setState({loaded: true});
+    }
+    componentWillUnmount() {
+        if (this.fetchDatasetsPromise) this.fetchDatasetsPromise.cancel();
+        if (this.fetchProvidersPromise) this.fetchProvidersPromise.cancel();
     }
     handleCheckboxChange(checkboxValue: string) {
         var type : ProviderType;

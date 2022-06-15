@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router';
 import { BulletinData, getBulletinByIri, InfoRecord, TimeMoment, Document } from '../model/dataset';
+import { CancelablePromise, makeCancelable } from '../model/cancelablePromise';
 import { fetchOrganizationNameByIco } from '../model/query';
 import { Loader, Paging, HoverTooltip, SimplePaging } from '../Utils';
 import znak from '../statni_znak.png';
@@ -30,6 +31,10 @@ interface BulletinDetailState {
 
 class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDetailState> {
     data: BulletinData | null;
+
+    fetchBulletinPromise: CancelablePromise | null;
+    fetchDistributionPromise: CancelablePromise | null;
+    fetchOrganizationPromise: CancelablePromise | null;
     constructor(props: {iri: string}) {
         super(props);
         this.state = {loaded: false, invalidIri: false, ownerName: null, finderOn: false, finderValue: "" };
@@ -37,23 +42,35 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
+        this.fetchBulletinPromise = null;
+        this.fetchDistributionPromise = null;
+        this.fetchOrganizationPromise = null;
     }
     async componentDidMount() {
-        var data = await getBulletinByIri(this.props.iri);
+        this.fetchBulletinPromise = makeCancelable(getBulletinByIri(this.props.iri))
+        var data = await this.fetchBulletinPromise.promise;
         if (data == null) {
             this.setState({loaded: true, invalidIri: true});
         } else {
             this.data = data;
-            await this.data.fetchDistribution();
+            this.fetchDistributionPromise = makeCancelable(data.fetchDistribution());
+            await this.fetchDistributionPromise.promise;
             this.setState({loaded: true});
             var distribution = data.getDistribution();
             var publisher = distribution?.getPublisher();
             if (publisher) {
                 var ico = publisher.ičo;
-                var name = await fetchOrganizationNameByIco(ico);
+                this.fetchOrganizationPromise = makeCancelable(fetchOrganizationNameByIco(ico));
+                var name = await this.fetchOrganizationPromise.promise;
                 this.setState({ownerName: name});
             }
         }
+    }
+
+    componentWillUnmount() {
+        if (this.fetchBulletinPromise) this.fetchBulletinPromise.cancel();
+        if (this.fetchDistributionPromise) this.fetchDistributionPromise.cancel();
+        if (this.fetchOrganizationPromise) this.fetchOrganizationPromise.cancel();
     }
     handleChange(event: any) {
         this.setState({finderValue: event.target.value});

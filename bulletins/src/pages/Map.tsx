@@ -1,11 +1,10 @@
 import React from 'react';
 import { Provider, SortedProviders, Datasets, ProviderType, BulletinData } from '../model/dataset';
+import { CancelablePromise, makeCancelable } from '../model/cancelablePromise';
 import { Loader } from '../Utils';
 import { Bulletin, BulletinCards } from './List';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { Col, Row } from 'react-bootstrap';
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
 import { BulletinController } from './BulletinController';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYmxpYWtoZXIiLCJhIjoiY2tyZGxscG83MDQyazJ2bGg2dDhqeWE1NyJ9.Veduz7A77r80wvBKV2UHJQ';
@@ -34,6 +33,10 @@ class Map extends React.Component<{}, {loaded: boolean, selected: string}> {
     map: mapboxgl.Map | null;
     markers: Array<mapboxgl.Marker>;
     mapContainer: React.RefObject<HTMLInputElement>;
+
+    fetchDatasetsPromise: CancelablePromise | null;
+    fetchProvidersPromise: CancelablePromise | null;
+    fetchResidencesPromise: CancelablePromise | null;
     constructor(props: any) {
         super(props);
         this.data = new Datasets();
@@ -43,12 +46,19 @@ class Map extends React.Component<{}, {loaded: boolean, selected: string}> {
         this.markers = [];
         this.state = {loaded: false, selected: ""};
         this.handleMarkerClick = this.handleMarkerClick.bind(this);
+        this.fetchDatasetsPromise = null;
+        this.fetchProvidersPromise = null;
+        this.fetchResidencesPromise = null;
     }
     async componentDidMount() {
-        await this.data.fetchDatasets();
-        await this.data.fetchProviderInfo();
+        this.fetchDatasetsPromise = makeCancelable(this.data.fetchDatasets());
+        await this.fetchDatasetsPromise.promise;
+        this.fetchProvidersPromise = makeCancelable(this.data.fetchProviderInfo());
+        await this.fetchProvidersPromise.promise;
+
         // fetch all residence address points
-        await this.data.fetchProviderResidences();
+        this.fetchResidencesPromise = makeCancelable(this.data.fetchProviderResidences());
+        await this.fetchResidencesPromise.promise;
         this.providers = new SortedProviders(this.data.data);
         this.setState({loaded: true});
         if (this.mapContainer.current) {
@@ -61,6 +71,12 @@ class Map extends React.Component<{}, {loaded: boolean, selected: string}> {
         }
         this.createMarkers();
         this.addMarkersToMap();
+    }
+
+    componentWillUnmount() {
+        if (this.fetchDatasetsPromise) this.fetchDatasetsPromise.cancel();
+        if (this.fetchProvidersPromise) this.fetchProvidersPromise.cancel();
+        if (this.fetchResidencesPromise) this.fetchResidencesPromise.cancel();
     }
     handleMarkerClick(providerIri: string) {
         this.setState({selected: providerIri});
