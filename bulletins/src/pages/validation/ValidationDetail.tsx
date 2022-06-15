@@ -1,13 +1,8 @@
 import React from 'react';
 import { useLocation } from "react-router-dom";
 import { BulletinData, InfoRecord, getBulletinByIri } from '../../model/dataset';
-import { CancelablePromise, makeCancelable } from '../../model/cancelablePromise';
-import { RouterProps } from "react-router";
-import { BulletinDetail, Attachements, InfoCards } from "../Detail";
-import { Card, ListGroup, ListGroupItem, Row } from 'react-bootstrap';
-import { BulletinController } from '../BulletinController';
-import Table from 'react-bootstrap/Table';
-import Button from 'react-bootstrap/Button';
+import {Attachements, InfoCards } from '../detail/InfoCards';
+import { Card, ListGroup, ListGroupItem, Row, Button } from 'react-bootstrap';
 import { SimplePaging, HoverTooltip, Loader } from '../../Utils';
 import { BsCalendar2Event as CalendarEventIcon, BsCalendar2X as CalendarXIcon,
     BsCalendar2PlusFill as CalendarPlusIcon, BsCalendar2XFill as CalendarXFillIcon } from 'react-icons/bs';

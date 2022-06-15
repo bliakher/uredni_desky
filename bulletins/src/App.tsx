@@ -9,7 +9,7 @@ import { Map } from './pages/Map';
 import NoPage from './pages/NoPage';
 import { Validation } from './pages/validation/Validation';
 import { ValidationDetail } from './pages/validation/ValidationDetail';
-import { BulletinDetail } from './pages/Detail';
+import { BulletinDetail } from './pages/detail/Detail';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Statistics } from './pages/statistics/Statistics';
