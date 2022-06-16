@@ -2,10 +2,9 @@ import React from 'react';
 import { useLocation } from "react-router-dom";
 import { BulletinData, InfoRecord, getBulletinByIri } from '../../model/dataset';
 import {Attachements, InfoCards } from '../detail/InfoCards';
-import { Card, ListGroup, ListGroupItem, Row, Button } from 'react-bootstrap';
-import { SimplePaging, HoverTooltip, Loader } from '../../Utils';
-import { BsCalendar2Event as CalendarEventIcon, BsCalendar2X as CalendarXIcon,
-    BsCalendar2PlusFill as CalendarPlusIcon, BsCalendar2XFill as CalendarXFillIcon } from 'react-icons/bs';
+import { Card, ListGroup, ListGroupItem, Row, Button, Col } from 'react-bootstrap';
+import { HoverTooltip, Loader } from '../../Utils';
+import { BsCalendar2Event as CalendarEventIcon, BsCalendar2XFill as CalendarXFillIcon } from 'react-icons/bs';
 
 export const ValidationDetail = () => {
     var params = new URLSearchParams(useLocation().search);
@@ -36,8 +35,9 @@ class ValidationDetailComplete extends React.Component<{iri: string}, {loaded: b
             if (!this.state.invalidIri && this.data != null) {
                 return (
                     <>
-                        { renderHeader(this.data.provider.name, this.data.name, this.data.iri) }
-                        { renderValidation(this.data) }
+                        <ValidationHeader provider={ this.data.provider.name} bulletinName={this.data.name}
+                            iri={this.data.iri} />
+                        <ValidationBody bulletin={this.data} />
                     </>);
                 
             } else {
@@ -165,7 +165,7 @@ function renderRecommendedInfoProps(missingInfoProps: Array<{name:string, missin
     );
 }
 
-function renderHeader(provider: string, bulletinName: string, iri: string) {
+const ValidationHeader = (props: {provider: string, bulletinName: string, iri: string}) => {
     return (
         <>
             <Row className="p-2 text-center ">
@@ -173,40 +173,37 @@ function renderHeader(provider: string, bulletinName: string, iri: string) {
             </Row>
             <Row className="p-2 text-center ">
                 <h4>
-                    {bulletinName} 
-                    <Button href={"#/detail?iri=" + iri} size="sm" variant="outline-primary" className="m-2  ">Zobrazit desku</Button>
+                    {props.bulletinName} 
+                    <Button href={"#/detail?iri=" + props.iri} size="sm" variant="outline-primary" className="m-2  ">Zobrazit desku</Button>
                 </h4>
             </Row>
             <Row className="text-center ">
-                <p>Poskytovatel: {provider}</p>
+                <p>Poskytovatel: {props.provider}</p>
             </Row>
             
         </>
     );
 }
 
-function renderValidation(bulletin: BulletinData) {
+const ValidationBody = (props: {bulletin: BulletinData}) => {
+    var bulletin = props.bulletin;
     var missing = bulletin.checkRecommendedProperties();
     var info = bulletin.getInfoRecords();
     var infoCount = info ? info.length : 0;
     var hasErrors = missing.bulletin.length > 0 || missing.information.length > 0 || !bulletin.hasValidSource;
     return (
         <>
-            <h4>Shrnutí:</h4>
+            {/* <h4>Shrnutí:</h4>
             { hasErrors && <p style={{color: 'red'}}>Nalezeny chyby</p> }
-            { !hasErrors && <p style={{color: 'green'}}>Validace v pořádku</p> }
+            { !hasErrors && <p style={{color: 'green'}}>Validace v pořádku</p> } */}
 
             { !bulletin.hasValidSource && 
                 (
-                    <>
-                        <p>Distribuci nebylo možné stáhnout z odkazu: 
-                            <a href={bulletin.source} target="_blank">{bulletin.source}</a>
-                        </p>
-                        <p>
-                            {"Chybová hláška: " + bulletin.loadError.message}
-                        </p>
-                        
-                    </>
+                    <Row className="justify-content-md-center">
+                        <Col className="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7 col-xxl-6">
+                            <ErrorCard bulletinIri={bulletin.iri} source={bulletin.source} error={bulletin.loadError.message} />
+                        </Col>
+                    </Row>
                 )
                 }
 
@@ -223,5 +220,44 @@ function renderValidation(bulletin: BulletinData) {
             }
             
         </>
+    );
+}
+
+const ErrorCard = (props: {bulletinIri: string, source: string, error: string}) => {
+
+    return (
+        <Card border="danger" className="m-2">
+            <Card.Header>Chyba distribuce</Card.Header>
+            <Card.Body>
+                <ListGroup className="list-group-flush">
+                    <ListGroupItem>
+                        <Card.Title>Distribuci nebylo možné stáhnout</Card.Title>
+                    </ListGroupItem>
+                    <ListGroupItem>
+                        <div className="fw-bold">Odkaz na distribuci:</div>
+                        <a href={props.source} target="_blank">{props.source}</a>
+                    </ListGroupItem>
+                    <ListGroupItem>
+                        <div className="fw-bold">Chybová hláška:</div>
+                        <div className="warning-text">{props.error}</div>
+                    </ListGroupItem>
+                    <ListGroupItem>
+                        <div className="fw-bold">Jak postupovat?</div>
+                        <ol>
+                            <li className='p-1'>
+                                Zkontrolujte, že odkaz je platný a vede na soubor s distribucí úřední desky.
+                            </li>
+                            <li className='p-1'>
+                                Zkontrolujte nastavení 'CORS' hlavičky 'Access-Control-Allow-Origin'.
+                                Hlavičku je potřeba nastavit tak, aby byl povolen strojový přístup k distribuci požadavkem z kódu. 
+                                Více o nastavení hlavičky <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin" target="_blank">zde</a>.
+                            </li>
+                        </ol>
+                    </ListGroupItem>
+                </ListGroup>
+                
+                <Button variant="outline-secondary" href={"https://data.gov.cz/datová-sada?iri=" + props.bulletinIri} target="_blank">Zobrazit datasetv NKOD</Button>
+            </Card.Body>
+        </Card>
     );
 }

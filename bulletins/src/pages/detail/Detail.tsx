@@ -5,7 +5,7 @@ import { CancelablePromise, makeCancelable } from '../../model/cancelablePromise
 import { fetchOrganizationNameByIco } from '../../model/query';
 import { Loader } from '../../Utils';
 import { InfoCards, InfoCard } from './InfoCards';
-import znak from '../statni_znak.png';
+import znak from '../../statni_znak.png';
 import { Container, Row, Col, Button, ListGroup, ListGroupItem, Form } from 'react-bootstrap';
 import { BsCalendar2Event as CalendarEventIcon, BsCalendar2X as CalendarXIcon,
     BsCalendar2PlusFill as CalendarPlusIcon, BsCalendar2XFill as CalendarXFillIcon, BsLink45Deg as LinkIcon } from 'react-icons/bs';

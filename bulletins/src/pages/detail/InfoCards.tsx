@@ -81,7 +81,7 @@ export class InfoCard extends React.Component<{data: InfoRecord}> {
                                 <div>
                                     <CalendarXFillIcon className="m-2"/>
                                     {isValid && validToStr}
-                                    {!isValid && <b className="outdated">{validToStr}</b>}
+                                    {!isValid && <b className="warning-text">{validToStr}</b>}
                                 </div>
                             }/>
                             

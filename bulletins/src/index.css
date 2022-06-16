@@ -12,8 +12,12 @@ code {
     monospace;
 }
 
-.outdated {
+.warning-text {
   color: #9e2c24;
+}
+
+.error-bg {
+  background-color: #f7a1a1;
 }
 
 tr.validation-severe {
