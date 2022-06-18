@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from "react-router-dom";
-import { BulletinData, InfoRecord, getBulletinByIri } from '../../model/dataset';
+import { BulletinData, InfoRecord, getBulletinByIri, MissingProperties } from '../../model/dataset';
 import {Attachements, InfoCards } from '../detail/InfoCards';
 import { Card, ListGroup, ListGroupItem, Row, Button, Col } from 'react-bootstrap';
 import { HoverTooltip, Loader } from '../../Utils';
@@ -41,7 +41,11 @@ class ValidationDetailComplete extends React.Component<{iri: string}, {loaded: b
                     </>);
                 
             } else {
-                return (<p>Chyba: Nevalidní iri datasetu - nelze načíst.</p>)
+                return (
+                    <Row className='justify-content-md-center text-center'>
+                        <p>Chyba: Nevalidní IRI datasetu - nelze načíst.</p>
+                        <p>IRI: {this.props.iri}</p>
+                    </Row>)
             }
         } else {
             return (<Loader />);
@@ -108,61 +112,6 @@ class InfoCardValidation extends React.Component<{data: InfoRecord}> {
 }
 
 
-function renderRecommendedProps(missingBulletinProps: Array<string>) {
-    return (
-        <>
-            <h4>Doporučené atributy desky:</h4>
-            <p>Aby bylo možné data z úřední desky smysluplně používat, měla by obsahovat následující atributy:</p>
-            <ul>
-                {["@context", "typ", "iri", "stránka", "provozovatel"].map(prop => <li key={prop}>{prop}</li>)}
-            </ul>
-            <p>Viz <a href="https://ofn.gov.cz/úředn%C3%AD-desky/2021-07-20/#př%C3%ADklady-jednoduchá-informace" target="_blank" rel="noreferrer" >dokumentace</a></p>
-            
-            { missingBulletinProps.length > 0 &&
-                <>
-                    <p style={{color: 'red'}}>Chybí atributy:</p>
-                    <ul>
-                        {missingBulletinProps.map(bulProp => (<li key={bulProp}>{bulProp}</li>))}
-                    </ul>
-                </>
-            }
-            { missingBulletinProps.length == 0 && 
-                <p style={{color: 'green'}}>Obsahuje všechny doporučené atributy.</p>
-            }
-        </>
-    );
-}
-
-function renderRecommendedInfoProps(missingInfoProps: Array<{name:string, missing: Array<string>}>, infoCount: number) {
-    return (
-        <>
-            <h4>Doporučené atributy informací na desce:</h4>
-            <p>Každá informace na úřední desce by také měla obsahovat tyto atributy:</p>
-            <ul>
-                {["typ", "iri", "url", "název", "vyvěšení", "relevantní_do"].map(prop => <li key={prop}>{prop}</li>)}
-            </ul>
-            { missingInfoProps.length > 0 &&
-                <>
-                    <p>Informací celkem: {infoCount}</p>
-                    <p style={{color: 'red'}}>Informace s chybějícími atributy: {missingInfoProps.length}</p>
-                    {/* <ul>
-                        {missingInfoProps.map(info => (
-                            <li key={info.name}>
-                                {info.name}
-                                <ul>
-                                    {info.missing.map(prop => <li key={prop}>{prop}</li>)}
-                                </ul>
-                            </li>))}
-                    </ul> */}
-                </>
-            }
-            { missingInfoProps.length == 0 && 
-                <p style={{color: 'green'}}>Všechny informace na desce obsahují doporučené atributy.</p>
-            }
-        </>
-    );
-}
-
 const ValidationHeader = (props: {provider: string, bulletinName: string, iri: string}) => {
     return (
         <>
@@ -213,6 +162,16 @@ const ValidationBody = (props: {bulletin: BulletinData}) => {
                 } />
                 }
 
+            { bulletin.hasValidSource && hasErrors &&
+                <CenterOnHalfScreen element={ 
+                    <MissingCard bulletinIri={bulletin.iri} infoCount={infoCount} missing={missing} /> 
+                } />
+                }
+
+            <CenterOnHalfScreen element={
+                <ValidationCriteria />
+            } />
+
             {/* { bulletin.hasValidSource && hasErrors && } */}
 
             {/* { bulletin.hasValidSource && renderRecommendedProps(missing.bulletin) }
@@ -231,7 +190,44 @@ const ValidationBody = (props: {bulletin: BulletinData}) => {
     );
 }
 
+const ShowDatasetButton = (props: {bulletinIri: string}) => {
+    return (
+        <Button variant="outline-secondary" href={"https://data.gov.cz/datová-sada?iri=" + props.bulletinIri} target="_blank">
+            Zobrazit dataset v NKOD
+        </Button>
+    );
+}
 
+const MissingCard = (props: {missing: MissingProperties, infoCount: number, bulletinIri: string}) => {
+    return (
+        <Card border="warning" className="m-2">
+        <Card.Header>Nalezeny nedostatky</Card.Header>
+        <Card.Body>
+            <ListGroup className="list-group-flush">
+                <ListGroupItem>
+                    <Card.Title>Úřední deska neobsahuje všechny doporučené atributy</Card.Title>
+                </ListGroupItem>
+
+                { props.missing.bulletin.length > 0 &&
+                <ListGroupItem>
+                    <div className="fw-bold">Chybějící atributy úřední desky:</div>
+                    <ul>
+                        { props.missing.bulletin.map(property => (<li key={property}>{property}</li>)) }
+                    </ul>
+                </ListGroupItem> }
+
+                { props.missing.information.length > 0 &&
+                <ListGroupItem>
+                    <div className="fw-bold">Informací celkem:</div>{props.infoCount}
+                    <div className="fw-bold">Informací s chybějícími doporučenými atributy</div>{props.missing.information.length}
+                </ListGroupItem> }
+
+            </ListGroup>
+            <ShowDatasetButton bulletinIri={props.bulletinIri} />
+        </Card.Body>
+    </Card>
+    );
+}
 
 const SuccessCard = (props: {infoCount: number, bulletinIri: string}) => {
    return (
@@ -242,9 +238,7 @@ const SuccessCard = (props: {infoCount: number, bulletinIri: string}) => {
             <Card.Text className="m-3">
                     <div>Počet informací na desce: {props.infoCount}</div>
             </Card.Text>
-            <Button variant="outline-secondary" href={"https://data.gov.cz/datová-sada?iri=" + props.bulletinIri} target="_blank" className="m-1">
-                Zobrazit dataset v NKOD
-            </Button>
+            <ShowDatasetButton bulletinIri={props.bulletinIri} />
             
         </Card.Body>
     </Card>
@@ -286,9 +280,74 @@ const ErrorCard = (props: {bulletinIri: string, source: string, error: string}) 
                         </ol>
                     </ListGroupItem>
                 </ListGroup>
-                
-                <Button variant="outline-secondary" href={"https://data.gov.cz/datová-sada?iri=" + props.bulletinIri} target="_blank">Zobrazit dataset v NKOD</Button>
+                <ShowDatasetButton bulletinIri={props.bulletinIri} />
             </Card.Body>
         </Card>
+    );
+}
+
+const ValidationCriteria = (props: {}) => {
+    return (
+        <div className="m-3">
+            <h3>Jak validujeme?</h3>
+            <p>
+                Validaci provádíme na základě <a href="https://ofn.gov.cz/úředn%C3%AD-desky/2021-07-20/">specifikace</a> OFN pro úřední desky. 
+                Všechny atributy definované specifikací jsou nepovinné. 
+                Nicméně, aby bylo možné data z úřední desky smysluplně používat, měly by obsahovat alespoň minimální sadu atributů.
+                Tyto doporučené atributy jsou vyjmenovány v <a href="https://ofn.gov.cz/úředn%C3%AD-desky/2021-07-20/#př%C3%ADklady-jednoduchá-informace">příkladu</a> dat ve specifikaci.
+            </p>
+            <div className="m-2">
+                <h5>Doporučené atributy úřední desky</h5>
+                <p>
+                    Jedná se o atributy, které popisují úřední desku jako celek. Patří sem:
+                </p>
+                <ListGroup className="list-group-flush">
+                    <ListGroupItem>
+                        <div className="fw-bold">typ</div>
+                        Typ dat, které soubor obsahuje. Hodnota bude vždy "Úřední deska".
+                    </ListGroupItem>
+                    <ListGroupItem>
+                        <div className="fw-bold">iri</div>
+                        Jednoznačný identifikátor souboru s daty.
+                    </ListGroupItem>
+                    <ListGroupItem>
+                        <div className="fw-bold">stránka</div>
+                        URL stránky, kde je úřední deska zveřejněná v uživatelsky čitelné formě.
+                    </ListGroupItem>
+                    <ListGroupItem>
+                        <div className="fw-bold">provozovatel</div>
+                        Orgán, který provozuje úřední desku, identifikovaný pomocí IČO nebo čísla OVM.
+                    </ListGroupItem>
+                </ListGroup>
+            </div>
+            <div className="m-2">
+                <h5>Doporučené atributy informace na úřední desce</h5>
+                <p>
+                    Jedná se o atributy, které se týkají jedné konkrétní informace na úřední desce.
+                </p>
+                <ListGroup className="list-group-flush">
+                    <ListGroupItem>
+                        <div className="fw-bold">typ</div>
+                        Jaký typ dat je informace - konkrétně "Digitální objekt" a "Informace na úřední desce".
+                    </ListGroupItem>
+                    <ListGroupItem>
+                        <div className="fw-bold">url</div>
+                        URL informace na stránce úřední desky.
+                    </ListGroupItem>
+                    <ListGroupItem>
+                        <div className="fw-bold">název</div>
+                        Název informace.
+                    </ListGroupItem>
+                    <ListGroupItem>
+                        <div className="fw-bold">vyvěšení</div>
+                        Datum vyvěšení informace na úřední desku.
+                    </ListGroupItem>
+                    <ListGroupItem>
+                        <div className="fw-bold">relevantní_do</div>
+                        Datum do kterého je informace vyvěšená na úřední desce relevantní.
+                    </ListGroupItem>
+                </ListGroup>
+            </div>
+        </div>
     );
 }
