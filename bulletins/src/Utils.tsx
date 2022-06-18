@@ -84,6 +84,14 @@ class CheckboxGroup extends React.Component<CheckboxOptions> {
     }
 }
 
+export const ShowDatasetButton = (props: {bulletinIri: string}) => {
+    return (
+        <Button variant="outline-secondary" href={"https://data.gov.cz/datová-sada?iri=" + props.bulletinIri} target="_blank" className="m-1">
+            Zobrazit dataset v NKOD
+        </Button>
+    );
+}
+
 const Loader = () => {
     return (
         <div className="text-center justify-content-md-center m-2">

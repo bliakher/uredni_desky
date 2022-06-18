@@ -2,8 +2,8 @@ import React from 'react';
 import { useLocation } from "react-router-dom";
 import { BulletinData, InfoRecord, getBulletinByIri, MissingProperties } from '../../model/dataset';
 import {Attachements, InfoCards } from '../detail/InfoCards';
-import { Card, ListGroup, ListGroupItem, Row, Button, Col } from 'react-bootstrap';
-import { HoverTooltip, Loader } from '../../Utils';
+import { Card, ListGroup, ListGroupItem, Row, Button, Col, Tab, Tabs, Container } from 'react-bootstrap';
+import { HoverTooltip, Loader, ShowDatasetButton } from '../../Utils';
 import { BsCalendar2Event as CalendarEventIcon, BsCalendar2XFill as CalendarXFillIcon } from 'react-icons/bs';
 
 export const ValidationDetail = () => {
@@ -54,64 +54,6 @@ class ValidationDetailComplete extends React.Component<{iri: string}, {loaded: b
     }
 }
 
-class InfoCardValidation extends React.Component<{data: InfoRecord}> {
-    constructor(props: {data: InfoRecord}) {
-        super(props);
-    }
-    render() {
-        var info = this.props.data;
-        var name = info.getName()? info.getName() : "'Informace na úřední desce'";
-        var url = info.getUrl();
-        var issued = info.getDateIssued();
-        var issuedStr = issued ? issued.to_string() : "Údaj chybí";
-        var validTo = info.getDateValidTo();
-        var validToStr = validTo ? validTo.to_string() : "Údaj chybí";
-        var isValid = (validTo && validTo.date) ? validTo.date >= new Date() : true; // check valdity - validTo date is older than today
-        var documents = info.getDocuments().filter(document => document.getUrl() !== null); // take only documents with url
-        return (
-            <>
-                <Card style={{ width: '18rem' }} className="m-2">
-                    <Card.Body>
-                        <Card.Title>{name}</Card.Title>
-                    </Card.Body>
-                    <ListGroup className="list-group-flush">
-                        <ListGroupItem>
-                            <HoverTooltip tooltipText="Datum vyvěšení" innerElement={
-                                <div>
-                                    <CalendarEventIcon className="m-2"/>
-                                    {issuedStr}
-                                </div>
-                            }/>
-                            <HoverTooltip tooltipText="Relevantní do" innerElement={
-                                <div>
-                                    <CalendarXFillIcon className="m-2"/>
-                                    {isValid && validToStr}
-                                    {!isValid && <b>{validToStr}</b>}
-                                </div>
-                            }/>
-                           
-                        </ListGroupItem>
-                    {documents.length > 0 && (
-                        <>
-                            <ListGroupItem>
-                                <h6>Přílohy:</h6>
-                                <Attachements documents={documents}/>
-                            </ListGroupItem> 
-                        </> )}
-                        <ListGroupItem>
-                            {url && <Button href={url} target="_blank" rel="noreferrer" variant="primary" >
-                                        Informace
-                                    </Button>}
-                        </ListGroupItem>
-                    </ListGroup>
-                    
-                </Card>
-            </>
-        );
-    }
-}
-
-
 const ValidationHeader = (props: {provider: string, bulletinName: string, iri: string}) => {
     return (
         <>
@@ -132,6 +74,72 @@ const ValidationHeader = (props: {provider: string, bulletinName: string, iri: s
     );
 }
 
+const ValidationBody = (props: {bulletin: BulletinData}) => {
+    var bulletin = props.bulletin;
+    var missing = bulletin.checkRecommendedProperties();
+    var info = bulletin.getInfoRecords();
+    var infoCount = info ? info.length : 0;
+    var hasErrors = missing.bulletin.length > 0 || missing.information.length > 0 || !bulletin.hasValidSource;
+    return (
+        <>
+            { !bulletin.hasValidSource && (
+                <>
+                    <CenterOnHalfScreen element={ 
+                        <ErrorCard bulletinIri={bulletin.iri} source={bulletin.source} error={bulletin.loadError.message} />
+                    } />
+                    <CenterOnHalfScreen element={
+                        <ValidationCriteria />
+                    } />
+                </>
+                )}
+
+            { bulletin.hasValidSource && !hasErrors && (
+                <>
+                    <CenterOnHalfScreen element={ 
+                        <SuccessCard bulletinIri={bulletin.iri} infoCount={infoCount} /> 
+                    } />
+                    <CenterOnHalfScreen element={
+                        <ValidationCriteria />
+                    } />
+                </>
+                )}
+
+            { bulletin.hasValidSource && hasErrors && (
+                <>
+                    <CenterOnHalfScreen element={ 
+                        <MissingCard bulletinIri={bulletin.iri} infoCount={infoCount} missing={missing} /> 
+                    } />
+
+                    <Tabs defaultActiveKey="vysvetlivka" className="justify-content-md-center m-3">
+                        <Tab title="Jak validujeme?" eventKey="vysvetlivka" key="vysvetlivka">
+                            <CenterOnHalfScreen element={
+                                <ValidationCriteria />
+                            } />
+                        </Tab>
+                        <Tab title="Informace s chybějícími atributy" eventKey="info" key="info">
+                            <Container>
+                            <Row className="justify-content-md-center text-center">
+                                { missing.information.map(info => (
+                                    // <Col className="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-3 col-xxl-3 d-flex" >
+                                        <InfoCardValidation data={info.info} />
+                                    // </Col>
+
+                                )) }
+                            </Row>
+                            </Container>
+                        </Tab>
+                    </Tabs>
+
+                </>
+                )}
+
+            
+
+            
+        </>
+    );
+}
+
 const CenterOnHalfScreen = (props: {element: any}) => {
     return (
         <Row className="justify-content-md-center">
@@ -142,60 +150,41 @@ const CenterOnHalfScreen = (props: {element: any}) => {
     );
 }
 
-const ValidationBody = (props: {bulletin: BulletinData}) => {
-    var bulletin = props.bulletin;
-    var missing = bulletin.checkRecommendedProperties();
-    var info = bulletin.getInfoRecords();
-    var infoCount = info ? info.length : 0;
-    var hasErrors = missing.bulletin.length > 0 || missing.information.length > 0 || !bulletin.hasValidSource;
-    return (
-        <>
-            { !bulletin.hasValidSource && 
-                    <CenterOnHalfScreen element={ 
-                        <ErrorCard bulletinIri={bulletin.iri} source={bulletin.source} error={bulletin.loadError.message} />
-                    } />
-                }
 
-            { bulletin.hasValidSource && !hasErrors &&
-                <CenterOnHalfScreen element={ 
-                    <SuccessCard bulletinIri={bulletin.iri} infoCount={infoCount} /> 
-                } />
-                }
+class InfoCardValidation extends React.Component<{data: InfoRecord}> {
+    constructor(props: {data: InfoRecord}) {
+        super(props);
+    }
+    render() {
+        var info = this.props.data;
+        var name = info.getName()? info.getName() : "'Informace na úřední desce'";
+        var url = info.getUrl();
+        var missing = info.getMissingRecommendedProperties();
 
-            { bulletin.hasValidSource && hasErrors &&
-                <CenterOnHalfScreen element={ 
-                    <MissingCard bulletinIri={bulletin.iri} infoCount={infoCount} missing={missing} /> 
-                } />
-                }
-
-            <CenterOnHalfScreen element={
-                <ValidationCriteria />
-            } />
-
-            {/* { bulletin.hasValidSource && hasErrors && } */}
-
-            {/* { bulletin.hasValidSource && renderRecommendedProps(missing.bulletin) }
-            { bulletin.hasValidSource && renderRecommendedInfoProps(missing.information, infoCount) } */}
-
-            {/* { bulletin.hasValidSource &&
-                (<>
-                    <Row className="p-2 text-center ">
-                        <h4>Úřední deska</h4>
-                    </Row>
-                    <InfoCards data={info ? info : []} cardElement={InfoCardValidation}/>
-                </>)
-            } */}
-            
-        </>
-    );
-}
-
-const ShowDatasetButton = (props: {bulletinIri: string}) => {
-    return (
-        <Button variant="outline-secondary" href={"https://data.gov.cz/datová-sada?iri=" + props.bulletinIri} target="_blank">
-            Zobrazit dataset v NKOD
-        </Button>
-    );
+        return (
+            <>
+                <Card border="danger" className="m-2" style={{width: '12rem'}}>
+                    <Card.Body>
+                        <Card.Title>{name}</Card.Title>
+                    </Card.Body>
+                    <ListGroup className="list-group-flush">
+                        <ListGroupItem>
+                            <div className="fw-bold warning-text">Chybí:</div>
+                            <ul className="align-left">
+                                { missing.map(property => (<li key={property}>{property}</li>)) }
+                            </ul>
+                        </ListGroupItem>
+                        <ListGroupItem>
+                            {url && <Button href={url} target="_blank" rel="noreferrer" variant="outline-primary" >
+                                        Informace
+                                    </Button>}
+                        </ListGroupItem>
+                    </ListGroup>
+                    
+                </Card>
+            </>
+        );
+    }
 }
 
 const MissingCard = (props: {missing: MissingProperties, infoCount: number, bulletinIri: string}) => {
@@ -218,8 +207,8 @@ const MissingCard = (props: {missing: MissingProperties, infoCount: number, bull
 
                 { props.missing.information.length > 0 &&
                 <ListGroupItem>
-                    <div className="fw-bold">Informací celkem:</div>{props.infoCount}
-                    <div className="fw-bold">Informací s chybějícími doporučenými atributy</div>{props.missing.information.length}
+                    <div>Informací celkem: {props.infoCount}</div>
+                    <div>Informací s chybějícími doporučenými atributy: {props.missing.information.length}</div>
                 </ListGroupItem> }
 
             </ListGroup>
