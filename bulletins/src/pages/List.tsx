@@ -76,9 +76,16 @@ class BulletinList extends React.Component {
 
 const BulletinListHeader = () => {
     return (
-        <Row className="p-2 text-center ">
-            <h2>Seznam úředních desek</h2>
-        </Row>
+        <>
+            <Row className="p-2 text-center ">
+                <h2>Seznam úředních desek</h2>
+            </Row>
+            <Row className="p-2 text-center ">
+                <p>
+                    Úřední desky je možné filtrovat na základě právní formy poskytovatele nebo vyhledat podle názvu poskytovatele.
+                </p>
+            </Row>
+        </>
     );
 }
 

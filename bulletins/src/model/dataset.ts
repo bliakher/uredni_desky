@@ -33,10 +33,10 @@ class BulletinDistribution {
         }
         return false;
     }
-    getIri(): string | false {
+    getIri(): string | undefined {
         return this.getProperty("iri");
     }
-    getPageUrl(): string | false {
+    getPageUrl(): string | undefined {
         const page = "stránka";
         return this.getProperty(page);
     }
@@ -63,7 +63,7 @@ class BulletinDistribution {
 
 interface MissingProperties {
     bulletin: Array<string>;
-    information: Array<{ name: string, missing: Array<string> }>
+    information: Array<{ info: InfoRecord, missing: Array<string> }>
 }
 
 enum ProviderType {
@@ -133,11 +133,7 @@ class BulletinData {
             for (var record of infoRecords) {
                 var recordMissing = record.getMissingRecommendedProperties();
                 if (recordMissing.length > 0) {
-                    var name = record.getName()
-                    if (!name) {
-                        name = "";
-                    }
-                    missingPropInfo.push({ name: name, missing: recordMissing });
+                    missingPropInfo.push({ info: record, missing: recordMissing });
                 }
             }
         }

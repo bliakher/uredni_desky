@@ -3,7 +3,7 @@ import { useLocation } from 'react-router';
 import { BulletinData, getBulletinByIri } from '../../model/dataset';
 import { CancelablePromise, makeCancelable } from '../../model/cancelablePromise';
 import { fetchOrganizationNameByIco } from '../../model/query';
-import { Loader } from '../../Utils';
+import { Loader, ShowDatasetButton } from '../../Utils';
 import { InfoCards, InfoCard } from './InfoCards';
 import znak from '../../statni_znak.png';
 import { Container, Row, Col, Button, ListGroup, ListGroupItem, Form } from 'react-bootstrap';
@@ -15,6 +15,32 @@ export const BulletinDetail = () => {
     var iriNull = params.get("iri");
     var iri = iriNull == null? "" : iriNull;
     return (<BulletinDetailComplete iri={iri} />);
+}
+
+const DetailHeader = (props: {title: string, bulletinIri: string, url: string | null}) => {
+    return (
+        <>
+            <div className="text-center">
+                <img alt="logo" src={znak} width="50" height="60" className="d-inline-block align-top m-2" />
+            </div>
+            <div className="text-center justify-content-md-center m-2">
+                <h3>
+                    {props.title + " "} 
+                </h3>
+            </div>
+            <div className="text-center justify-content-md-center m-3">
+                <span>
+                    <Button variant="outline-secondary" href={"https://data.gov.cz/datová-sada?iri=" + props.bulletinIri} target="_blank" className="m-1">
+                        Dataset v NKOD
+                    </Button>
+                    { props.url &&
+                        <Button href={props.url} target="_blank" variant="outline-secondary" className="m-1">
+                           Stránka desky
+                        </Button> }
+                </span>
+            </div>
+        </>
+    );
 }
 
 interface BulletinDetailState {
@@ -86,20 +112,12 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
                     var name = record.getName();
                     return name && name.toLowerCase().includes(this.state.finderValue.toLowerCase());
                 });
+                var url = this.data.distribution?.getPageUrl() ?? null;
                 return ( 
                     <>
                         <Container>
-                            <div className="text-center">
-                                <img alt="logo" src={znak} width="50" height="60" className="d-inline-block align-top m-2" />
-                            </div>
-                            <div className="text-center justify-content-md-center m-2">
-                                <h3>
-                                    {this.data.name + " "} 
-                                    <a href={"https://data.gov.cz/datová-sada?iri=" + this.props.iri} target="_blank" rel="noreferrer">
-                                        <LinkIcon />
-                                    </a>
-                                </h3>
-                            </div>
+                            <DetailHeader title={this.data.name} bulletinIri={this.data.iri} url={url}/>
+                            <hr />
                             {/**  className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex"  */}
                             <Row className="text-center justify-content-md-center d-flex align-items-center">
                                 <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex" >
