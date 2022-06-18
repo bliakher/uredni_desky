@@ -72,8 +72,6 @@ class InfoCardValidation extends React.Component<{data: InfoRecord}> {
                     </Card.Body>
                     <ListGroup className="list-group-flush">
                         <ListGroupItem>
-                            {/* <div>{"Datum vyvěšení: " + issuedStr}</div>
-                            <div>{"Relevantní do: " + validToStr}</div> */}
                             <HoverTooltip tooltipText="Datum vyvěšení" innerElement={
                                 <div>
                                     <CalendarEventIcon className="m-2"/>
@@ -185,6 +183,16 @@ const ValidationHeader = (props: {provider: string, bulletinName: string, iri: s
     );
 }
 
+const CenterOnHalfScreen = (props: {element: any}) => {
+    return (
+        <Row className="justify-content-md-center">
+            <Col className="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7 col-xxl-6">
+                { props.element }
+            </Col>
+        </Row>
+    );
+}
+
 const ValidationBody = (props: {bulletin: BulletinData}) => {
     var bulletin = props.bulletin;
     var missing = bulletin.checkRecommendedProperties();
@@ -193,34 +201,54 @@ const ValidationBody = (props: {bulletin: BulletinData}) => {
     var hasErrors = missing.bulletin.length > 0 || missing.information.length > 0 || !bulletin.hasValidSource;
     return (
         <>
-            {/* <h4>Shrnutí:</h4>
-            { hasErrors && <p style={{color: 'red'}}>Nalezeny chyby</p> }
-            { !hasErrors && <p style={{color: 'green'}}>Validace v pořádku</p> } */}
-
             { !bulletin.hasValidSource && 
-                (
-                    <Row className="justify-content-md-center">
-                        <Col className="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7 col-xxl-6">
-                            <ErrorCard bulletinIri={bulletin.iri} source={bulletin.source} error={bulletin.loadError.message} />
-                        </Col>
-                    </Row>
-                )
+                    <CenterOnHalfScreen element={ 
+                        <ErrorCard bulletinIri={bulletin.iri} source={bulletin.source} error={bulletin.loadError.message} />
+                    } />
                 }
 
-            { bulletin.hasValidSource && renderRecommendedProps(missing.bulletin) }
-            { bulletin.hasValidSource && renderRecommendedInfoProps(missing.information, infoCount) }
+            { bulletin.hasValidSource && !hasErrors &&
+                <CenterOnHalfScreen element={ 
+                    <SuccessCard bulletinIri={bulletin.iri} infoCount={infoCount} /> 
+                } />
+                }
 
-            { bulletin.hasValidSource &&
+            {/* { bulletin.hasValidSource && hasErrors && } */}
+
+            {/* { bulletin.hasValidSource && renderRecommendedProps(missing.bulletin) }
+            { bulletin.hasValidSource && renderRecommendedInfoProps(missing.information, infoCount) } */}
+
+            {/* { bulletin.hasValidSource &&
                 (<>
                     <Row className="p-2 text-center ">
                         <h4>Úřední deska</h4>
                     </Row>
                     <InfoCards data={info ? info : []} cardElement={InfoCardValidation}/>
                 </>)
-            }
+            } */}
             
         </>
     );
+}
+
+
+
+const SuccessCard = (props: {infoCount: number, bulletinIri: string}) => {
+   return (
+    <Card border="success" className="m-2">
+        <Card.Header>Validace v pořádku</Card.Header>
+        <Card.Body>
+            <Card.Title className="m-1">Úřední deska obsahuje všechny doporučené atributy</Card.Title>
+            <Card.Text className="m-3">
+                    <div>Počet informací na desce: {props.infoCount}</div>
+            </Card.Text>
+            <Button variant="outline-secondary" href={"https://data.gov.cz/datová-sada?iri=" + props.bulletinIri} target="_blank" className="m-1">
+                Zobrazit dataset v NKOD
+            </Button>
+            
+        </Card.Body>
+    </Card>
+   );
 }
 
 const ErrorCard = (props: {bulletinIri: string, source: string, error: string}) => {
@@ -231,7 +259,7 @@ const ErrorCard = (props: {bulletinIri: string, source: string, error: string}) 
             <Card.Body>
                 <ListGroup className="list-group-flush">
                     <ListGroupItem>
-                        <Card.Title>Distribuci nebylo možné stáhnout</Card.Title>
+                        <Card.Title>Nelze stáhnout data z úřední desky</Card.Title>
                     </ListGroupItem>
                     <ListGroupItem>
                         <div className="fw-bold">Odkaz na distribuci:</div>
@@ -252,11 +280,14 @@ const ErrorCard = (props: {bulletinIri: string, source: string, error: string}) 
                                 Hlavičku je potřeba nastavit tak, aby byl povolen strojový přístup k distribuci požadavkem z kódu. 
                                 Více o nastavení hlavičky <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin" target="_blank">zde</a>.
                             </li>
+                            <li className='p-1'>
+                                Zkontrolujte platnost SSL certifikátu.
+                            </li>
                         </ol>
                     </ListGroupItem>
                 </ListGroup>
                 
-                <Button variant="outline-secondary" href={"https://data.gov.cz/datová-sada?iri=" + props.bulletinIri} target="_blank">Zobrazit datasetv NKOD</Button>
+                <Button variant="outline-secondary" href={"https://data.gov.cz/datová-sada?iri=" + props.bulletinIri} target="_blank">Zobrazit dataset v NKOD</Button>
             </Card.Body>
         </Card>
     );
