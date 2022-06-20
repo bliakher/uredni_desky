@@ -414,6 +414,12 @@ class Datasets {
     }
 }
 
+export const CITY_CODE = "801";
+export const CITY_PART_CODE = "811";
+export const REGION_CODE = "804";
+export const GOVERNMENT_CODE = "325";
+
+
 class Provider {
     name: string;
     iri: string;
@@ -467,16 +473,16 @@ class SortedProviders {
 
 function getProviderType(typeCode: string): ProviderType {
     var result = ProviderType.Unknown;
-    if (typeCode === "801") {
+    if (typeCode === CITY_CODE) {
         result = ProviderType.City;
     }
-    else if (typeCode === "811") {
+    else if (typeCode === CITY_PART_CODE) {
         result = ProviderType.CityPart;
     }
-    else if (typeCode === "804") {
+    else if (typeCode === REGION_CODE) {
         result = ProviderType.Region;
     }
-    else if (typeCode === "325") {
+    else if (typeCode === GOVERNMENT_CODE) {
         result = ProviderType.Government;
     }
     else {
