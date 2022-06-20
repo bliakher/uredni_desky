@@ -118,15 +118,15 @@ export const Attachements = (props: {documents: Array<Document>}) => {
             <Button href={document.getUrl() ?? ""} target="_blank" rel="noreferrer" variant="outline-primary" className="m-1">Dokument</Button>
         );
     }
-    var counter = 0;
     return (
         <Row className="text-center justify-content-md-center">
-            { props.documents.map( document => {
-                counter++;
-                return ( <Button href={document.getUrl() ?? ""} target="_blank" rel="noreferrer" variant="outline-primary" className="m-1 col-3">
-                            {counter}
-                        </Button> ); 
-                }) }
+            { props.documents.filter(document => document.getUrl() !== null)
+                .map( (document, index) => {
+                    return ( <Button href={document.getUrl() ?? ""} target="_blank" rel="noreferrer" variant="outline-primary" 
+                                    className="m-1 col-3" key={document.getUrl() ?? ""}>
+                                {index + 1}
+                            </Button> ); 
+                    }) }
         </Row>
     );
 }
