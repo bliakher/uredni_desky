@@ -21,7 +21,7 @@ const ValidationHeader = () => {
                 <h2>Validace</h2>
             </Row>
             <Row className="justify-content-md-center text-center">
-                <Col clasName="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
+                <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
                     <p>
                         Tato část se věnuje kvalitě poskytovaných dat z jednotlivých úředních desek. 
                         Souhrné statistiky jsou v sekci <a href="#/statistiky">Statistiky</a>
