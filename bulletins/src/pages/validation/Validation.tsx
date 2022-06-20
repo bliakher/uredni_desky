@@ -1,11 +1,12 @@
 import React from 'react';
 import { BulletinData } from '../../model/dataset';
 import { CancelablePromise, makeCancelable } from '../../model/cancelablePromise';
-import { Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import { BulletinController } from '../BulletinController';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import { SimplePaging } from '../../Utils';
+import { AiOutlineInfoCircle as InfoIcon } from 'react-icons/ai';
 
 export const Validation = () => {
     return (
@@ -15,10 +16,22 @@ export const Validation = () => {
 
 const ValidationHeader = () => {
     return (
-        <Row className="p-2 text-center ">
-            <h2>Validace</h2>
-            <p>Tato část se věnuje kvalitě poskytovaných dat.</p>
-        </Row>
+        <>
+            <Row className="p-2 text-center ">
+                <h2>Validace</h2>
+            </Row>
+            <Row className="justify-content-md-center text-center">
+                <Col clasName="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
+                    <p>
+                        Tato část se věnuje kvalitě poskytovaných dat z jednotlivých úředních desek. 
+                        Souhrné statistiky jsou v sekci <a href="#/statistiky">Statistiky</a>
+                    </p>
+                </Col>
+            </Row>
+            <Row className="d-lg-none text-center warning-text">
+                    <p><InfoIcon /> Tabulku doporučujeme pro přehlednost prohlížet na větší obrazovce.</p>
+            </Row>
+        </>
     );
 }
 
@@ -100,13 +113,11 @@ class TableExplanation extends React.Component {
                 <div>
                     <div>
                         <b>Distribuce </b> 
-                        - uvádí, jestli bylo možné stáhnout distribuci datové sady z URL uvedeného v 
-                        <a href="https://data.gov.cz/" target="_blank"> NKOD</a>
+                        - uvádí, jestli bylo možné stáhnout distribuci datové sady z URL uvedeného v <a href="https://data.gov.cz/" target="_blank">NKOD</a>
                     </div>
                     <div>
                         <b>Doporučené atributy </b> 
-                        - jestli metadata úřední desky obsahují všechny doporučené atributy podle 
-                        <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank"> specifikace</a> 
+                        - jestli metadata úřední desky obsahují všechny doporučené atributy podle <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank">specifikace</a> 
                         (název desky, poskytovatel, URL atd.)
                     </div>
                     <div>
@@ -115,8 +126,7 @@ class TableExplanation extends React.Component {
                     </div>
                     <div>
                         <b>Doporučené atributy informace </b> 
-                        - jestli všechny informace zveřejněné na desce obsahují ve svých metadatech všechny doporučené atributy podle 
-                        <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank"> specifikace</a> 
+                        - jestli všechny informace zveřejněné na desce obsahují ve svých metadatech všechny doporučené atributy podle <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank">specifikace</a> 
                         (název informace, URL, IRI atd.)
                     </div>
                 </div>
