@@ -154,7 +154,7 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
                             </Row>
 
                             {this.state.loaded && !this.data.hasValidSource && (
-                                <Row className="text-center justify-content-md-center">
+                                <Row className="text-center justify-content-md-center m-3 p-2 warning-text">
                                     <p>Data nebylo možné načíst.</p>
                                 </Row>
                             )}
