@@ -173,17 +173,10 @@ const ProblematicBulletins = (props: {header: string, bulletins: BulletinData[]}
             </ListGroupItem>
             {props.bulletins.map(bulletin => (
             <ListGroupItem key={bulletin.iri + Math.random().toString()}>
-                <Stack direction="horizontal" className="d-flex">
                     <div>
                         <div className="fw-bold">{bulletin.provider.name}</div>
-                        {bulletin.name + " "}
+                        <a href={"#/validace/detail?iri=" + bulletin.iri}>{bulletin.name}</a>
                     </div>
-                        
-                    <Button href={"#/validace/detail?iri=" + bulletin.iri} variant="outline-secondary" size="sm" 
-                            className="align-self-end">
-                        Detail
-                    </Button>
-                </Stack>
             </ListGroupItem>))}
         </ListGroup>
     );
