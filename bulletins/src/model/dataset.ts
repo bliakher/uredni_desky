@@ -95,13 +95,17 @@ class BulletinData {
         this.infoRecords = [];
     }
 
-    async fetchDistribution(): Promise<void> {
+    async fetchDistribution(timeOut?: number): Promise<void> {
+        const controller = new AbortController();
+        const timeOutId = setTimeout(() => controller.abort(), timeOut? timeOut : 50000); // if timeout not specified set to 50s
         try {
-            const response = await fetch(this.source);
+            const response = await fetch(this.source, {signal: controller.signal});
+            clearTimeout(timeOutId);
             var distributionObj = await response.json();
             this.distribution = new BulletinDistribution(distributionObj);
         }
         catch (error: any) {
+            if (controller.signal.aborted) console.log("aborted fetch on timeout: ", this.source);
             this.hasValidSource = false;
             this.loadError = error;
         }

@@ -147,7 +147,7 @@ export class ValidationStatistics extends React.Component<{data: BulletinData[]}
                 <Row className="text-center justify-content-md-center">
                     <Col className="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6 d-flex p-2 m-2">
                         <p>
-                            V této části se zobrazují pouze úřední desky, u kterých byly nalezeny nedostatky. Kliknutím na tlačítko Detail se zobrazí podrobnosti z validace úřední desky.
+                            V této části se zobrazují pouze úřední desky, u kterých byly nalezeny nedostatky. Kliknutím na název úřední desky se zobrazí podrobnosti z validace úřední desky.
                         </p>
                     </Col>
                 </Row>

@@ -59,9 +59,10 @@ export class Statistics extends React.Component<{}, {loaded: boolean, downloadCo
     async componentDidMount() {
         this.fetchDatasetsPromise = makeCancelable(this.data.fetchDatasets())
         await this.fetchDatasetsPromise.promise;
-        this.fetchDistributionsPromise = makeCancelable(Promise.all(this.data.data.map(async d => {
-            await d.fetchDistribution();
-            this.setState({downloadCount : this.state.downloadCount + 1});
+        this.fetchDistributionsPromise = makeCancelable(Promise.all(
+            this.data.data.map(async d => {
+                await d.fetchDistribution(10000); // set timeout to 10s
+                this.setState({downloadCount : this.state.downloadCount + 1});
         })));
         await this.fetchDistributionsPromise.promise;
         // console.log("all downloaded");
