@@ -225,7 +225,7 @@ const SuccessCard = (props: {infoCount: number, bulletinIri: string}) => {
         <Card.Body>
             <Card.Title className="m-1">Úřední deska obsahuje všechny doporučené atributy</Card.Title>
             <Card.Text className="m-3">
-                    <div>Počet informací na desce: {props.infoCount}</div>
+                Počet informací na desce: {props.infoCount}
             </Card.Text>
             <ShowDatasetButton bulletinIri={props.bulletinIri} />
             
@@ -264,7 +264,7 @@ const ErrorCard = (props: {bulletinIri: string, source: string, error: string}) 
                                 Více o nastavení hlavičky <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin" target="_blank">zde</a>.
                             </li>
                             <li className='p-1'>
-                                Zkontrolujte platnost SSL certifikátu.
+                                <a href={"https://www.ssllabs.com/ssltest/analyze.html?d=" + props.source} target="_blank">Zkontrolujte</a> platnost SSL certifikátu.
                             </li>
                         </ol>
                     </ListGroupItem>
