@@ -29,7 +29,7 @@ const ValidationHeader = () => {
                 </Col>
             </Row>
             <Row className="d-lg-none text-center warning-text">
-                    <p><InfoIcon /> Tabulku doporučujeme pro přehlednost prohlížet na větší obrazovce.</p>
+                    <p><InfoIcon /> Tabulku doporučujeme pro přehlednost prohlížet na širší obrazovce.</p>
             </Row>
         </>
     );
@@ -117,8 +117,7 @@ class TableExplanation extends React.Component {
                     </div>
                     <div>
                         <b>Doporučené atributy </b> 
-                        - jestli metadata úřední desky obsahují všechny doporučené atributy podle <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank">specifikace</a> 
-                        (název desky, poskytovatel, URL atd.)
+                        - jestli metadata úřední desky obsahují všechny doporučené atributy podle <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank">specifikace</a> (název desky, poskytovatel, URL atd.)
                     </div>
                     <div>
                         <b>Počet informací </b> 
@@ -126,8 +125,7 @@ class TableExplanation extends React.Component {
                     </div>
                     <div>
                         <b>Doporučené atributy informace </b> 
-                        - jestli všechny informace zveřejněné na desce obsahují ve svých metadatech všechny doporučené atributy podle <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank">specifikace</a> 
-                        (název informace, URL, IRI atd.)
+                        - jestli všechny informace zveřejněné na desce obsahují ve svých metadatech všechny doporučené atributy podle <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank">specifikace</a> (název informace, URL, IRI atd.)
                     </div>
                 </div>
             </>
