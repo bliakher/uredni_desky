@@ -1,0 +1,40 @@
+@startuml BulletinsUseCaseDiagram
+left to right direction 
+actor "Veřejnost" as V
+actor "Poskytovatel dat" as P
+actor "Novinář" as N
+ 
+package Aplikace-Úřední_desky { 
+  usecase "Přehled poskytování dat právními formami" as prehled
+  usecase "Zobrazení aktuálních informací určité tématiky z konkrétní úřední desky" as zobrazeni
+  usecase "Vyhledání úřední desky ze znalosti geografické polohy poskytovatele." as vyhledani
+  usecase "Ověření korektního poskytování dat " as overeni
+  usecase "Zjištění stavu poskytovaných dat v rámci právní formy." as zjisteniStavu
+  usecase "Zjištění celkové kvality poskytovaných dat" as zjisteniKvality
+  
+}
+
+' NZP .> VP : include
+' EZP .> VP : include
+
+' ZSP .> FP : include
+' ZAP .> FP : include
+
+V --> prehled
+P --> prehled
+N --> prehled
+
+V --> zobrazeni
+
+V --> vyhledani
+P --> vyhledani
+N --> vyhledani
+
+P --> overeni
+
+P --> zjisteniStavu
+N --> zjisteniStavu
+
+N ->> zjisteniKvality
+
+@enduml
