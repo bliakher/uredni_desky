@@ -406,7 +406,7 @@ class Datasets {
         var providerInfo = await fetchOrganizationTypes(ico);
         var typeToCount = new Map<string, number>();
         providerInfo.forEach((orgInfo, key) => {
-            //if (orgInfo.typeNumber === "") console.log(key);
+            // if (orgInfo.typeNumber === "") console.log(orgInfo.name, key);
             var curCount = typeToCount.get(orgInfo.typeNumber);
             var newCount = curCount ? curCount + 1 : 1;
             typeToCount.set(orgInfo.typeNumber, newCount);

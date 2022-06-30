@@ -35,23 +35,19 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
         this.pieContainerFond = React.createRef();
     }
     componentDidMount() {
-        // console.log(this.props.providerCounts);
-        // this.createProviderCharts();
         this.createProviderChartsIndividual();
     }
-    getProvidersCount() {
-        var result = new Map(); // map: provider type number -> [count of all OVM, count of providers]
-        this.props.providerCounts.forEach((count, providerType) => {
-            if (providerType !== "") {
-                var totalVal = this.props.maxProviderCounts.get(providerType);
-                var total = totalVal ? totalVal : -1;
-                var remainingCount = total - count;
-                // console.log(count, maxCount, total, count / total, maxCount / total);
-                var countPerc = Math.round(count / total * 10000) / 100;
-                var remCountPerc = Math.round(remainingCount / total * 10000) / 100;
-                result.set(providerType, {perc: [remCountPerc, countPerc], count: [remainingCount.toString(), count.toString()]});
+    getOtherProvidersData() {
+        console.log(this.props.providerCounts);
+        var result: {label: string, providerCount: number, maxCount: number}[] = [];
+        this.props.providerCounts.forEach((value,key) => {
+            if (key !== CITY_CODE && key !== CITY_PART_CODE && key !== REGION_CODE && key != GOVERNMENT_CODE) {
+                var label = this.props.providerLabels.get(key);
+                var maxCount = this.props.maxProviderCounts.get(key);
+                var provider = { label: label ? label : "Poskytovatelé bez právní formy", providerCount: value, maxCount: maxCount ? maxCount : 0 };
+                result.push(provider);
             }
-        });
+        })
         return result;
     }
     getPieData(typeCode: string) {
@@ -65,22 +61,6 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
     }
     getRegionData() { return this.getPieData(REGION_CODE); }
     getGovernmentData() { return this.getPieData(GOVERNMENT_CODE); }
-    // createPieChart(values: IterableIterator<Plotly.Data>, texts: number[], title: string, container: React.RefObject<HTMLInputElement>) {
-    //     var labels = ["OVM neposkytující úřední desku", "OVM poskytující úřední desku jako otevřená data"];
-    //     var layout: { height: number, width: number} = {
-    //         height: 600,
-    //         width: 400,
-    //     };
-    //     if(container.current) {
-    //         Plotly.newPlot(container.current, {
-    //             values: values,
-    //             labels: labels,
-    //             text: texts,
-
-
-    //         })
-    //     }
-    // }
     createProviderChartsIndividual() {
         var labels = ["OVM neposkytující úřední desku", "OVM poskytující úřední desku jako otevřená data"];
         
@@ -102,7 +82,6 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                 text: cityData?.count,
                 marker: {colors: colors},
                 type: 'pie',
-                // title: {text: "Obec", font: {size: 14}, position: "bottom center"}
             }], layoutWithLegend)
         }
 
@@ -119,7 +98,6 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                 showlegend: false,
                 marker: {colors: colors},
                 type: 'pie',
-                // title: {text: "Městská část, městský obvod", font: {size: 12}, position: "bottom center"}
             }], layout)
         }
         var regionData = this.getPieData(REGION_CODE);
@@ -131,7 +109,6 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                 showlegend: false,
                 marker: {colors: colors},
                 type: 'pie',
-                // title: {text: "Kraj", font: {size: 12}, position: "bottom center"}
             }], layout)
         }
         var governmentData = this.getPieData(GOVERNMENT_CODE);
@@ -143,56 +120,29 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                 showlegend: false,
                 marker: {colors: colors},
                 type: 'pie',
-                // title: {text: "Organizační složka státu", font: {size: 12}, position: "bottom center"}
             }], layout)
         }
     }
-    createProviderCharts() {
-        var labels = ["OVM neposkytující úřední desku", "OVM poskytující úřední desku jako otevřená data"];
-        var dataLeft: { values: number[], labels: string[], text: string[], type: 'pie' | undefined, 
-                title: {text: string, font: {size: number}}, domain: { row: number, col: number} }[] = [];
-        var dataRight: { values: number[], labels: string[], text: string[], type: 'pie' | undefined, 
-                title: {text: string, font: {size: number}}, domain: { row: number, col: number} }[] = [];
-        var valueMap = this.getProvidersCount();
-        var chartCount = valueMap.size % 2 == 0 ? valueMap.size : valueMap.size + 1;
-        var rowCount = chartCount / 2;
-        var curChart = 0;
-        valueMap.forEach((obj, type) => {
-            var typeName = this.props.providerLabels.get(type);
-            var dataObj: { values: number[], labels: string[], text: string[], type: 'pie' | undefined, 
-                title: {text: string, font: {size: number}}, domain: { row: number, col: number} } = 
-                {
-                values: obj.perc,
-                labels: labels,
-                text: obj.count,
-                type: 'pie',
-                title: {text: typeName? typeName : "", font: {size: 14}},
-                domain: {
-                    row: curChart % rowCount,
-                    col: 0
-                } 
-            }
-            if (curChart < rowCount) {
-                dataLeft.push(dataObj);
-            } else {
-                dataRight.push(dataObj);
-            }
-            curChart++;
-        });
-        
-        var layout: { height: number, width: number, grid: {rows: number, columns: number}} = {
-            height: 900,
-            width: 600,
-            grid: {rows: rowCount, columns: 1},
-        };
-        if (this.pieContainerLeft.current) {
-            Plotly.newPlot(this.pieContainerLeft.current, dataLeft, layout);
-        }
-        if (this.pieContainerRight.current) {
-            Plotly.newPlot(this.pieContainerRight.current, dataRight, layout);
-        }
-        // console.log(dataLeft);
+
+    renderOtherProviders() {
+        var otherProviders = this.getOtherProvidersData();
+        if (otherProviders.length === 0) return null;
+        return (
+            <ListGroup>
+                <ListGroupItem>
+                    <div className="fw-bold text-center">Ostatní poskytovatelé úředních desek</div>
+                </ListGroupItem>
+                { otherProviders.map(provider => (
+                    <ListGroupItem key={provider.label}>
+                        <div className="fw-bold">{provider.label}</div>
+                        <div>Poskytovatelů úředních desek: {provider.providerCount}</div>
+                        <div>OVM celkem: {provider.maxCount}</div>
+                    </ListGroupItem>
+                )) }
+            </ListGroup>
+        );
     }
+    
     renderOtherOrganizations(){
         var values: number[] = [];
         var labels: string[] = [];
@@ -208,16 +158,15 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
         });
         
         return (
-            <Row className="text-center justify-content-md-center">
-                <Col className="col-11 col-sm-11 col-md-5 col-lg-5 col-xl-5 col-xxl-5 p-2 m-2">
-                    <ListGroup>
-                        {values.map((val, i) => (
-                        <ListGroupItem>
-                            <div className="fw-bold">{labels[i] + ": "}</div> {val}
-                        </ListGroupItem>))}
-                    </ListGroup>
-                </Col>
-            </Row>
+            <ListGroup>
+                <ListGroupItem>
+                    <div className="fw-bold text-center">Ostatní OVM bez poskytovatelů úřednich desek</div>
+                </ListGroupItem>
+                {values.map((val, i) => (
+                <ListGroupItem>
+                    <div className="fw-bold">{labels[i] + ": "}</div> {val}
+                </ListGroupItem>))}
+            </ListGroup>
         );
     }
     render() {
@@ -236,14 +185,7 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                         </p>
                     </Col>
                 </Row>
-                {/* <Row className="text-center justify-content-md-center">
-                    <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
-                        <div ref={this.pieContainerLeft} />
-                    </Col>
-                    <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
-                        <div ref={this.pieContainerRight} />
-                    </Col>
-                </Row> */}
+                
                 <Row className="text-center justify-content-md-center">
                     <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex">
                         <div>
@@ -273,9 +215,17 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                     </Col>
                 </Row>
                 <Row className="text-center justify-content-md-center m-3">
-                    <h6>Ostatní orgány veřejné moci, které neposkytují data z úředních desek</h6>
+                    <h6>Ostatní právní formy orgánů veřejné moci (OVM)</h6>
                 </Row>
-                { this.renderOtherOrganizations() }
+                <Row className="justify-content-md-center">
+                    <Col className="col-11 col-sm-11 col-md-5 col-lg-5 col-xl-5 col-xxl-5 p-2 m-2">
+                        { this.renderOtherProviders() }
+                    </Col>
+                    <Col className="col-11 col-sm-11 col-md-5 col-lg-5 col-xl-5 col-xxl-5 p-2 m-2">
+                        { this.renderOtherOrganizations() }
+                    </Col>
+                </Row>
+                
             </>
         );
     }
