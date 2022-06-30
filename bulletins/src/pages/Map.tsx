@@ -3,9 +3,14 @@ import { Provider, SortedProviders, Datasets, ProviderType, BulletinData } from 
 import { CancelablePromise, makeCancelable } from '../model/cancelablePromise';
 import { Loader } from '../Utils';
 import { Bulletin, BulletinCards } from './List';
-import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { Button, Col, Form, FormGroup, Row } from 'react-bootstrap';
 import { BulletinController } from './BulletinController';
+
+import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+
+// @ts-ignore
+// eslint-disable-next-line import/no-webpack-loader-syntax, import/no-unresolved
+mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYmxpYWtoZXIiLCJhIjoiY2tyZGxscG83MDQyazJ2bGg2dDhqeWE1NyJ9.Veduz7A77r80wvBKV2UHJQ';
 
