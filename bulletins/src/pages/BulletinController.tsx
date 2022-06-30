@@ -84,7 +84,8 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
         }
         this.setState({ checkedProviders: updatedSet });
     }
-    handleSubmit() {
+    handleSubmit(event: any) {
+        event.preventDefault();
         this.setState({finderOn: true});
     }
     handleChange(event: any) {
