@@ -4,7 +4,7 @@ import { CancelablePromise, makeCancelable } from '../model/cancelablePromise';
 import { Loader } from '../Utils';
 import { Bulletin, BulletinCards } from './List';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import { Col, Row } from 'react-bootstrap';
+import { Button, Col, Form, FormGroup, Row } from 'react-bootstrap';
 import { BulletinController } from './BulletinController';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYmxpYWtoZXIiLCJhIjoiY2tyZGxscG83MDQyazJ2bGg2dDhqeWE1NyJ9.Veduz7A77r80wvBKV2UHJQ';
@@ -21,13 +21,19 @@ const MapHeader = () => {
         <>
         <Row className="p-2 text-center">
             <h2>Mapa úředních desek</h2>
-            <p>Klikněte na bod v mapě pro výběr poskytovatele.</p>
+            <p>Úřední desky jsou umístěné na adresu sídla poskytovatele desky.</p>
         </Row>
         </>
     );
 }
 
-class Map extends React.Component<{}, {loaded: boolean, selected: string}> {
+interface MapState {
+    loaded: boolean;
+    selected: string;
+    finderText: string;
+}
+
+class Map extends React.Component<{}, MapState> {
     data: Datasets;
     providers: SortedProviders | null;
     map: mapboxgl.Map | null;
@@ -44,8 +50,10 @@ class Map extends React.Component<{}, {loaded: boolean, selected: string}> {
         this.mapContainer = React.createRef();
         this.map = null;
         this.markers = [];
-        this.state = {loaded: false, selected: ""};
+        this.state = {loaded: false, selected: "", finderText: ""};
         this.handleMarkerClick = this.handleMarkerClick.bind(this);
+        this.handleFinderChange = this.handleFinderChange.bind(this);
+        this.findAndMove = this.findAndMove.bind(this);
         this.fetchDatasetsPromise = null;
         this.fetchProvidersPromise = null;
         this.fetchResidencesPromise = null;
@@ -80,6 +88,29 @@ class Map extends React.Component<{}, {loaded: boolean, selected: string}> {
     }
     handleMarkerClick(providerIri: string) {
         this.setState({selected: providerIri});
+    }
+    handleFinderChange(event: any) {
+        event.preventDefault();
+        this.setState({finderText: event.target.value});
+    }
+    async findAndMove()
+    {
+      var response = await fetch("https://api.mapy.cz/geocode?query=" + this.state.finderText);
+      var data = await response.text();
+      console.log(data);
+    //   if ($(data).find("item").attr("x") === undefined) { 
+    //     this.map.moveToCenter();
+    //   }
+    //   else {
+    //     var x = parseFloat($(data).find("item").attr("x"));
+    //     var y = parseFloat($(data).find("item").attr("y"));
+    //     if (x < 12 || x > 19 || y < 48 || y > 52) { // limit coordinates to CR only (approximately)
+    //       this.map.moveToCenter();
+    //     }
+    //     else {
+    //       this.map.moveTo([x, y], this.findZoom);
+    //     }
+    //   }
     }
     createMarkers() {
         if (this.map !== null && this.providers !== null) {
@@ -139,7 +170,7 @@ class Map extends React.Component<{}, {loaded: boolean, selected: string}> {
     }
     renderProviderInfo() {
             var provider = this.providers?.getProvider(this.state.selected);
-            var providerName = provider ? provider.name : "Poskytovatel není vybrán";
+            var providerName = provider ? provider.name : "Klikněte na bod v mapě pro výběr poskytovatele";
             var bulletinsQ = this.providers?.getProviderBulletins(this.state.selected);
             var bulletins = bulletinsQ ? bulletinsQ : [];
             return (
@@ -164,6 +195,13 @@ class Map extends React.Component<{}, {loaded: boolean, selected: string}> {
         return (
             <>
                 <MapHeader />
+                {/* <Form onSubmit={this.findAndMove}>
+                    <FormGroup>
+                        <Form.Label>Vyhledejte si svůj úřad</Form.Label>
+                        <Form.Control type="text" defaultValue={this.state.finderText} onChange={this.handleFinderChange}/>
+                        <Button type="submit" >Najít</Button>
+                    </FormGroup>
+                </Form> */}
                 <Row className="text-center justify-content-md-center">
                     <Col className="col-12">
                         <div ref={this.mapContainer} className="map-container" style={{height:400}}/>
