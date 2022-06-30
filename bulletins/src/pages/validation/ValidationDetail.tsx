@@ -335,6 +335,7 @@ const ValidationCriteria = (props: {}) => {
                     <ListGroupItem>
                         <div className="fw-bold">relevantní_do</div>
                         Datum do kterého je informace vyvěšená na úřední desce relevantní.
+                        Pokud nemá informace datum ukončení platnosti, měla by být hodnota atributu relevantní_do nastavená jako nespecifikované datum <a href="https://ofn.gov.cz/z%C3%A1kladn%C3%AD-datov%C3%A9-typy/2020-07-01/#example-49-nespecifikovany-casovy-okamzik-v-json-ld" target="_blank">takto</a>.
                     </ListGroupItem>
                 </ListGroup>
             </div>
