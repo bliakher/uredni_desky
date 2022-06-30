@@ -116,6 +116,7 @@ const ValidationBody = (props: {bulletin: BulletinData}) => {
                                 <ValidationCriteria />
                             } />
                         </Tab>
+                        { missing.information.length > 0 &&
                         <Tab title="Informace s chybějícími atributy" eventKey="info" key="info">
                             <Container>
                             <Row className="justify-content-md-center text-center">
@@ -127,7 +128,7 @@ const ValidationBody = (props: {bulletin: BulletinData}) => {
                                 )) }
                             </Row>
                             </Container>
-                        </Tab>
+                        </Tab> }
                     </Tabs>
 
                 </>
