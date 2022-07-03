@@ -3,7 +3,7 @@ import { Provider, SortedProviders, Datasets, ProviderType, BulletinData } from 
 import { CancelablePromise, makeCancelable } from '../model/cancelablePromise';
 import { Loader } from '../Utils';
 import { Bulletin, BulletinCards } from './List';
-import { Button, Col, Form, FormGroup, Row } from 'react-bootstrap';
+import { Badge, Button, Col, Form, FormGroup, Row } from 'react-bootstrap';
 import { BulletinController } from './BulletinController';
 
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
@@ -208,6 +208,12 @@ class Map extends React.Component<{}, MapState> {
                         <Button type="submit" >Najít</Button>
                     </FormGroup>
                 </Form> */}
+                <div className="text-center justify-content-md-center m-2">
+                    <Badge pill bg="type-city" className="m-1">Obec</Badge>
+                    <Badge pill bg="type-city-part" className="m-1">Městská část</Badge>
+                    <Badge pill bg="type-region" className="m-1">Kraj</Badge>
+                    <Badge pill bg="type-government" className="m-1">Organizační složka státu</Badge>
+                </div>
                 <Row className="text-center justify-content-md-center">
                     <Col className="col-12">
                         <div ref={this.mapContainer} className="map-container" style={{height:400}}/>
