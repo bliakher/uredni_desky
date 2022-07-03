@@ -81,6 +81,7 @@ class Map extends React.Component<{}, MapState> {
                 center: [15.3350758, 49.7417517],
                 zoom: 6,
             });
+            this.map.addControl(new mapboxgl.NavigationControl());
         }
         this.createMarkers();
         this.addMarkersToMap();
