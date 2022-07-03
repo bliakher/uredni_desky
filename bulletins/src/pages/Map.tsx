@@ -213,6 +213,7 @@ class Map extends React.Component<{}, MapState> {
                     <Badge pill bg="type-city-part" className="m-1">Městská část</Badge>
                     <Badge pill bg="type-region" className="m-1">Kraj</Badge>
                     <Badge pill bg="type-government" className="m-1">Organizační složka státu</Badge>
+                    <Badge pill bg="type-unknown" className="m-1">Ostatní</Badge>
                 </div>
                 <Row className="text-center justify-content-md-center">
                     <Col className="col-12">
