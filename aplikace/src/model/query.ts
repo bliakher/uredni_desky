@@ -83,16 +83,6 @@ function getQueryBulletinByIri(iri: string): string {
     }";
 }
 
-function getQueryOrganizationInfoByIri(iri: string): string {
-    var identifier = '<' + iri + '>';
-    return "PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
-    PREFIX a-sgov-104-pojem: <https://slovník.gov.cz/agendový/104/pojem/> \
-    SELECT DISTINCT ?nazev ?ico ?pravni_forma \
-    WHERE {" + identifier + " a l-sgov-sbírka-111-2009-pojem:orgán-veřejné-moci . \
-      OPTIONAL {" + identifier + " l-sgov-sbírka-111-2009-pojem:má-název-orgánu-veřejné-moci ?nazev . FILTER (LANG(?nazev) = 'cs') } \
-      OPTIONAL { " + identifier + " l-sgov-sbírka-111-2009-pojem:má-identifikační-číslo-osoby-orgánu-veřejné-moci ?ico . } \
-      OPTIONAL { " + identifier + " l-sgov-sbírka-111-2009-pojem:má-právní-formu-osoby ?pravni_forma . }";
-}
 
 function getQueryOrganizationInfoByIco(ico: string): string {
     var identifier = "'" + ico + "'";
