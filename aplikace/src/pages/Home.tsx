@@ -36,7 +36,7 @@ class Home extends React.Component<{}, {}> {
                             <div>
                                 Uživatelská dokumentace
                             </div>
-                            <Button href="" variant="outline-primary" >Dokumentace</Button>
+                            <Button href="https://bliakher.github.io/uredni_desky_docs/uzivatelska" variant="outline-primary" >Dokumentace</Button>
 
                         </div>
                     </Col>
