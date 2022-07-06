@@ -24,11 +24,11 @@ class BulletinDistribution {
     private hasProperty(propertyName: string): boolean {
         return this.data.hasOwnProperty(propertyName);
     }
-    private getProperty(propertyName: string): any | false {
+    private getProperty(propertyName: string): any | undefined {
         if (this.hasProperty(propertyName)) {
             return this.data[propertyName];
         }
-        return false;
+        return undefined;
     }
     getIri(): string | undefined {
         return this.getProperty("iri");
@@ -37,12 +37,12 @@ class BulletinDistribution {
         const page = "stránka";
         return this.getProperty(page);
     }
-    getPublisher(): { ičo: string, identifikátor_ovm: string } | false {
+    getPublisher(): { ičo: string, identifikátor_ovm: string } | undefined {
         const publisher = "provozovatel";
         return this.getProperty(publisher);
 
     }
-    getInformation(): Array<any> | false { // ToDo: type
+    getInformation(): Array<any> | undefined { // ToDo: type
         const info = "informace";
         return this.getProperty(info);
     }
