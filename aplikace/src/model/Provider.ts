@@ -1,4 +1,4 @@
-import { Point } from './query';
+import { Point } from '../services/query';
 import { BulletinData } from './dataset';
 
 export enum ProviderType {

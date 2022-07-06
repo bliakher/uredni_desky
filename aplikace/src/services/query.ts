@@ -1,5 +1,5 @@
 import formurlencoded from 'form-urlencoded';
-import type { ProviderTypeCountMap, ProviderTypeLabelMap } from './Provider';
+import type { ProviderTypeCountMap, ProviderTypeLabelMap } from '../model/Provider';
 
 const nkod_sparql = "https://data.gov.cz/sparql";
 const rpp_sparql = "https://rpp-opendata.egon.gov.cz/odrpp/sparql";

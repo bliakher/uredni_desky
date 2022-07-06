@@ -1,6 +1,6 @@
 import { QueryResponse, BulletinData } from './dataset';
-import { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri, fetchAddressPointsByIris, fetchAllOrganizationTypes } from './query';
-import type { PointMap } from './query';
+import { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri, fetchAddressPointsByIris, fetchAllOrganizationTypes } from '../services/query';
+import type { PointMap } from '../services/query';
 import { Provider, ProviderTypeCountMap, ProviderTypeLabelMap } from './Provider';
 
 /* Wrapper for all bulletin datasets

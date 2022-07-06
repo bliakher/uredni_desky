@@ -3,7 +3,7 @@ import { useLocation } from 'react-router';
 import { BulletinData } from '../../model/dataset';
 import { DatasetStore } from '../../model/DatasetStore';
 import { CancelablePromise, makeCancelable } from '../../model/cancelablePromise';
-import { fetchOrganizationNameByIco } from '../../model/query';
+import { fetchOrganizationNameByIco } from '../../services/query';
 import { Loader } from '../../Utils';
 import { InfoCards, InfoCard } from './InfoCards';
 import znak from '../../statni_znak.png';
