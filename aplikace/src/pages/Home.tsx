@@ -50,7 +50,7 @@ class Home extends React.Component<{}, {}> {
 
                         </div>
                     </Col>
-                </Row>   
+                </Row>
             </Container>
         );
     }

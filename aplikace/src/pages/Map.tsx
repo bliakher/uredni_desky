@@ -1,10 +1,10 @@
 import React from 'react';
-import { Provider, SortedProviders, Datasets, ProviderType, BulletinData } from '../model/dataset';
+import { DatasetStore } from '../model/DatasetStore';
+import { ProviderType, SortedProviders } from '../model/Provider';
 import { CancelablePromise, makeCancelable } from '../model/cancelablePromise';
 import { Loader } from '../Utils';
 import { Bulletin, BulletinCards } from './List';
 import { Badge, Button, Col, Form, FormGroup, Row } from 'react-bootstrap';
-import { BulletinController } from './BulletinController';
 
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
@@ -39,7 +39,7 @@ interface MapState {
 }
 
 class Map extends React.Component<{}, MapState> {
-    data: Datasets;
+    data: DatasetStore;
     providers: SortedProviders | null;
     map: mapboxgl.Map | null;
     markers: Array<mapboxgl.Marker>;
@@ -50,7 +50,7 @@ class Map extends React.Component<{}, MapState> {
     fetchResidencesPromise: CancelablePromise | null;
     constructor(props: any) {
         super(props);
-        this.data = new Datasets();
+        this.data = new DatasetStore();
         this.providers = null;
         this.mapContainer = React.createRef();
         this.map = null;

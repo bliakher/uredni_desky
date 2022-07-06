@@ -1,9 +1,10 @@
 import React from 'react';
 import { useLocation } from 'react-router';
-import { BulletinData, getBulletinByIri } from '../../model/dataset';
+import { BulletinData } from '../../model/dataset';
+import { DatasetStore } from '../../model/DatasetStore';
 import { CancelablePromise, makeCancelable } from '../../model/cancelablePromise';
 import { fetchOrganizationNameByIco } from '../../model/query';
-import { Loader, ShowDatasetButton } from '../../Utils';
+import { Loader } from '../../Utils';
 import { InfoCards, InfoCard } from './InfoCards';
 import znak from '../../statni_znak.png';
 import { Container, Row, Col, Button, ListGroup, ListGroupItem, Form } from 'react-bootstrap';
@@ -11,17 +12,17 @@ import { Container, Row, Col, Button, ListGroup, ListGroupItem, Form } from 'rea
 export const BulletinDetail = () => {
     var params = new URLSearchParams(useLocation().search);
     var iriNull = params.get("iri");
-    var iri = iriNull == null? "" : iriNull;
+    var iri = iriNull == null ? "" : iriNull;
     return (<BulletinDetailComplete iri={iri} />);
 }
 
 const DetailHeader = (props: {
-        title: string, 
-        bulletinIri: string, 
-        url: string | null,
-        providerName: string,
-        ownerName: string | null 
-        }) => {
+    title: string,
+    bulletinIri: string,
+    url: string | null,
+    providerName: string,
+    ownerName: string | null
+}) => {
     return (
         <>
             <div className="text-center">
@@ -29,10 +30,10 @@ const DetailHeader = (props: {
             </div>
             <div className="text-center justify-content-md-center mb-4 mt-2">
                 <h3>
-                    {props.title + " "} 
+                    {props.title + " "}
                 </h3>
             </div>
-            <Row  className="text-center justify-content-md-center m-2">
+            <Row className="text-center justify-content-md-center m-2">
                 <Col className="col-6 col-sm-6 col-md-5 col-lg-4 col-xl-4 col-xxl-4" >
                     {/* <ListGroup className="list-group-flush border border-secondary rounded">
                         <ListGroupItem>Poskytovatel dat: {props.providerName}</ListGroupItem>
@@ -44,10 +45,10 @@ const DetailHeader = (props: {
 
                     <div>
                         <div>Poskytovatel dat: {props.providerName}</div>
-                        { props.ownerName != null &&
-                        <div>Provozovatel: {props.ownerName}</div> }
+                        {props.ownerName != null &&
+                            <div>Provozovatel: {props.ownerName}</div>}
                     </div>
-                    
+
                 </Col>
             </Row>
             <div className="text-center justify-content-md-center m-3">
@@ -55,10 +56,10 @@ const DetailHeader = (props: {
                     <Button variant="outline-secondary" href={"https://data.gov.cz/datová-sada?iri=" + props.bulletinIri} target="_blank" className="m-1">
                         Dataset v NKOD
                     </Button>
-                    { props.url &&
+                    {props.url &&
                         <Button href={props.url} target="_blank" variant="outline-secondary" className="m-1">
-                           Stránka desky
-                        </Button> }
+                            Stránka desky
+                        </Button>}
                 </span>
             </div>
         </>
@@ -73,15 +74,15 @@ interface BulletinDetailState {
     finderValue: string;
 }
 
-class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDetailState> {
+class BulletinDetailComplete extends React.Component<{ iri: string }, BulletinDetailState> {
     data: BulletinData | null;
 
     fetchBulletinPromise: CancelablePromise | null;
     fetchDistributionPromise: CancelablePromise | null;
     fetchOrganizationPromise: CancelablePromise | null;
-    constructor(props: {iri: string}) {
+    constructor(props: { iri: string }) {
         super(props);
-        this.state = {loaded: false, invalidIri: false, ownerName: null, finderOn: false, finderValue: "" };
+        this.state = { loaded: false, invalidIri: false, ownerName: null, finderOn: false, finderValue: "" };
         this.data = null;
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -91,22 +92,22 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
         this.fetchOrganizationPromise = null;
     }
     async componentDidMount() {
-        this.fetchBulletinPromise = makeCancelable(getBulletinByIri(this.props.iri))
+        this.fetchBulletinPromise = makeCancelable(DatasetStore.getBulletinByIri(this.props.iri))
         var data = await this.fetchBulletinPromise.promise;
         if (data == null) {
-            this.setState({loaded: true, invalidIri: true});
+            this.setState({ loaded: true, invalidIri: true });
         } else {
             this.data = data;
             this.fetchDistributionPromise = makeCancelable(data.fetchDistribution());
             await this.fetchDistributionPromise.promise;
-            this.setState({loaded: true});
+            this.setState({ loaded: true });
             var distribution = data.getDistribution();
             var publisher = distribution?.getPublisher();
             if (publisher) {
                 var ico = publisher.ičo;
                 this.fetchOrganizationPromise = makeCancelable(fetchOrganizationNameByIco(ico));
                 var name = await this.fetchOrganizationPromise.promise;
-                this.setState({ownerName: name});
+                this.setState({ ownerName: name });
             }
         }
     }
@@ -117,14 +118,14 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
         if (this.fetchOrganizationPromise) this.fetchOrganizationPromise.cancel();
     }
     handleChange(event: any) {
-        this.setState({finderValue: event.target.value});
+        this.setState({ finderValue: event.target.value });
     }
     handleSubmit(event: any) {
         event.preventDefault();
-        this.setState({finderOn: true});
+        this.setState({ finderOn: true });
     }
     handleCancel(event: any) {
-        this.setState({finderValue: "", finderOn: false});
+        this.setState({ finderValue: "", finderOn: false });
     }
     render() {
         if (this.state.loaded) {
@@ -136,29 +137,29 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
                     return name && name.toLowerCase().includes(this.state.finderValue.toLowerCase());
                 });
                 var url = this.data.distribution?.getPageUrl() ?? null;
-                return ( 
+                return (
                     <>
                         <Container>
                             <DetailHeader title={this.data.name} bulletinIri={this.data.iri} url={url}
-                                providerName={this.data.provider.name} ownerName={this.state.ownerName}/>
+                                providerName={this.data.provider.name} ownerName={this.state.ownerName} />
                             <hr />
                             {/**  className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex"  */}
                             <Row className="text-center justify-content-md-center d-flex align-items-center">
-                                
+
                                 <Col className="col-6 col-sm-6 col-md-5 col-lg-4 col-xl-4 col-xxl-3" >
                                     <ListGroup className="list-group-flush border border-secondary rounded">
                                         <ListGroupItem><h6>Vyhledávání informace:</h6></ListGroupItem>
                                         <ListGroupItem>
                                             <Form onSubmit={this.handleSubmit} >
                                                 <Form.Group id="form-finder">
-                                                    
-                                                    <Form.Control type="text" id="finder" onChange={this.handleChange}/>
+
+                                                    <Form.Control type="text" id="finder" onChange={this.handleChange} />
                                                     {/* <input type="submit" value="Najít"/>
                                                     <input type="cancel" value="Zrušit vyhledání" onClick={this.handleCancel}/> */}
                                                     <Button type="submit" variant="outline-primary" className="m-2">
                                                         Najít
                                                     </Button>
-                                                    <Button type="reset" onClick={this.handleCancel} variant="outline-primary"  className="m-2">
+                                                    <Button type="reset" onClick={this.handleCancel} variant="outline-primary" className="m-2">
                                                         Zrušit vyhledání
                                                     </Button>
                                                 </Form.Group>
@@ -173,8 +174,8 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
                                     <p>Data nebylo možné načíst.</p>
                                 </Row>
                             )}
-                            
-                            <InfoCards data={ this.state.finderOn ? filteredRecords : infoRecords} cardElement={InfoCard}/>
+
+                            <InfoCards data={this.state.finderOn ? filteredRecords : infoRecords} cardElement={InfoCard} />
 
                             <Row className="text-center justify-content-md-center">
                                 <Col>
@@ -186,7 +187,7 @@ class BulletinDetailComplete extends React.Component<{iri: string}, BulletinDeta
                         </Container>
 
                     </>);
-                
+
             } else {
                 return (<p>Chyba: Nevalidní iri datasetu - nelze načíst.</p>)
             }

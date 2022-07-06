@@ -1,13 +1,10 @@
 import React from 'react';
 import { Col, ProgressBar, Row, Tab, Tabs } from 'react-bootstrap';
-import type { ProviderTypeCountMap, ProviderTypeLabelMap } from '../../model/dataset';
-import { BulletinData, Datasets } from '../../model/dataset';
+import type { ProviderTypeCountMap, ProviderTypeLabelMap } from '../../model/Provider';
+import { DatasetStore } from '../../model/DatasetStore';
 import { CancelablePromise, makeCancelable } from '../../model/cancelablePromise';
-import { Loader } from '../../Utils';
 import { ValidationStatistics } from './ValidationStatistics';
 import { ProviderStatistics } from './ProviderStatistics';
-
-import Plotly from 'plotly.js-dist-min';
 
 
 const Header = () => {
@@ -24,32 +21,32 @@ const Header = () => {
 }
 
 
-const Progress = (props: {done: number, total: number}) => {
+const Progress = (props: { done: number, total: number }) => {
     var percentage = Math.round(props.done / props.total * 10000) / 100;
     // className="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-6 d-flex p-2 m-2"
     return (
         <Row className="text-center justify-content-md-center">
-            <Col className="col-11 col-sm-11 col-md-8 col-lg-6 col-xl-6 col-xxl-5 p-2 m-2"> 
-                <ProgressBar now={percentage} label={props.done + " z " + props.total}/>    
-             </Col>
+            <Col className="col-11 col-sm-11 col-md-8 col-lg-6 col-xl-6 col-xxl-5 p-2 m-2">
+                <ProgressBar now={percentage} label={props.done + " z " + props.total} />
+            </Col>
         </Row>
-        
+
     );
 }
 
-export class Statistics extends React.Component<{}, {loaded: boolean, downloadCount: number}> {
-    data: Datasets;
+export class Statistics extends React.Component<{}, { loaded: boolean, downloadCount: number }> {
+    data: DatasetStore;
     providerCounts: ProviderTypeCountMap;
     maxProviderCounts: ProviderTypeCountMap;
     providerLabels: ProviderTypeLabelMap;
 
     fetchDatasetsPromise: CancelablePromise | null;
     fetchDistributionsPromise: CancelablePromise | null;
-    
+
     constructor(props: any) {
         super(props);
-        this.state = {loaded : false, downloadCount : 0};
-        this.data = new Datasets();
+        this.state = { loaded: false, downloadCount: 0 };
+        this.data = new DatasetStore();
         this.providerCounts = new Map();
         this.maxProviderCounts = new Map();
         this.providerLabels = new Map();
@@ -62,8 +59,8 @@ export class Statistics extends React.Component<{}, {loaded: boolean, downloadCo
         this.fetchDistributionsPromise = makeCancelable(Promise.all(
             this.data.data.map(async d => {
                 await d.fetchDistribution(15000); // set timeout to 15s
-                this.setState({downloadCount : this.state.downloadCount + 1});
-        })));
+                this.setState({ downloadCount: this.state.downloadCount + 1 });
+            })));
         await this.fetchDistributionsPromise.promise;
         // console.log("all downloaded");
         this.providerCounts = await this.data.filterInnerProvidersByType();
@@ -73,7 +70,7 @@ export class Statistics extends React.Component<{}, {loaded: boolean, downloadCo
             this.providerLabels = maps.labels;
         }
 
-        this.setState({loaded: true});
+        this.setState({ loaded: true });
     }
     componentWillUnmount() {
         if (this.fetchDatasetsPromise) this.fetchDatasetsPromise.cancel();
@@ -97,11 +94,11 @@ export class Statistics extends React.Component<{}, {loaded: boolean, downloadCo
                         <ValidationStatistics data={this.data.data} />
                     </Tab>
                     <Tab eventKey="providers" title="Poskytovatelé" key="providers">
-                        <ProviderStatistics providerCounts={this.providerCounts} maxProviderCounts={this.maxProviderCounts} 
-                            providerLabels={this.providerLabels}/>
+                        <ProviderStatistics providerCounts={this.providerCounts} maxProviderCounts={this.maxProviderCounts}
+                            providerLabels={this.providerLabels} />
                     </Tab>
                 </Tabs>
-                
+
             </>
         );
 

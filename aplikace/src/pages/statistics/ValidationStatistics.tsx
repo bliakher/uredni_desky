@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, ListGroup,  Row, Button, ListGroupItem, Stack } from 'react-bootstrap';
+import { Col, ListGroup, Row, Button, ListGroupItem, Stack } from 'react-bootstrap';
 import { BulletinData } from '../../model/dataset';
 import Plotly from 'plotly.js-dist-min';
 
@@ -37,10 +37,10 @@ class ValidationParams {
     }
 }
 
-export class ValidationStatistics extends React.Component<{data: BulletinData[]}> {
+export class ValidationStatistics extends React.Component<{ data: BulletinData[] }> {
     pieContainer: React.RefObject<HTMLInputElement>;
     params: ValidationParams;
-    constructor(props: {data: BulletinData[]}) {
+    constructor(props: { data: BulletinData[] }) {
         super(props);
         this.pieContainer = React.createRef();
         this.params = this.initParams();
@@ -48,7 +48,7 @@ export class ValidationStatistics extends React.Component<{data: BulletinData[]}
     componentDidMount() {
         var values = [this.params.correctPerc, this.params.notLoadedPerc, this.params.incorrectLoadedPerc];
         var labels = ["Bez nedostatků", "Nelze stáhnout distribuci", "Chybějící doporučené atributy"];
-        var data: {values: number[], labels: string[], type: ("pie" | undefined)}[] = [{
+        var data: { values: number[], labels: string[], type: ("pie" | undefined) }[] = [{
             values: values,
             labels: labels,
             type: 'pie'
@@ -57,7 +57,7 @@ export class ValidationStatistics extends React.Component<{data: BulletinData[]}
         var layout = {
             height: 300,
             width: 500
-          };
+        };
         if (this.pieContainer.current) {
             Plotly.newPlot(this.pieContainer.current, data, layout);
         }
@@ -76,7 +76,7 @@ export class ValidationStatistics extends React.Component<{data: BulletinData[]}
                     loadedIncorrect.push(bulletin);
                     bulletinError += (missing.bulletin.length > 0 ? 1 : 0);
                     infoError += (missing.information.length > 0 ? 1 : 0);
-                } 
+                }
             }
         }
         var count = this.props.data.length;
@@ -94,31 +94,31 @@ export class ValidationStatistics extends React.Component<{data: BulletinData[]}
     renderStatText() {
         return (
             <>
-            <ListGroup>
-                <ListGroup.Item>
-                    <div className="fw-bold text-center">Shrnutí</div>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                    {"Celkem úředních desek: " + this.params.count}
-                </ListGroup.Item>
-                <ListGroup.Item>
-                    {"Nelze načíst distribuci u " + this.params.notLoaded.length + " desek (" + this.params.notLoadedPerc + " %)."}
-                </ListGroup.Item>
-                <ListGroup.Item>
-                    {"Z načtených, nalezeny nedostatky u " + this.params.loadedIncorrect.length + " desek (" + this.params.incorrectLoadedPerc + " %)."}
-                    <ul>
-                        <li>
-                            {"Z toho " + this.params.bulletinError + " desek (" + this.params.bulletinPerc + " %) nemá všechny doporučené atributy v metadatech celé desky."}
-                        </li>
-                        <li>
-                            {"A " + this.params.infoError + " desek (" + this.params.infoPerc + " %) nemá všechny doporučené atributy u všech informací, zveřejněných na desce." }
-                        </li>
-                    </ul>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                    {"Celkem úředních desek s nedostatky: " + this.params.withErrors + " (" + this.params.withErrorsPerc + " %)"}
-                </ListGroup.Item>
-            </ListGroup>
+                <ListGroup>
+                    <ListGroup.Item>
+                        <div className="fw-bold text-center">Shrnutí</div>
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                        {"Celkem úředních desek: " + this.params.count}
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                        {"Nelze načíst distribuci u " + this.params.notLoaded.length + " desek (" + this.params.notLoadedPerc + " %)."}
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                        {"Z načtených, nalezeny nedostatky u " + this.params.loadedIncorrect.length + " desek (" + this.params.incorrectLoadedPerc + " %)."}
+                        <ul>
+                            <li>
+                                {"Z toho " + this.params.bulletinError + " desek (" + this.params.bulletinPerc + " %) nemá všechny doporučené atributy v metadatech celé desky."}
+                            </li>
+                            <li>
+                                {"A " + this.params.infoError + " desek (" + this.params.infoPerc + " %) nemá všechny doporučené atributy u všech informací, zveřejněných na desce."}
+                            </li>
+                        </ul>
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                        {"Celkem úředních desek s nedostatky: " + this.params.withErrors + " (" + this.params.withErrorsPerc + " %)"}
+                    </ListGroup.Item>
+                </ListGroup>
             </>
         );
     }
@@ -138,10 +138,10 @@ export class ValidationStatistics extends React.Component<{data: BulletinData[]}
                 </Row>
                 <Row className="justify-content-md-center">
                     <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex">
-                        { this.renderStatText() }
+                        {this.renderStatText()}
                     </Col>
                     <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
-                        <div ref={ this.pieContainer } />
+                        <div ref={this.pieContainer} />
                     </Col>
                 </Row>
                 <Row className="text-center justify-content-md-center">
@@ -161,23 +161,23 @@ export class ValidationStatistics extends React.Component<{data: BulletinData[]}
                 </Row>
             </>
         );
-        
+
     }
 }
 
-const ProblematicBulletins = (props: {header: string, bulletins: BulletinData[]}) => {
+const ProblematicBulletins = (props: { header: string, bulletins: BulletinData[] }) => {
     return (
         <ListGroup>
             <ListGroupItem>
                 <div className="fw-bold text-center">{props.header}</div>
             </ListGroupItem>
             {props.bulletins.map(bulletin => (
-            <ListGroupItem key={bulletin.iri + Math.random().toString()}>
+                <ListGroupItem key={bulletin.iri + Math.random().toString()}>
                     <div>
                         <div className="fw-bold">{bulletin.provider.name}</div>
                         <a href={"#/validace/detail?iri=" + bulletin.iri}>{bulletin.name}</a>
                     </div>
-            </ListGroupItem>))}
+                </ListGroupItem>))}
         </ListGroup>
     );
 }

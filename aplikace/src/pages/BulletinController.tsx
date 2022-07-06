@@ -1,6 +1,7 @@
 import React from 'react';
 import { Col, Container, ListGroup, ListGroupItem, Row, Button } from 'react-bootstrap';
-import { BulletinData, Datasets, ProviderType } from '../model/dataset';
+import { DatasetStore } from '../model/DatasetStore';
+import { ProviderType } from '../model/Provider';
 import { CancelablePromise, makeCancelable } from '../model/cancelablePromise';
 import { Loader, CheckboxGroup, OptionChangeCallback } from '../Utils';
 import Form from 'react-bootstrap/Form';
@@ -20,12 +21,12 @@ interface BulletinControllerState {
 }
 
 class BulletinController extends React.Component<BulletinControllerProps, BulletinControllerState> {
-    datasets: Datasets;
+    datasets: DatasetStore;
     fetchDatasetsPromise: CancelablePromise | null;
     fetchProvidersPromise: CancelablePromise | null;
     constructor(props: BulletinControllerProps) {
         super(props);
-        this.state = { 
+        this.state = {
             loaded: false,
             // on load all provider types are checked
             checkedProviders: new Set<ProviderType>(
@@ -33,7 +34,7 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
             finderValue: "",
             finderOn: false,
         };
-        this.datasets = new Datasets();
+        this.datasets = new DatasetStore();
         this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -46,14 +47,14 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
         await this.fetchDatasetsPromise.promise;
         this.fetchProvidersPromise = makeCancelable(this.datasets.fetchProviderInfo());
         await this.fetchProvidersPromise.promise;
-        this.setState({loaded: true});
+        this.setState({ loaded: true });
     }
     componentWillUnmount() {
         if (this.fetchDatasetsPromise) this.fetchDatasetsPromise.cancel();
         if (this.fetchProvidersPromise) this.fetchProvidersPromise.cancel();
     }
     handleCheckboxChange(checkboxValue: string) {
-        var type : ProviderType;
+        var type: ProviderType;
         switch (checkboxValue) {
             case "obce":
                 type = ProviderType.City;
@@ -86,27 +87,27 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
     }
     handleSubmit(event: any) {
         event.preventDefault();
-        this.setState({finderOn: true});
+        this.setState({ finderOn: true });
     }
     handleChange(event: any) {
-        this.setState({finderValue: event.target.value});
+        this.setState({ finderValue: event.target.value });
     }
     handleCancel(event: any) {
-        this.setState({finderValue: "", finderOn: false});
+        this.setState({ finderValue: "", finderOn: false });
     }
 
     render() {
-        var data = this.datasets.data.filter(dataset => this.state.checkedProviders.has(dataset.provider.type) );
-        if (this.state.finderOn){
+        var data = this.datasets.data.filter(dataset => this.state.checkedProviders.has(dataset.provider.type));
+        if (this.state.finderOn) {
             data = data.filter(dataset => (dataset.name.toLowerCase().includes(this.state.finderValue.toLowerCase())
-                                || dataset.provider.name.toLowerCase().includes(this.state.finderValue.toLowerCase())));
+                || dataset.provider.name.toLowerCase().includes(this.state.finderValue.toLowerCase())));
         }
         var optionsList = [
-            {label: "Obce", value: "obce", checked: this.state.checkedProviders.has(ProviderType.City)}, 
-            {label: "Městské části", value: "casti", checked: this.state.checkedProviders.has(ProviderType.CityPart)}, 
-            {label: "Kraje", value: "kraje", checked: this.state.checkedProviders.has(ProviderType.Region)},
-            {label: "Organizační složky státu", value: "stat", checked: this.state.checkedProviders.has(ProviderType.Government)},
-            {label: "Ostatní", value: "ostatni", checked: this.state.checkedProviders.has(ProviderType.Unknown)}];
+            { label: "Obce", value: "obce", checked: this.state.checkedProviders.has(ProviderType.City) },
+            { label: "Městské části", value: "casti", checked: this.state.checkedProviders.has(ProviderType.CityPart) },
+            { label: "Kraje", value: "kraje", checked: this.state.checkedProviders.has(ProviderType.Region) },
+            { label: "Organizační složky státu", value: "stat", checked: this.state.checkedProviders.has(ProviderType.Government) },
+            { label: "Ostatní", value: "ostatni", checked: this.state.checkedProviders.has(ProviderType.Unknown) }];
 
         if (!this.state.loaded) {
             return (
@@ -115,7 +116,7 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
                     <Loader />
                 </Container>
             );
-        } 
+        }
         return (
             <Container className="justify-content-md-center">
                 <this.props.headerElement />
@@ -124,7 +125,7 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
                         <ListGroup className="list-group-flush border border-secondary rounded">
                             <ListGroupItem><h6>Vyberte právní formu poskytovatele:</h6></ListGroupItem>
                             <ListGroupItem>
-                                <CheckboxGroup options={optionsList} callback={this.handleCheckboxChange}/>
+                                <CheckboxGroup options={optionsList} callback={this.handleCheckboxChange} />
                             </ListGroupItem>
                         </ListGroup>
                         {/* <div>Vyberte poskytovatele:</div>
@@ -136,21 +137,21 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
                             <ListGroupItem>
                                 <Form onSubmit={this.handleSubmit} >
                                     <Form.Group id="form-finder">
-                                        
-                                        <Form.Control type="text" id="finder" onChange={this.handleChange} className="m-2"/>
+
+                                        <Form.Control type="text" id="finder" onChange={this.handleChange} className="m-2" />
                                         {/* <input type="submit" value="Najít"/>
                                         <input type="cancel" value="Zrušit vyhledání" onClick={this.handleCancel}/> */}
                                         <Button type="submit" variant="outline-primary" className="m-2">
                                             Najít
                                         </Button>
-                                        <Button type="reset" onClick={this.handleCancel} variant="outline-primary"  className="m-2">
+                                        <Button type="reset" onClick={this.handleCancel} variant="outline-primary" className="m-2">
                                             Zrušit vyhledání
                                         </Button>
                                     </Form.Group>
                                 </Form>
                             </ListGroupItem>
                         </ListGroup>
-                        
+
                     </Col>
                 </Row>
                 <hr />
@@ -160,21 +161,21 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
     }
 }
 
-class ProviderCheckbox extends React.Component<{callback: OptionChangeCallback}> {
-    constructor(props: {callback: OptionChangeCallback}) {
+class ProviderCheckbox extends React.Component<{ callback: OptionChangeCallback }> {
+    constructor(props: { callback: OptionChangeCallback }) {
         super(props);
     }
     render() {
         var optionsList = [
-            {label: "Obce", value: "obce", checked: true}, 
-            {label: "Městské části", value: "casti", checked: true}, 
-            {label: "Kraje", value: "kraje", checked: true},
-            {label: "Organizační složky státu", value: "stat", checked: true},
-            {label: "Ostatní", value: "ostatni", checked: true}];
+            { label: "Obce", value: "obce", checked: true },
+            { label: "Městské části", value: "casti", checked: true },
+            { label: "Kraje", value: "kraje", checked: true },
+            { label: "Organizační složky státu", value: "stat", checked: true },
+            { label: "Ostatní", value: "ostatni", checked: true }];
         return (
             <>
                 <p>Vyberte poskytovatele</p>
-                <CheckboxGroup options={optionsList} callback={this.props.callback}/>
+                <CheckboxGroup options={optionsList} callback={this.props.callback} />
             </>
         );
     }

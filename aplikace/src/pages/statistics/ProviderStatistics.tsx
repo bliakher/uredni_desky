@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col, ListGroup, ProgressBar, Row, Tab, Tabs, Button, ListGroupItem, Stack } from 'react-bootstrap';
-import type { ProviderTypeCountMap, ProviderTypeLabelMap } from '../../model/dataset';
-import { CITY_CODE, CITY_PART_CODE, REGION_CODE, GOVERNMENT_CODE } from '../../model/dataset';
+import type { ProviderTypeCountMap, ProviderTypeLabelMap } from '../../model/Provider';
+import { CITY_CODE, CITY_PART_CODE, REGION_CODE, GOVERNMENT_CODE } from '../../model/Provider';
 import Plotly from 'plotly.js-dist-min';
 
 
@@ -21,7 +21,7 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
     pieContainerRegion: React.RefObject<HTMLInputElement>;
     pieContainerGovernment: React.RefObject<HTMLInputElement>;
     pieContainerFond: React.RefObject<HTMLInputElement>;
-    
+
     constructor(props: ProviderStatProps) {
         super(props);
         this.pieContainerLeft = React.createRef();
@@ -39,8 +39,8 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
     }
     getOtherProvidersData() {
         console.log(this.props.providerCounts);
-        var result: {label: string, providerCount: number, maxCount: number}[] = [];
-        this.props.providerCounts.forEach((value,key) => {
+        var result: { label: string, providerCount: number, maxCount: number }[] = [];
+        this.props.providerCounts.forEach((value, key) => {
             if (key !== CITY_CODE && key !== CITY_PART_CODE && key !== REGION_CODE && key != GOVERNMENT_CODE) {
                 var label = this.props.providerLabels.get(key);
                 var maxCount = this.props.maxProviderCounts.get(key);
@@ -57,14 +57,14 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
         var remainingCount = total - providerCount;
         var countPerc = Math.round(providerCount / total * 10000) / 100;
         var remCountPerc = Math.round(remainingCount / total * 10000) / 100;
-        return {perc: [remCountPerc, countPerc], count: [remainingCount, providerCount]}
+        return { perc: [remCountPerc, countPerc], count: [remainingCount, providerCount] }
     }
     getRegionData() { return this.getPieData(REGION_CODE); }
     getGovernmentData() { return this.getPieData(GOVERNMENT_CODE); }
     createProviderChartsIndividual() {
         var labels = ["OVM neposkytující úřední desku", "OVM poskytující úřední desku jako otevřená data"];
-        
-        var layoutWithLegend: { height: number, width: number, legend: {xanchor: 'center'}} = {
+
+        var layoutWithLegend: { height: number, width: number, legend: { xanchor: 'center' } } = {
             height: 600,
             width: 500,
             legend: {
@@ -74,18 +74,18 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
         var grey = 'RGB(208, 212, 205)';
         var green = 'RGB(132, 217, 67)';
         var colors = [grey, green];
-        var cityData =  this.getPieData(CITY_CODE);
+        var cityData = this.getPieData(CITY_CODE);
         if (this.pieContainerCity.current) {
             Plotly.newPlot(this.pieContainerCity.current, [{
                 values: cityData?.perc,
                 labels: labels,
                 text: cityData?.count,
-                marker: {colors: colors},
+                marker: { colors: colors },
                 type: 'pie',
             }], layoutWithLegend)
         }
 
-        var layout: { height: number, width: number} = {
+        var layout: { height: number, width: number } = {
             height: 300,
             width: 300,
         };
@@ -96,7 +96,7 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                 labels: labels,
                 text: cityPartData?.count,
                 showlegend: false,
-                marker: {colors: colors},
+                marker: { colors: colors },
                 type: 'pie',
             }], layout)
         }
@@ -107,7 +107,7 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                 labels: labels,
                 text: regionData?.count,
                 showlegend: false,
-                marker: {colors: colors},
+                marker: { colors: colors },
                 type: 'pie',
             }], layout)
         }
@@ -118,7 +118,7 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                 labels: labels,
                 text: governmentData?.count,
                 showlegend: false,
-                marker: {colors: colors},
+                marker: { colors: colors },
                 type: 'pie',
             }], layout)
         }
@@ -132,18 +132,18 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                 <ListGroupItem>
                     <div className="fw-bold text-center">Ostatní poskytovatelé úředních desek</div>
                 </ListGroupItem>
-                { otherProviders.map(provider => (
+                {otherProviders.map(provider => (
                     <ListGroupItem key={provider.label}>
                         <div className="fw-bold">{provider.label}</div>
                         <div>Poskytovatelů úředních desek: {provider.providerCount}</div>
                         <div>OVM celkem: {provider.maxCount}</div>
                     </ListGroupItem>
-                )) }
+                ))}
             </ListGroup>
         );
     }
-    
-    renderOtherOrganizations(){
+
+    renderOtherOrganizations() {
         var values: number[] = [];
         var labels: string[] = [];
         // collect organization types that have no providers of bulletins
@@ -156,16 +156,16 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                 }
             }
         });
-        
+
         return (
             <ListGroup>
                 <ListGroupItem>
                     <div className="fw-bold text-center">Ostatní OVM bez poskytovatelů úřednich desek</div>
                 </ListGroupItem>
                 {values.map((val, i) => (
-                <ListGroupItem>
-                    <div className="fw-bold">{labels[i] + ": "}</div> {val}
-                </ListGroupItem>))}
+                    <ListGroupItem>
+                        <div className="fw-bold">{labels[i] + ": "}</div> {val}
+                    </ListGroupItem>))}
             </ListGroup>
         );
     }
@@ -178,14 +178,14 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                 <Row className="text-center justify-content-md-center">
                     <Col className="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6 d-flex p-2 m-2">
                         <p>
-                            Poskytovatele dat z úředních desek můžeme rozdělit do kategorií podle jejich právní formy. 
+                            Poskytovatele dat z úředních desek můžeme rozdělit do kategorií podle jejich právní formy.
                             Data o právní formě orgánů veřejné moci získáváme z Registu práv a povinností (<a href="https://www.szrcr.cz/cs/registr-prav-a-povinnosti">RPP</a>).
                             Tato statistika udává, kolik z existujících orgánů veřejné moci v každé kategorii zveřejňuje svoji úřední desku jako otevřená data.
                             Jednotlivé úřední desky je možné si prohlédnout v sekci <a href="#/seznam">Seznam</a>.
                         </p>
                     </Col>
                 </Row>
-                
+
                 <Row className="text-center justify-content-md-center">
                     <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex">
                         <div>
@@ -219,13 +219,13 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                 </Row>
                 <Row className="justify-content-md-center">
                     <Col className="col-11 col-sm-11 col-md-5 col-lg-5 col-xl-5 col-xxl-5 p-2 m-2">
-                        { this.renderOtherProviders() }
+                        {this.renderOtherProviders()}
                     </Col>
                     <Col className="col-11 col-sm-11 col-md-5 col-lg-5 col-xl-5 col-xxl-5 p-2 m-2">
-                        { this.renderOtherOrganizations() }
+                        {this.renderOtherOrganizations()}
                     </Col>
                 </Row>
-                
+
             </>
         );
     }

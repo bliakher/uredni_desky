@@ -1,5 +1,5 @@
 import formurlencoded from 'form-urlencoded';
-import type { ProviderTypeCountMap, ProviderTypeLabelMap } from './dataset';
+import type { ProviderTypeCountMap, ProviderTypeLabelMap } from './Provider';
 
 const nkod_sparql = "https://data.gov.cz/sparql";
 const rpp_sparql = "https://rpp-opendata.egon.gov.cz/odrpp/sparql";
@@ -142,14 +142,14 @@ function getRPPQueryObj(query: string) {
             "accept": "application/sparql-results+json",
             "content-type": "application/x-www-form-urlencoded",
         },
-        "body": formurlencoded({query : query}),
+        "body": formurlencoded({ query: query }),
         "method": "POST",
     };
 }
 
 
 
-async function fetchAllBulletins(){
+async function fetchAllBulletins() {
     const response = await fetch(nkod_sparql, getNKODQueryObj(queryAllBulletinBoards));
     return (await response.json()).results.bindings;
 }
@@ -160,16 +160,16 @@ interface OrganizationInfo {
     residenceIri: string;
 }
 
-async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<string, OrganizationInfo>>  {
+async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<string, OrganizationInfo>> {
     var query = getQueryForOrganizationTypeWithIco(icoList);
     const response = await fetch(rpp_sparql, getRPPQueryObj(query));
     var typedOrganizations = (await response.json()).results.bindings;
-    var orgMap = new Map(); 
+    var orgMap = new Map();
     for (var org of typedOrganizations) {
         var cisloOVM: string = org.cisloOVM.value;
         var type: string = org.cisloPravniFormy ? org.cisloPravniFormy.value : "";
         var residence = org.sidlo ? org.sidlo.value : "";
-        var orgInfo: OrganizationInfo = {name: org.nazev.value, typeNumber: type, residenceIri: residence};
+        var orgInfo: OrganizationInfo = { name: org.nazev.value, typeNumber: type, residenceIri: residence };
         orgMap.set(cisloOVM, orgInfo);
     }
     return orgMap;
@@ -180,10 +180,10 @@ async function fetchBulletinByIri(iri: string) {
         const response = await fetch(nkod_sparql, getNKODQueryObj(getQueryBulletinByIri(iri)));
         var parsed = await response.json();
         return parsed.results.bindings;
-    } catch(error) {
+    } catch (error) {
         return null;
     }
-    
+
 }
 
 async function fetchOrganizationNameByIco(ico: string) {
@@ -192,13 +192,13 @@ async function fetchOrganizationNameByIco(ico: string) {
         const response = await fetch(rpp_sparql, getRPPQueryObj(query));
         var parsed = await response.json();
         return parsed.results.bindings[0].nazev.value;
-    } catch(error) {
+    } catch (error) {
         return null;
     }
 }
 
-type Point = {X: number, Y: number};
-type PointMap = Map<string,Point>;
+type Point = { X: number, Y: number };
+type PointMap = Map<string, Point>;
 
 function parsePoint(point: string): Point {
     // format: POINT(14.438098371192977 50.07599430418954)
@@ -207,12 +207,12 @@ function parsePoint(point: string): Point {
     point = point.substring(openBracketPos + 1, closeBracketPos);
     var x = parseFloat(point.split(" ")[0]);
     var y = parseFloat(point.split(" ")[1]);
-    return {X: x, Y: y};
+    return { X: x, Y: y };
 }
 
 async function fetchAddressPointsByIris(iriList: Array<string>): Promise<PointMap | null> {
     var query = getQueryAddressPointsByIris(iriList);
-    var result = new Map<string,Point>();
+    var result = new Map<string, Point>();
     try {
         const response = await fetch(cuzk_sparql, getNKODQueryObj(query));
         const parsed = await response.json();
@@ -227,7 +227,7 @@ async function fetchAddressPointsByIris(iriList: Array<string>): Promise<PointMa
     }
 }
 
-async function fetchAllOrganizationTypes(): Promise<{labels: ProviderTypeLabelMap, counts: ProviderTypeCountMap} | null > {
+async function fetchAllOrganizationTypes(): Promise<{ labels: ProviderTypeLabelMap, counts: ProviderTypeCountMap } | null> {
     try {
         const response = await fetch(rpp_sparql, getRPPQueryObj(queryAllOrganizationTypes));
         const parsed = await response.json();
@@ -240,8 +240,8 @@ async function fetchAllOrganizationTypes(): Promise<{labels: ProviderTypeLabelMa
             labelMap.set(type, label);
             countMap.set(type, count);
         }
-        return {labels: labelMap, counts: countMap};
-    } catch(error) {
+        return { labels: labelMap, counts: countMap };
+    } catch (error) {
         return null;
     }
 }

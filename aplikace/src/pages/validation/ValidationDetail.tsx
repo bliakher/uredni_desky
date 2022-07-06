@@ -1,7 +1,8 @@
 import React from 'react';
 import { useLocation } from "react-router-dom";
-import { BulletinData, InfoRecord, getBulletinByIri, MissingProperties } from '../../model/dataset';
-import {Attachements, InfoCards } from '../detail/InfoCards';
+import { BulletinData, MissingProperties } from '../../model/dataset';
+import { DatasetStore } from '../../model/DatasetStore';
+import { InfoRecord } from '../../model/InfoRecord';
 import { Card, ListGroup, ListGroupItem, Row, Button, Col, Tab, Tabs, Container } from 'react-bootstrap';
 import { HoverTooltip, Loader, ShowDatasetButton } from '../../Utils';
 import { BsCalendar2Event as CalendarEventIcon, BsCalendar2XFill as CalendarXFillIcon } from 'react-icons/bs';
@@ -21,8 +22,8 @@ class ValidationDetailComplete extends React.Component<{iri: string}, {loaded: b
         this.data = null;
     }
     async componentDidMount() {
-        var data = await getBulletinByIri(this.props.iri);
-        if (data == null) {
+        var data = await DatasetStore.getBulletinByIri(this.props.iri);
+        if (data === null) {
             this.setState({loaded: true, invalidIri: true});
         } else {
             this.data = data;
