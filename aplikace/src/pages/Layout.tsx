@@ -7,7 +7,7 @@ import logo from '../logo.png'
 const Layout = () => {
     return (
         <>
-            <Navbar bg="light" expand="lg">
+            <Navbar variant="light" bg="navbar" expand="lg">
                 <Container>
                     <Navbar.Brand href="#/">
                         <img alt="logo" src={logo} width="30" height="30" className="d-inline-block align-top" />{' '}
