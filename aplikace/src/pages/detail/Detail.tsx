@@ -177,7 +177,7 @@ class BulletinDetailComplete extends React.Component<{ iri: string }, BulletinDe
 
                             <InfoCards data={this.state.finderOn ? filteredRecords : infoRecords} cardElement={InfoCard} />
 
-                            <Row className="text-center justify-content-md-center">
+                            <Row className="text-center justify-content-md-center m-2">
                                 <Col>
                                     <Button href={"#/validace/detail?iri=" + this.data.iri} variant="outline-primary">
                                         Validovat úřední desku
