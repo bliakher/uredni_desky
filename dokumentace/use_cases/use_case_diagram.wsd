@@ -5,30 +5,30 @@ actor "Poskytovatel dat" as P
 actor "Novinář" as N
  
 package Aplikace-Úřední_desky { 
-  usecase "Přehled poskytování dat právními formami" as prehled
-  usecase "Zobrazení aktuálních informací určité tématiky z konkrétní úřední desky" as zobrazeni
-  usecase "Vyhledání úřední desky ze znalosti geografické polohy poskytovatele." as vyhledani
-  usecase "Ověření korektního poskytování dat " as overeni
-  usecase "Zjištění stavu poskytovaných dat v rámci právní formy." as zjisteniStavu
-  usecase "Zjištění celkové kvality poskytovaných dat" as zjisteniKvality
+  usecase "UC1: Přehled poskytování dat právními formami" as prehled
+  usecase "UC2: Zobrazení aktuálních informací určité tématiky z konkrétní úřední desky" as zobrazeni
+  usecase "UC3: Vyhledání úřední desky ze znalosti geografické polohy poskytovatele." as vyhledani
+  usecase "UC4: Ověření korektního poskytování dat " as overeni
+  usecase "UC5: Zjištění stavu poskytovaných dat v rámci právní formy." as zjisteniStavu
+  usecase "UC6: Zjištění celkové kvality poskytovaných dat" as zjisteniKvality
   
 }
 
 V --> prehled
 P --> prehled
-N --> prehled
+prehled <-- N
 
 V --> zobrazeni
 
 V --> vyhledani
 P --> vyhledani
-N --> vyhledani
+vyhledani <-- N
 
 P --> overeni
 
 P --> zjisteniStavu
-N --> zjisteniStavu
+zjisteniStavu <-- N
 
-N ->> zjisteniKvality
+zjisteniKvality <-- N
 
 @enduml

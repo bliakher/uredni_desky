@@ -3,9 +3,9 @@ left to right direction
 actor "Veřejnost" as V
  
 package Aplikace-Úřední_desky { 
-  usecase "Přehled poskytování dat právními formami" as prehled
-  usecase "Zobrazení aktuálních informací určité tématiky z konkrétní úřední desky" as zobrazeni
-  usecase "Vyhledání úřední desky ze znalosti geografické polohy poskytovatele." as vyhledani
+  usecase "UC1: Přehled poskytování dat právními formami" as prehled
+  usecase "UC2: Zobrazení aktuálních informací určité tématiky z konkrétní úřední desky" as zobrazeni
+  usecase "UC3: Vyhledání úřední desky ze znalosti geografické polohy poskytovatele." as vyhledani
 
 }
 
