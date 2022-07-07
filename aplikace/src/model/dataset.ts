@@ -12,51 +12,6 @@ export interface QueryResponse {
     source: { value: string };
 }
 
-/* Class representing the bulletin board distribution 
-* with parameters according to the OFN
-*/
-class BulletinDistribution {
-    private recommendedProperties = ["@context", "typ", "iri", "stránka", "provozovatel"];
-    constructor(
-        private data: any // inner data object
-    ) {
-    }
-    private hasProperty(propertyName: string): boolean {
-        return this.data.hasOwnProperty(propertyName);
-    }
-    private getProperty(propertyName: string): any | undefined {
-        if (this.hasProperty(propertyName)) {
-            return this.data[propertyName];
-        }
-        return undefined;
-    }
-    getIri(): string | undefined {
-        return this.getProperty("iri");
-    }
-    getPageUrl(): string | undefined {
-        const page = "stránka";
-        return this.getProperty(page);
-    }
-    getPublisher(): { ičo: string, identifikátor_ovm: string } | undefined {
-        const publisher = "provozovatel";
-        return this.getProperty(publisher);
-
-    }
-    getInformation(): Array<any> | undefined { // ToDo: type
-        const info = "informace";
-        return this.getProperty(info);
-    }
-    getMissingRecommendedProperties(): Array<string> {
-        var missing: string[] = [];
-        for (var property of this.recommendedProperties) {
-            if (!this.hasProperty(property)) {
-                missing.push(property);
-            }
-        }
-        return missing;
-    }
-
-}
 
 export interface MissingProperties {
     bulletin: Array<string>;
@@ -65,7 +20,7 @@ export interface MissingProperties {
 
 /* Wrapper for bulletin board dataset
 */
-class BulletinData {
+export class BulletinData {
     iri: string;
     name: string;
     provider: Provider;
@@ -140,6 +95,49 @@ class BulletinData {
     }
 }
 
+/* Class representing the bulletin board distribution 
+* with parameters according to the OFN
+*/
+class BulletinDistribution {
+    private recommendedProperties = ["@context", "typ", "iri", "stránka", "provozovatel"];
+    constructor(
+        private data: any // inner data object
+    ) {
+    }
+    private hasProperty(propertyName: string): boolean {
+        return this.data.hasOwnProperty(propertyName);
+    }
+    private getProperty(propertyName: string): any | undefined {
+        if (this.hasProperty(propertyName)) {
+            return this.data[propertyName];
+        }
+        return undefined;
+    }
+    getIri(): string | undefined {
+        return this.getProperty("iri");
+    }
+    getPageUrl(): string | undefined {
+        const page = "stránka";
+        return this.getProperty(page);
+    }
+    getPublisher(): { ičo: string, identifikátor_ovm: string } | undefined {
+        const publisher = "provozovatel";
+        return this.getProperty(publisher);
 
+    }
+    getInformation(): Array<any> | undefined { // ToDo: type
+        const info = "informace";
+        return this.getProperty(info);
+    }
+    getMissingRecommendedProperties(): Array<string> {
+        var missing: string[] = [];
+        for (var property of this.recommendedProperties) {
+            if (!this.hasProperty(property)) {
+                missing.push(property);
+            }
+        }
+        return missing;
+    }
 
-export { BulletinData };
+}
+
