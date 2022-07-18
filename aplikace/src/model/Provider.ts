@@ -1,17 +1,30 @@
 import { Point } from '../services/query';
 import { BulletinData } from './dataset';
 
+/**
+ * Types of providers (právní forma poskytovatele)
+ */
 export enum ProviderType {
     Unknown, City, CityPart, Region, Government, Error,
 }
 
+/**
+ * Class representing a provider of data from bulletin boards
+ */
 export class Provider {
+    /** Provider name  */
     name: string;
+    /** Provider IRI */
     iri: string;
+    /** Type of provider  */
     type: ProviderType;
-    typeNumber: string;
+    /** Coordinates of provider residence */
     residence: Point;
+    /** IRI of provider residence data point */
     residenceIri: string
+
+    /** Provider type number (číslo právní formy)  */
+    typeNumber: string;
     constructor(name: string, iri: string, type: ProviderType, typeNum: string, residenceIri: string) {
         this.name = name;
         this.iri = iri;
@@ -21,6 +34,11 @@ export class Provider {
         this.residence = { X: -1, Y: -1 };
     }
 
+    
+    /** Get type of provider
+     * @param  {string} typeCode provider type number (číslo právní formy)
+     * @returns ProviderType provider type
+     */
     static getProviderType(typeCode: string): ProviderType {
         var result = ProviderType.Unknown;
         if (typeCode === CITY_CODE) {
@@ -42,14 +60,23 @@ export class Provider {
     }
 }
 
+/** Map from provider type number to count of providers of this type*/
 export type ProviderTypeCountMap = Map<string, number>;
+/** Map from provider type number to the label of this type*/
 export type ProviderTypeLabelMap = Map<string, string>;
 
+/** Provider type number for cities (obce) */
 export const CITY_CODE = "801";
+/** Provider type number for city parts (mestske casti)*/
 export const CITY_PART_CODE = "811";
+/** Provider type number for regions (kraje)*/
 export const REGION_CODE = "804";
+/** Provider type number for government organizations (organizacni slozky statu)*/
 export const GOVERNMENT_CODE = "325";
 
+/**
+ * Class that extracts providers form BulletinData objects and sorts them by types
+ */
 export class SortedProviders {
     providers: Map<string, Provider>;
     providerBulletins: Map<string, Array<BulletinData>>;
@@ -70,9 +97,6 @@ export class SortedProviders {
                 this.providerBulletins.set(iri, [bulletin]);
             }
         }
-    }
-    getProviderIris(): IterableIterator<string> {
-        return this.providers.keys();
     }
     getProvider(providerIri: string): Provider | null {
         var provider = this.providers.get(providerIri);

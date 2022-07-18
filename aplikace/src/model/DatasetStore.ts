@@ -3,8 +3,9 @@ import { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri, fetchAdd
 import type { PointMap } from '../services/query';
 import { Provider, ProviderTypeCountMap, ProviderTypeLabelMap } from './Provider';
 
-/* Wrapper for all bulletin datasets
-*/
+/**
+ * Class that retrieves an stores data from bulletin datasets
+ */
 export class DatasetStore {
     isLoaded: boolean;
     metadata: Array<QueryResponse>;
@@ -15,25 +16,33 @@ export class DatasetStore {
         this.metadata = [];
         this.data = [];
     }
-
+    /**
+     * Fetch all datasets
+     */
     async fetchDatasets(): Promise<void> {
         this.metadata = await fetchAllBulletins();
         this.data = this.metadata.map((dataset) => new BulletinData(dataset));
         this.isLoaded = true;
     }
-
+    /**
+     * Fetch distributions of all stored bulletin datasets
+     * @returns 
+     */
     async fetchAllDistibutions(): Promise<void> {
         if (!this.isLoaded) {
-            return; // ToDo: error?
+            return; 
         }
         await Promise.all(this.data.map(d => d.fetchDistribution()));
     }
-
+    /**
+     * Get all fetched bulletin datasets
+     * @returns bulletins
+     */
     getDatasets(): Array<BulletinData> {
         return this.data;
     }
 
-    getIcoList(): Array<string> {
+    private getIcoList(): Array<string> {
         var icoList: string[] = this.data.map(bulletin => {
             var distribution = bulletin.getDistribution();
             if (distribution == null) {
@@ -52,24 +61,27 @@ export class DatasetStore {
         return icoList.filter(ico => ico != "");
     }
 
-    getIcoListFromIri(): Array<string> {
+    private getIcoListFromIri(): Array<string> {
         var result = this.data.map(bulletin => {
             return this.getIcoFromIri(bulletin);
         });
         return result;
     }
 
-    getIcoFromIri(bulletin: BulletinData): string {
+    private getIcoFromIri(bulletin: BulletinData): string {
         return bulletin.provider.iri.substr("https://rpp-opendata.egon.gov.cz/odrpp/zdroj/orgán-veřejné-moci/".length, 8);
     }
 
-    getResidenceIriList(): Array<string> {
+    private getResidenceIriList(): Array<string> {
         var iris = this.data.map(bulletin => bulletin.provider.residenceIri);
         var filtered = iris.filter(iri => iri !== "");
         var unique = new Set(filtered);
         return Array.from(unique);
     }
 
+    /**
+     * Fetch information about providers such as provider type and residence adress
+     */
     async fetchProviderInfo() {
         var infoMap = await fetchOrganizationTypes(this.getIcoListFromIri());
         for (var bulletin of this.data) {
@@ -83,6 +95,9 @@ export class DatasetStore {
         }
     }
 
+    /**
+     * Fetch all coordinates of provider residences from address point IRIs
+     */
     async fetchProviderResidences() {
         var pointMap = await fetchAddressPointsByIris(this.getResidenceIriList());
         if (pointMap !== null) {
@@ -90,7 +105,7 @@ export class DatasetStore {
         }
     }
 
-    asignProviderResidences(pointmap: PointMap) {
+    private asignProviderResidences(pointmap: PointMap) {
         for (var bulletin of this.data) {
             var iri = bulletin.provider.residenceIri;
             var residencePoint = pointmap.get(iri);
@@ -100,16 +115,13 @@ export class DatasetStore {
         }
     }
 
-    getProviders(): Map<string, Provider> {
-        var result = new Map<string, Provider>();
-        for (var bulletin of this.data) {
-            result.set(bulletin.provider.iri, bulletin.provider);
-        }
-        return result;
-    }
-
+    /**
+     * Filter inner providers (the ones written inside bulletin distribution) by type 
+     * and count how many there are in each type
+     * @returns counts of types of bulletin providers
+     */
     async filterInnerProvidersByType(): Promise<ProviderTypeCountMap> {
-        console.log("start filter");
+        // console.log("start filter");
         var ico = this.getIcoList();
         // console.log(ico);
         var providerInfo = await fetchOrganizationTypes(ico);
@@ -122,10 +134,19 @@ export class DatasetStore {
         });
         return typeToCount;
     }
+    /**
+     * Get counts of all organizations in each type, not only bulletin providers
+     * @returns counts and labels of all organizations
+     */
     async getAllProviderTypes(): Promise<{ labels: ProviderTypeLabelMap, counts: ProviderTypeCountMap } | null> {
         return await fetchAllOrganizationTypes();
     }
 
+    /**
+     * Fetch specific bulletin based on its IRI
+     * @param iri IRI of bulletin dataset
+     * @returns fetched bulletin
+     */
     static async getBulletinByIri(iri: string): Promise<BulletinData | null> {
         var data = await fetchBulletinByIri(iri); // BulletinMetadata but without iri
         if (data == null || data.length == 0) return null;

@@ -1,35 +1,55 @@
 import { InfoRecord } from './InfoRecord';
 import { Provider, ProviderType } from './Provider';
 
-/* Metadata of a bulletin dataset in NKOD
-*/
+/**
+ * Interface representing metadata of a dataset in NDC
+ * Data we get as a respense from a SPARQL query to NDC
+ */
 export interface QueryResponse {
+    /** Dataset IRI */
     dataset: { value: string };
+    /** Dataset name */
     name: { value: string };
+    /** Dataset description */
     description: { value: string };
+    /** Dataset provider name */
     provider: { value: string };
+    /** Dataset provider IRI */
     provider_iri: { value: string };
+    /** Download URL of dataset distribution */
     source: { value: string };
 }
 
-
+/**
+ * Missing recommended properties of bulletin distribution
+ */
 export interface MissingProperties {
+
+    /** Missing recommended properties of the whole bulletin */
     bulletin: Array<string>;
+    /** Missing recommended properties of information on the bulletin */
     information: Array<{ info: InfoRecord, missing: Array<string> }>
 }
 
-/* Wrapper for bulletin board dataset
-*/
+/**
+ * Wrapper class for bulletin board dataset
+ */
 export class BulletinData {
+    /** Bulletin dataset IRI */
     iri: string;
+    /** Bulletin dataset name */
     name: string;
+    /** Bulletin dataset provider */
     provider: Provider;
+    /** Download URL of dataset distribution */
     source: string;
+    /** Indicator that the distribtion is downloadable */
     hasValidSource: boolean;
+    /** Error from distribution download */
     loadError: Error;
-    infoRecordsLoaded: boolean;
-    distribution: BulletinDistribution | null;
-    infoRecords: Array<InfoRecord>;
+    private distribution: BulletinDistribution | null;
+    private infoRecords: Array<InfoRecord>;
+    private infoRecordsLoaded: boolean;
 
     constructor(dataset: QueryResponse) {
         this.iri = dataset.dataset.value;
@@ -43,6 +63,11 @@ export class BulletinData {
         this.infoRecords = [];
     }
 
+    
+    /** Fetch distribution from source
+     * @param  {number} timeOut? Optional timeout of request, default value set to 50s
+     * @returns Promise<void>
+     */
     async fetchDistribution(timeOut?: number): Promise<void> {
         const controller = new AbortController();
         const timeOutId = setTimeout(() => controller.abort(), timeOut ? timeOut : 50000); // if timeout not specified set to 50s
@@ -58,14 +83,21 @@ export class BulletinData {
             this.loadError = error;
         }
     }
-
+    /** Get distribution
+     * fetchDistribution should be called before calling this
+     * @returns BulletinDistribution distribution, if it is fetched, otherwise null
+     */
     getDistribution(): BulletinDistribution | null {
         return this.distribution;
     }
-    // fetchDistribution() should be called before calling this
-    getInfoRecords(): Array<InfoRecord> | false {
+
+    /** Returns a list of information records from the bulletin
+     * fetchDistribution should be called before calling this
+     * @returns Array
+     */
+    getInfoRecords(): Array<InfoRecord> | null {
         if (this.distribution == null) {
-            return false;
+            return null;
         }
 
         if (!this.infoRecordsLoaded) {
@@ -77,7 +109,11 @@ export class BulletinData {
         }
         return this.infoRecords;
     }
-    // fetchDistribution() should be called before calling this
+    
+    /** Check if bulletin has all recommended properties
+     * fetchDistribution should be called before calling this
+     * @returns MissingProperties missing recommended properties
+     */
     checkRecommendedProperties(): MissingProperties {
         var missingPropInfo = [];
         var infoRecords = this.getInfoRecords();
@@ -95,9 +131,9 @@ export class BulletinData {
     }
 }
 
-/* Class representing the bulletin board distribution 
-* with parameters according to the OFN
-*/
+/**
+ * Class representing the bulletin board distribution with parameters according to the OFN
+ */
 class BulletinDistribution {
     private recommendedProperties = ["@context", "typ", "iri", "stránka", "provozovatel"];
     constructor(
@@ -125,7 +161,7 @@ class BulletinDistribution {
         return this.getProperty(publisher);
 
     }
-    getInformation(): Array<any> | undefined { // ToDo: type
+    getInformation(): Array<any> | undefined {
         const info = "informace";
         return this.getProperty(info);
     }

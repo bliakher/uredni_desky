@@ -136,7 +136,7 @@ class BulletinDetailComplete extends React.Component<{ iri: string }, BulletinDe
                     var name = record.getName();
                     return name && name.toLowerCase().includes(this.state.finderValue.toLowerCase());
                 });
-                var url = this.data.distribution?.getPageUrl() ?? null;
+                var url = this.data.getDistribution()?.getPageUrl() ?? null;
                 return (
                     <>
                         <Container>

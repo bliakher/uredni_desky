@@ -1,5 +1,5 @@
 
-/* Wrapper for information in bulletin board dataset
+/* Wrapper for information on a bulletin board
 */
 export class InfoRecord {
     private data: any; // inner data object
@@ -8,6 +8,13 @@ export class InfoRecord {
     constructor(info: any) {
         this.data = info;
     }
+
+    
+    /** Compare InfoRecords by date of issue
+     * @param  {InfoRecord} a info to compare
+     * @param  {InfoRecord} b info to compare
+     * @returns number comparison
+     */
     static compare(a: InfoRecord, b: InfoRecord): number {
         var aDate = a.getDateIssued() ?? new TimeMoment(null);
         var bDate = b.getDateIssued() ?? new TimeMoment(null);
@@ -32,6 +39,7 @@ export class InfoRecord {
             if (dateObj.hasOwnProperty("datum_a_čas")) {
                 return new TimeMoment(new Date(dateObj["datum_a_čas"]));
             }
+            console.log(dateObj["datum"], new Date(dateObj["datum"]));
             return new TimeMoment(new Date(dateObj["datum"]));
         }
         return null;
@@ -60,7 +68,10 @@ export class InfoRecord {
         var documents: Array<any> = this.getDocumentObjects();
         return documents.map((document) => new Document(document));
     }
-    // returns array of missing recommended properties
+    /**
+     * Check if information record has all recommended properties
+     * @returns array of missing recommended properties
+     */
     getMissingRecommendedProperties(): Array<string> {
         var missing: Array<string> = [];
         for (var property of this.recommendedProperties) {
@@ -72,6 +83,9 @@ export class InfoRecord {
     }
 }
 
+/**
+ * Wrapper for date that can be unspecified
+ */
 class TimeMoment {
     specified: boolean;
     date: Date | null;
@@ -107,6 +121,9 @@ class TimeMoment {
     }
 }
 
+/**
+ * Digital document that can be an attachement on a bulletin iformation
+ */
 export class Document {
     data: any;
     constructor(documentObj: any) {
@@ -121,10 +138,18 @@ export class Document {
         }
         return null;
     }
+    /**
+     * Get name of the document
+     * @returns 
+     */
     getName(): string | null {
         var nameObj = this.getProperty("název");
         return nameObj?.cs ?? null;
     }
+    /**
+     * Get URL where document is published
+     * @returns 
+     */
     getUrl(): string | null {
         var url = this.getProperty("url");
         return url;
