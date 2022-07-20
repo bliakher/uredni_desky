@@ -148,15 +148,15 @@ export class DatasetStore {
      * @returns fetched bulletin
      */
     static async getBulletinByIri(iri: string): Promise<BulletinData | null> {
-        var data = await fetchBulletinByIri(iri); // BulletinMetadata but without iri
-        if (data == null || data.length == 0) return null;
+        var data = await fetchBulletinByIri(iri); // QueryResponse but without iri
+        if (data == null) return null;
         var dataWithIri: QueryResponse = { // add iri
             dataset: { value: iri },
-            name: data[0].name,
-            description: data[0].description,
-            provider: data[0].provider,
-            provider_iri: data[0].provider_iri,
-            source: data[0].source
+            name: data.name,
+            description: data.description,
+            provider: data.provider,
+            provider_iri: data.provider_iri,
+            source: data.source
         }
         return new BulletinData(dataWithIri);
     }

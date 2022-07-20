@@ -1,10 +1,19 @@
 import formurlencoded from 'form-urlencoded';
+import { QueryResponse } from '../model/dataset';
 import type { ProviderTypeCountMap, ProviderTypeLabelMap } from '../model/Provider';
 
+/** SPARQL endpoint of the National Data Catalog */
 const nkod_sparql = "https://data.gov.cz/sparql";
+
+/** SPARQL endpoint of Registr Prav a Povinnosti */
 const rpp_sparql = "https://rpp-opendata.egon.gov.cz/odrpp/sparql";
+
+/** SPARQL endpoint of the RUIAN */
 const cuzk_sparql = "https://linked.cuzk.cz.opendata.cz/sparql";
 
+/**
+ * SPARQL query that gets all datasets that conform to bulletin OFN specification
+ */
 const queryAllBulletinBoards: string = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> \
 PREFIX dcterms: <http://purl.org/dc/terms/> \
 PREFIX dcat: <http://www.w3.org/ns/dcat#> \
@@ -31,6 +40,11 @@ WHERE { \
   BIND(COALESCE(?ovm_název_poskytovatele, ?nkod_název_poskytovatele) AS ?provider) \
 }";
 
+/**
+ * Creates a SPARQL query that gets information for all organizations specified by their IČO
+ * @param icoList list of IČO of organizations to query
+ * @returns query
+ */
 function getQueryForOrganizationTypeWithIco(icoList: Array<string>): string {
     var query = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#> \
     PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
@@ -57,6 +71,11 @@ function getQueryForOrganizationTypeWithIco(icoList: Array<string>): string {
     return query;
 }
 
+/**
+ * Create a SPARQL query to fetch one bulletin dataset from NDC by its IRI
+ * @param iri IRI of bulletin dataset
+ * @returns query
+ */
 function getQueryBulletinByIri(iri: string): string {
     return "PREFIX foaf: <http://xmlns.com/foaf/0.1/> \
     PREFIX dcterms: <http://purl.org/dc/terms/> \
@@ -83,7 +102,11 @@ function getQueryBulletinByIri(iri: string): string {
     }";
 }
 
-
+/**
+ * Create a SPARQL query to fetch information about 1 organization specified by ICO
+ * @param ico ICO of organization to query
+ * @returns query
+ */
 function getQueryOrganizationInfoByIco(ico: string): string {
     var identifier = "'" + ico + "'";
     return "PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
@@ -98,6 +121,11 @@ function getQueryOrganizationInfoByIco(ico: string): string {
     }";
 }
 
+/**
+ * Create a SPARQL query to fetch coordinates of a list of address points from RUIAN
+ * @param iriList list of IRIs of address points
+ * @returns query
+ */
 function getQueryAddressPointsByIris(iriList: Array<string>): string {
     var query = "PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
     PREFIX schema: <http://schema.org/> \
@@ -114,6 +142,9 @@ function getQueryAddressPointsByIris(iriList: Array<string>): string {
     return query;
 }
 
+/**
+ * Create a SPARQL query to fetch counts of organizations in each org. type
+ */
 const queryAllOrganizationTypes = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#> \
 PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
 PREFIX a-sgov-104-pojem: <https://slovník.gov.cz/agendový/104/pojem/> \
@@ -125,6 +156,11 @@ SELECT ?cislo ?nazev (COUNT(?ovm) AS ?pocetOvm) WHERE { \
 } \
 GROUP BY ?pravniForma ?cislo ?nazev";
 
+/**
+ * Get query object for fetch from NDC
+ * @param query SPARQL query
+ * @returns query object
+ */
 function getNKODQueryObj(query: string) {
     return {
         "headers": {
@@ -135,6 +171,13 @@ function getNKODQueryObj(query: string) {
         "method": "POST",
     };
 }
+
+/**
+ * Get query object for fetch from RPP
+ * query must be encoded
+ * @param query SPARQL query
+ * @returns query object
+ */
 
 function getRPPQueryObj(query: string) {
     return {
@@ -147,19 +190,32 @@ function getRPPQueryObj(query: string) {
     };
 }
 
-
-
-async function fetchAllBulletins() {
+/**
+ * Fetch all bulletin datasets from NDC
+ * @returns list of bulletins
+ */
+async function fetchAllBulletins(): Promise<QueryResponse[]> {
     const response = await fetch(nkod_sparql, getNKODQueryObj(queryAllBulletinBoards));
     return (await response.json()).results.bindings;
 }
 
+/**
+ * Organization information
+ */
 interface OrganizationInfo {
+    /** name of org. */
     name: string;
+    /** type of org. (cislo pravni formy) */
     typeNumber: string;
+    /** IRI of org. residence address point */
     residenceIri: string;
 }
 
+/**
+ * fetch data about organizations specified by ICO
+ * @param icoList list of org. ICO
+ * @returns map from org. ico to its info
+ */
 async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<string, OrganizationInfo>> {
     var query = getQueryForOrganizationTypeWithIco(icoList);
     const response = await fetch(rpp_sparql, getRPPQueryObj(query));
@@ -175,18 +231,29 @@ async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<strin
     return orgMap;
 }
 
-async function fetchBulletinByIri(iri: string) {
+/**
+ * Fetch 1 bulletin dataset specified by its IRI form NDC
+ * @param iri IRI of bulletin dataset
+ * @returns bulletin dataset or null
+ */
+async function fetchBulletinByIri(iri: string): Promise<QueryResponse | null> {
     try {
         const response = await fetch(nkod_sparql, getNKODQueryObj(getQueryBulletinByIri(iri)));
         var parsed = await response.json();
-        return parsed.results.bindings;
+        var data = parsed.results.bindings;
+        return data.length > 0 ? data[0] : null
     } catch (error) {
         return null;
     }
 
 }
 
-async function fetchOrganizationNameByIco(ico: string) {
+/**
+ * Fetch name of certain organization
+ * @param ico ICO of this organization
+ * @returns name or null
+ */
+async function fetchOrganizationNameByIco(ico: string): Promise<string | null> {
     var query = getQueryOrganizationInfoByIco(ico);
     try {
         const response = await fetch(rpp_sparql, getRPPQueryObj(query));
@@ -197,9 +264,17 @@ async function fetchOrganizationNameByIco(ico: string) {
     }
 }
 
+/**
+ * Geographical point with coordinates 
+ */
 type Point = { X: number, Y: number };
 type PointMap = Map<string, Point>;
 
+/**
+ * Parse point from WKT representation
+ * @param point 
+ * @returns 
+ */
 function parsePoint(point: string): Point {
     // format: POINT(14.438098371192977 50.07599430418954)
     var openBracketPos = point.indexOf("(");
@@ -210,6 +285,11 @@ function parsePoint(point: string): Point {
     return { X: x, Y: y };
 }
 
+/**
+ * Fetch coordinates of a list of address points from RUIAN
+ * @param iriList list IRIs of address points
+ * @returns map from IRI of address point to its coordinates
+ */
 async function fetchAddressPointsByIris(iriList: Array<string>): Promise<PointMap | null> {
     var query = getQueryAddressPointsByIris(iriList);
     var result = new Map<string, Point>();
@@ -227,6 +307,10 @@ async function fetchAddressPointsByIris(iriList: Array<string>): Promise<PointMa
     }
 }
 
+/**
+ * Fetch counts of organizations in each org. type
+ * @returns counts of organizations in types and type labels
+ */
 async function fetchAllOrganizationTypes(): Promise<{ labels: ProviderTypeLabelMap, counts: ProviderTypeCountMap } | null> {
     try {
         const response = await fetch(rpp_sparql, getRPPQueryObj(queryAllOrganizationTypes));
