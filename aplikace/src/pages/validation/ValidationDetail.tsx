@@ -35,15 +35,18 @@ class ValidationDetailComplete extends React.Component<{iri: string}, {loaded: b
         if (this.state.loaded) {
             if (!this.state.invalidIri && this.data != null) {
                 return (
-                    <>
+                    <Container>
                         <ValidationHeader provider={ this.data.provider.name} bulletinName={this.data.name}
                             iri={this.data.iri} />
                         <ValidationBody bulletin={this.data} />
-                    </>);
+                    </Container>);
                 
             } else {
                 return (
                     <Row className='justify-content-md-center text-center'>
+                        <Button href="#/validace" className="mt-2  md-offset-2 col-auto" variant='secondary'>
+                            Zpět
+                        </Button>
                         <p>Chyba: Nevalidní IRI datasetu - nelze načíst.</p>
                         <p>IRI: {this.props.iri}</p>
                     </Row>)
@@ -58,6 +61,9 @@ class ValidationDetailComplete extends React.Component<{iri: string}, {loaded: b
 const ValidationHeader = (props: {provider: string, bulletinName: string, iri: string}) => {
     return (
         <>
+            <Button href="#/validace" className="mt-2  md-offset-2 col" variant='secondary'>
+                Zpět
+            </Button>
             <Row className="p-2 text-center ">
                 <h2>Validace úřední desky</h2>
             </Row>

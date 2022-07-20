@@ -129,6 +129,9 @@ class BulletinDetailComplete extends React.Component<{ iri: string }, BulletinDe
                 return (
                     <>
                         <Container>
+                            <Button href="#/" className="mt-2 md-offset-2 col" variant='secondary'>
+                                Zpět
+                            </Button>
                             <DetailHeader title={this.data.name} bulletinIri={this.data.iri} url={url}
                                 providerName={this.data.provider.name} ownerName={this.state.ownerName} />
                             
