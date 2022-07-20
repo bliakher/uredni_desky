@@ -6,7 +6,9 @@ import { CancelablePromise, makeCancelable } from '../../model/cancelablePromise
 import { ValidationStatistics } from './ValidationStatistics';
 import { ProviderStatistics } from './ProviderStatistics';
 
-
+/**
+ * Statistics modul header
+ */
 const Header = () => {
     return (
         <>
@@ -20,10 +22,14 @@ const Header = () => {
     );
 }
 
-
-const Progress = (props: { done: number, total: number }) => {
+/**
+ * Download progress bar
+ */
+const Progress = (props: { 
+    done: number, // items already downloaded
+    total: number // total
+}) => {
     var percentage = Math.round(props.done / props.total * 10000) / 100;
-    // className="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8 col-xxl-6 d-flex p-2 m-2"
     return (
         <Row className="text-center justify-content-center">
             <Col className="col-11 col-sm-11 col-md-8 col-lg-6 col-xl-6 col-xxl-5 p-2 m-2">
@@ -34,7 +40,20 @@ const Progress = (props: { done: number, total: number }) => {
     );
 }
 
-export class Statistics extends React.Component<{}, { loaded: boolean, downloadCount: number }> {
+/**
+ * The state of the Statistics component
+ */
+interface StatisticsState {
+    /** if statistic data is loaded*/
+    loaded: boolean; 
+    /** how many bulletin distributions are downloaded */
+    downloadCount: number;
+}
+
+/**
+ * Component that displayes statistics about validation and providers of bulletins
+ */
+export class Statistics extends React.Component<{}, StatisticsState> {
     data: DatasetStore;
     providerCounts: ProviderTypeCountMap;
     maxProviderCounts: ProviderTypeCountMap;
@@ -43,7 +62,7 @@ export class Statistics extends React.Component<{}, { loaded: boolean, downloadC
     fetchDatasetsPromise: CancelablePromise | null;
     fetchDistributionsPromise: CancelablePromise | null;
 
-    constructor(props: any) {
+    constructor(props: {}) {
         super(props);
         this.state = { loaded: false, downloadCount: 0 };
         this.data = new DatasetStore();

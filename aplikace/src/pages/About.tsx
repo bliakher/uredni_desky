@@ -6,9 +6,7 @@ import { Col, Row, Button, Container } from 'react-bootstrap';
  * Component that displays information about the project
  */
 export class About extends React.Component<{}, {}> {
-    constructor(props: any) {
-        super(props);
-    }
+
     render() {
         return (
             <Container fluid>

@@ -23,10 +23,7 @@ interface CheckboxProps {
  * Form with switches (checkboxes) - multiple can be selected
  */
 export class CheckboxGroup extends React.Component<CheckboxProps> {
-    constructor(props: CheckboxProps) {
-        super(props);
-    }
-    handleChange(optionValue: string) {
+    private handleChange(optionValue: string) {
         this.props.callback(optionValue);
     }
     render() {

@@ -14,9 +14,6 @@ interface FinderFormProps {
 }
 
 export class FinderForm extends React.Component<FinderFormProps> {
-    constructor(props: FinderFormProps) {
-        super(props);
-    }
     render() {
         return (
             <Form onSubmit={this.props.onSubmitCallback} >

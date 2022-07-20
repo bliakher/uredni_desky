@@ -8,7 +8,11 @@ import { ShowDatasetButton } from '../forms/ShowDatasetButton';
 import { InfoCardValidation } from '../detail/InfoCards';
 import { BulletinComponentProps } from '../componentInterfaces';
 
-
+/**
+ * Validation detail wrapper component
+ * Uses hook useLocation to get IRI of the bulletin from the query part of URL
+ * Must be a functional component to use the hook
+ */
 export const ValidationDetail = () => {
     var params = new URLSearchParams(useLocation().search);
     var iriNull = params.get("iri");
@@ -249,7 +253,7 @@ const ErrorCard = (props: { bulletinIri: string, source: string, error: string }
                     </ListGroupItem>
                     <ListGroupItem>
                         <div className="fw-bold">Odkaz na distribuci:</div>
-                        <a href={props.source} target="_blank">{props.source}</a>
+                        <a href={props.source} target="_blank" rel="noreferrer">{props.source}</a>
                     </ListGroupItem>
                     <ListGroupItem>
                         <div className="fw-bold">Chybová hláška:</div>
@@ -264,10 +268,10 @@ const ErrorCard = (props: { bulletinIri: string, source: string, error: string }
                             <li className='p-1'>
                                 Zkontrolujte nastavení 'CORS' hlavičky 'Access-Control-Allow-Origin'.
                                 Hlavičku je potřeba nastavit tak, aby byl povolen strojový přístup k distribuci požadavkem z kódu.
-                                Více o nastavení hlavičky <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin" target="_blank">zde</a>.
+                                Více o nastavení hlavičky <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin" target="_blank" rel="noreferrer">zde</a>.
                             </li>
                             <li className='p-1'>
-                                <a href={"https://www.ssllabs.com/ssltest/analyze.html?d=" + props.source} target="_blank">Zkontrolujte</a> platnost SSL certifikátu.
+                                <a href={"https://www.ssllabs.com/ssltest/analyze.html?d=" + props.source} target="_blank" rel="noreferrer">Zkontrolujte</a> platnost SSL certifikátu.
                             </li>
                         </ol>
                     </ListGroupItem>
@@ -286,10 +290,10 @@ const ValidationCriteria = (props: {}) => {
         <div className="m-3">
             <h3>Jak validujeme?</h3>
             <p>
-                Validaci provádíme na základě <a href="https://ofn.gov.cz/úředn%C3%AD-desky/2021-07-20/">specifikace</a> OFN pro úřední desky.
+                Validaci provádíme na základě <a href="https://ofn.gov.cz/úředn%C3%AD-desky/2021-07-20/" target="_blank" rel="noreferrer">specifikace</a> OFN pro úřední desky.
                 Všechny atributy definované specifikací jsou nepovinné.
                 Nicméně, aby bylo možné data z úřední desky smysluplně používat, měly by obsahovat alespoň minimální sadu atributů.
-                Tyto doporučené atributy jsou vyjmenovány v <a href="https://ofn.gov.cz/úředn%C3%AD-desky/2021-07-20/#př%C3%ADklady-jednoduchá-informace">příkladu</a> dat ve specifikaci.
+                Tyto doporučené atributy jsou vyjmenovány v <a href="https://ofn.gov.cz/úředn%C3%AD-desky/2021-07-20/#př%C3%ADklady-jednoduchá-informace" target="_blank" rel="noreferrer">příkladu</a> dat ve specifikaci.
             </p>
             <div className="m-2">
                 <h5>Doporučené atributy úřední desky</h5>
@@ -340,7 +344,7 @@ const ValidationCriteria = (props: {}) => {
                     <ListGroupItem>
                         <div className="fw-bold">relevantní_do</div>
                         Datum do kterého je informace vyvěšená na úřední desce relevantní.
-                        Pokud nemá informace datum ukončení platnosti, měla by být hodnota atributu relevantní_do nastavená jako nespecifikované datum <a href="https://ofn.gov.cz/z%C3%A1kladn%C3%AD-datov%C3%A9-typy/2020-07-01/#example-49-nespecifikovany-casovy-okamzik-v-json-ld" target="_blank">takto</a>.
+                        Pokud nemá informace datum ukončení platnosti, měla by být hodnota atributu relevantní_do nastavená jako nespecifikované datum <a href="https://ofn.gov.cz/z%C3%A1kladn%C3%AD-datov%C3%A9-typy/2020-07-01/#example-49-nespecifikovany-casovy-okamzik-v-json-ld" target="_blank" rel="noreferrer">takto</a>.
                     </ListGroupItem>
                 </ListGroup>
             </div>

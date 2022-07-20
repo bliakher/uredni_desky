@@ -1,5 +1,4 @@
 import React from 'react';
-import { BulletinData } from '../model/dataset';
 import { ProviderType } from '../model/Provider';
 import { SimplePaging } from './forms/SimplePaging';
 import Card from 'react-bootstrap/Card';
@@ -89,10 +88,6 @@ export class BulletinCards extends React.Component<BulletinListComponentProps, P
  * Component that displayes one bulletin as card with information about the bulletin and a link to bulletin detail
  */
 export class Bulletin extends React.Component<BulletinComponentProps, {}> {
-    constructor(props: BulletinComponentProps) {
-        super(props);
-    }
-
     private getProviderTypeTextandClass(type: ProviderType): { text: string, className: string } {
         switch (type) {
             case ProviderType.City:

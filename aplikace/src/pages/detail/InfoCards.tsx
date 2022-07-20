@@ -76,9 +76,6 @@ export class InfoCards extends React.Component<InfoCardsProps, PaginatedComponen
  * Component displaying 1 bulletin info in bulletin detail
  */
 export class InfoCard extends React.Component<InfoComponentProps> {
-    constructor(props: { data: InfoRecord }) {
-        super(props);
-    }
     render() {
         var info = this.props.data;
         var name = info.getName() ? info.getName() : "'Informace na úřední desce'";
@@ -120,7 +117,7 @@ export class InfoCard extends React.Component<InfoComponentProps> {
                                     <Attachements documents={documents} />
                                 </>
                             )}
-                            {documents.length == 0 && (
+                            {documents.length === 0 && (
                                 <>
                                     <h6>Bez příloh</h6>
                                 </>
@@ -150,7 +147,7 @@ export const Attachements = (props: { documents: Array<Document> }) => {
             <div></div>
         );
     }
-    if (props.documents.length == 1) {
+    if (props.documents.length === 1) {
         var document = props.documents[0];
         return (
             <Button href={document.getUrl() ?? ""} target="_blank" rel="noreferrer" variant="outline-primary" className="m-1">Dokument</Button>
@@ -173,9 +170,6 @@ export const Attachements = (props: { documents: Array<Document> }) => {
  * Component displaying missing properties of 1 bulletin info in validation detail
  */
 export class InfoCardValidation extends React.Component<InfoComponentProps> {
-    constructor(props: { data: InfoRecord }) {
-        super(props);
-    }
     render() {
         var info = this.props.data;
         var name = info.getName() ? info.getName() : "'Informace na úřední desce'";

@@ -6,7 +6,7 @@ import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import { SimplePaging } from '../forms/SimplePaging';
 import { AiOutlineInfoCircle as InfoIcon } from 'react-icons/ai';
-import { BulletinComponentProps, BulletinListComponentProps, PaginatedComponentState } from '../componentInterfaces';
+import { BulletinListComponentProps, PaginatedComponentState } from '../componentInterfaces';
 
 /**
  * Component with header of validation table
@@ -101,20 +101,17 @@ export class ValidationTable extends React.Component<BulletinListComponentProps,
  * Explanation text to table columns
  */
 class TableExplanation extends React.Component {
-    constructor(props: any) {
-        super(props);
-    }
     render() {
         return (
             <>
                 <div>
                     <div>
                         <b>Distribuce </b>
-                        - uvádí, jestli bylo možné stáhnout distribuci datové sady z URL uvedeného v <a href="https://data.gov.cz/" target="_blank">NKOD</a>
+                        - uvádí, jestli bylo možné stáhnout distribuci datové sady z URL uvedeného v <a href="https://data.gov.cz/" target="_blank" rel="noreferrer">NKOD</a>
                     </div>
                     <div>
                         <b>Doporučené atributy </b>
-                        - jestli metadata úřední desky obsahují všechny doporučené atributy podle <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank">specifikace</a> (název desky, poskytovatel, URL atd.)
+                        - jestli metadata úřední desky obsahují všechny doporučené atributy podle <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank" rel="noreferrer">specifikace</a> (název desky, poskytovatel, URL atd.)
                     </div>
                     <div>
                         <b>Počet informací </b>
@@ -122,7 +119,7 @@ class TableExplanation extends React.Component {
                     </div>
                     <div>
                         <b>Doporučené atributy informace </b>
-                        - jestli všechny informace zveřejněné na desce obsahují ve svých metadatech všechny doporučené atributy podle <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank">specifikace</a> (název informace, URL, IRI atd.)
+                        - jestli všechny informace zveřejněné na desce obsahují ve svých metadatech všechny doporučené atributy podle <a href="https://ofn.gov.cz/%C3%BA%C5%99edn%C3%AD-desky/2021-07-20/#p%C5%99%C3%ADklady-jednoduch%C3%A1-informace" target="_blank" rel="noreferrer">specifikace</a> (název informace, URL, IRI atd.)
                     </div>
                 </div>
             </>
@@ -172,8 +169,8 @@ class ValidationRow extends React.Component<{ data: BulletinData }, { loaded: bo
         var info = this.props.data.getInfoRecords();
         var infoCount = info ? info.length : this.noValue;
         var missing = this.props.data.checkRecommendedProperties();
-        var missingBulletin = missing.bulletin.length == 0 ? this.ok : this.notOk;
-        var missingInfo = missing.information.length == 0 ? this.ok : this.notOk;
+        var missingBulletin = missing.bulletin.length === 0 ? this.ok : this.notOk;
+        var missingInfo = missing.information.length === 0 ? this.ok : this.notOk;
         var errorLevelClass = distribution === null ? "validation-severe" :
             (missing.bulletin.length > 0 || missing.information.length > 0) ? "validation-warning" :
                 "validation-ok";
