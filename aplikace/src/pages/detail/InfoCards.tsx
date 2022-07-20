@@ -1,7 +1,7 @@
 import React from 'react';
 import { InfoRecord, Document } from '../../model/InfoRecord';
 import { SimplePaging, HoverTooltip } from '../../Utils';
-import { Card, Row, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Card, Row, Button, ListGroup, ListGroupItem, Col } from 'react-bootstrap';
 import {
     BsCalendar2Event as CalendarEventIcon, BsCalendar2X as CalendarXIcon,
     BsCalendar2PlusFill as CalendarPlusIcon, BsCalendar2XFill as CalendarXFillIcon, BsLink45Deg as LinkIcon
@@ -41,8 +41,14 @@ export class InfoCards extends React.Component<{ data: Array<InfoRecord>, cardEl
         return (
             <>
                 <Row className="text-center justify-content-center">
+                    
                     {infoRecords.slice(0, displayed).map(record =>
-                        (<this.props.cardElement data={record} key={(record.getName() || "") + Math.random().toString()} />))}
+                        (
+                        <Col className="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl-3 d-flex ">
+                            <this.props.cardElement data={record} key={(record.getName() || "") + Math.random().toString()} />
+                        </Col>
+                        ))}
+                    
                 </Row>
                 <SimplePaging displayed={displayed} total={this.props.data.length} handleMore={this.handleShowMore} handleAll={this.handleShowAll} />
             </>
@@ -67,7 +73,7 @@ export class InfoCard extends React.Component<{ data: InfoRecord }> {
         var documents = info.getDocuments().filter(document => document.getUrl() !== null); // take only documents with url
         return (
             <>
-                <Card style={{ width: '18rem' }} className="m-2">
+                <Card  className="m-1">
                     <Card.Body>
                         <Card.Title>{name}</Card.Title>
                     </Card.Body>
