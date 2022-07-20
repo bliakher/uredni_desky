@@ -4,8 +4,9 @@ import { BulletinData, MissingProperties } from '../../model/dataset';
 import { DatasetStore } from '../../model/DatasetStore';
 import { InfoRecord } from '../../model/InfoRecord';
 import { Card, ListGroup, ListGroupItem, Row, Button, Col, Tab, Tabs, Container } from 'react-bootstrap';
-import { HoverTooltip, Loader, ShowDatasetButton } from '../../Utils';
-import { BsCalendar2Event as CalendarEventIcon, BsCalendar2XFill as CalendarXFillIcon } from 'react-icons/bs';
+import { Loader } from '../Utils';
+import { ShowDatasetButton } from '../forms/ShowDatasetButton';
+
 
 export const ValidationDetail = () => {
     var params = new URLSearchParams(useLocation().search);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { BulletinData } from '../model/dataset';
 import { ProviderType } from '../model/Provider';
-import { SimplePaging } from '../Utils';
+import { SimplePaging } from './forms/SimplePaging';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';

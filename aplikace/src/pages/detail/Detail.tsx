@@ -4,11 +4,17 @@ import { BulletinData } from '../../model/dataset';
 import { DatasetStore } from '../../model/DatasetStore';
 import { CancelablePromise, makeCancelable } from '../../model/cancelablePromise';
 import { fetchOrganizationNameByIco } from '../../services/query';
-import { Loader } from '../../Utils';
+import { Loader } from '../Utils';
 import { InfoCards, InfoCard } from './InfoCards';
 import znak from '../../statni_znak.png';
-import { Container, Row, Col, Button, ListGroup, ListGroupItem, Form } from 'react-bootstrap';
+import { Container, Row, Col, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { FinderForm } from '../forms/FinderForm';
 
+/**
+ * Bulletin detail wrapper component
+ * Uses hook useLocation to get IRI of the bulletin from the query part of URL
+ * Must be a functional component to use the hook
+ */
 export const BulletinDetail = () => {
     var params = new URLSearchParams(useLocation().search);
     var iriNull = params.get("iri");
@@ -16,13 +22,23 @@ export const BulletinDetail = () => {
     return (<BulletinDetailComplete iri={iri} />);
 }
 
-const DetailHeader = (props: {
-    title: string,
-    bulletinIri: string,
-    url: string | null,
-    providerName: string,
-    ownerName: string | null
-}) => {
+interface DetailHeaderProps {
+    /** name of the bulletin */
+    title: string;
+    /** IRI of bulletin dataset */
+    bulletinIri: string;
+    /** URL where bulletin is posted */
+    url: string | null;
+    /** name of bulletin data provider to NDC  */
+    providerName: string;
+    /** name of the owner of the bulletin */
+    ownerName: string | null;
+}
+
+/**
+ * Header of the bulletin detail page
+ */
+const DetailHeader = (props: DetailHeaderProps) => {
     return (
         <>
             <div className="text-center">
@@ -55,15 +71,37 @@ const DetailHeader = (props: {
     );
 }
 
+/**
+ * Props of the BulletinDetail component
+ */
+interface BulletinDetailProps {
+    /** IRI of bulletin dataset, used to load the dataset from NDC */
+    iri: string;
+}
+
+/**
+ * State of the BulletinDetail component
+ */
 interface BulletinDetailState {
+    /** has data loaded */
     loaded: boolean;
+    /** flag if the IRI is invalid */
     invalidIri: boolean;
+    /** 
+     * name of the owner of the bulletin 
+     * is taken from inside of distribution - can be null if distribution cannot be loaded
+     */
     ownerName: string | null;
+    /** value in finder text box */
     finderOn: boolean;
+    /** flag if finding is on */
     finderValue: string;
 }
 
-class BulletinDetailComplete extends React.Component<{ iri: string }, BulletinDetailState> {
+/** 
+ * Component that shows bulletin detail with a list of info cards
+ */
+class BulletinDetailComplete extends React.Component<BulletinDetailProps, BulletinDetailState> {
     data: BulletinData | null;
 
     fetchBulletinPromise: CancelablePromise | null;
@@ -113,7 +151,7 @@ class BulletinDetailComplete extends React.Component<{ iri: string }, BulletinDe
         event.preventDefault();
         this.setState({ finderOn: true });
     }
-    handleCancel(event: any) {
+    handleCancel() {
         this.setState({ finderValue: "", finderOn: false });
     }
     render() {
@@ -137,27 +175,14 @@ class BulletinDetailComplete extends React.Component<{ iri: string }, BulletinDe
                             
                             <Row className="justify-content-center">
 
-                                {/* <Col className="col-6 col-sm-6 col-md-5 col-lg-4 col-xl-4 col-xxl-3" > */}
                                     <ListGroup className="list-group-flush border border-secondary rounded col-auto d-block m-4" >
                                         <ListGroupItem><h6>Vyhledávání informace:</h6></ListGroupItem>
                                         <ListGroupItem>
-                                            <Form onSubmit={this.handleSubmit} >
-                                                <Form.Group id="form-finder">
-
-                                                    <Form.Control type="text" id="finder" onChange={this.handleChange} />
-                                                    {/* <input type="submit" value="Najít"/>
-                                                    <input type="cancel" value="Zrušit vyhledání" onClick={this.handleCancel}/> */}
-                                                    <Button type="submit" variant="outline-primary" className="m-2">
-                                                        Najít
-                                                    </Button>
-                                                    <Button type="reset" onClick={this.handleCancel} variant="outline-primary" className="m-2">
-                                                        Zrušit vyhledání
-                                                    </Button>
-                                                </Form.Group>
-                                            </Form>
+                                            <FinderForm onTextChangeCallback={this.handleChange} 
+                                                        onCancelCallback={this.handleCancel}
+                                                        onSubmitCallback={this.handleSubmit} />
                                         </ListGroupItem>
                                     </ListGroup>
-                                {/* </Col> */}
                             </Row>
 
                             <hr />

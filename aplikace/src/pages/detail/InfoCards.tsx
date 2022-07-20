@@ -1,6 +1,7 @@
 import React from 'react';
 import { InfoRecord, Document } from '../../model/InfoRecord';
-import { SimplePaging, HoverTooltip } from '../../Utils';
+import { HoverTooltip } from '../Utils';
+import { SimplePaging } from '../forms/SimplePaging';
 import { Card, Row, Button, ListGroup, ListGroupItem, Col } from 'react-bootstrap';
 import {
     BsCalendar2Event as CalendarEventIcon, BsCalendar2X as CalendarXIcon,

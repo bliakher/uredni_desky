@@ -2,10 +2,9 @@ import React from 'react';
 import { BulletinData } from '../../model/dataset';
 import { CancelablePromise, makeCancelable } from '../../model/cancelablePromise';
 import { Col, Row } from 'react-bootstrap';
-import { BulletinController } from '../BulletinController';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
-import { SimplePaging } from '../../Utils';
+import { SimplePaging } from '../forms/SimplePaging';
 import { AiOutlineInfoCircle as InfoIcon } from 'react-icons/ai';
 
 

@@ -2,9 +2,9 @@ import React from 'react';
 import { DatasetStore } from '../model/DatasetStore';
 import { ProviderType, SortedProviders } from '../model/Provider';
 import { CancelablePromise, makeCancelable } from '../model/cancelablePromise';
-import { Loader } from '../Utils';
-import { Bulletin, BulletinCards } from './List';
-import { Badge, Button, Col, Form, FormGroup, Row } from 'react-bootstrap';
+import { Loader } from './Utils';
+import { BulletinCards } from './List';
+import { Badge, Col, Row } from 'react-bootstrap';
 
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 

@@ -1,29 +1,55 @@
 import React from 'react';
-import { Col, Container, ListGroup, ListGroupItem, Row, Button } from 'react-bootstrap';
+import { Container, ListGroup, ListGroupItem, Row, Button } from 'react-bootstrap';
 import { DatasetStore } from '../model/DatasetStore';
 import { ProviderType } from '../model/Provider';
 import { CancelablePromise, makeCancelable } from '../model/cancelablePromise';
-import { Loader, CheckboxGroup, OptionChangeCallback } from '../Utils';
-import Form from 'react-bootstrap/Form';
+import { Loader } from './Utils';
+import { FinderForm } from './forms/FinderForm';
+import { CheckboxGroup } from './forms/CheckboxGroup';
 
-
+/**
+ * Props of the BulletinController component
+ */
 interface BulletinControllerProps {
+    /**
+     * React component type
+     * Component that is displayed as header before filter forms
+     * It should have no props
+     */
     headerElement: any;
+    /**
+     * React component type
+     * Component that visualizes the filtered data
+     * It should have 1 prop: props = {data: BulletinData[]}
+     */
     bulletinListElement: any;
+    /** provider type chosen in filter */
     checkedProviders: Set<ProviderType>;
+    /** callback to set new filter state in parent component on filter change */
     setCheckChange: (check: ProviderType) => void;
+    /** value in finder text box */
     finderValue: string;
+    /** callback to set new finder value in parent component on change */
     setFinderValue: (newValue: string) => void
+    /** flag if finding is on */
     finderOn: boolean;
+    /** callback to set flag in parent component on change */
     setFinderStatus: (isOn: boolean) => void
 
 }
 
+/**
+ * State of the BulletinController component
+ */
 interface BulletinControllerState {
     loaded: boolean;
 }
 
-class BulletinController extends React.Component<BulletinControllerProps, BulletinControllerState> {
+/**
+ * Component that wraps functionality of getting bulletin data and filtering it according to user inputs
+ * Visualization of data is done by components that are given as props
+ */
+export class BulletinController extends React.Component<BulletinControllerProps, BulletinControllerState> {
     datasets: DatasetStore;
     fetchDatasetsPromise: CancelablePromise | null;
     fetchProvidersPromise: CancelablePromise | null;
@@ -40,6 +66,9 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
         this.fetchDatasetsPromise = null;
         this.fetchProvidersPromise = null;
     }
+    /**
+     * After the mount of component data are queried
+     */
     async componentDidMount() {
         this.fetchDatasetsPromise = makeCancelable(this.datasets.fetchDatasets());
         await this.fetchDatasetsPromise.promise;
@@ -51,7 +80,7 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
         if (this.fetchDatasetsPromise) this.fetchDatasetsPromise.cancel();
         if (this.fetchProvidersPromise) this.fetchProvidersPromise.cancel();
     }
-    handleCheckboxChange(checkboxValue: string) {
+    private handleCheckboxChange(checkboxValue: string) {
         var type: ProviderType;
         switch (checkboxValue) {
             case "obce":
@@ -77,21 +106,23 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
         }
         this.props.setCheckChange(type);
     }
-    handleSubmit(event: any) {
+    private handleSubmit(event: any) {
         event.preventDefault();
         this.props.setFinderStatus(true);
     }
-    handleChange(event: any) {
+    private handleChange(event: any) {
         this.props.setFinderValue(event.target.value);
     }
-    handleCancel() {
+    private handleCancel() {
         this.props.setFinderStatus(false);
         this.props.setFinderValue("");
     }
 
     render() {
+        // filter data by selected provider types
         var data = this.datasets.data.filter(dataset => this.props.checkedProviders.has(dataset.provider.type));
         if (this.props.finderOn) {
+            // filter data - only bulletins that have the finder value in name or provider name
             data = data.filter(dataset => (dataset.name.toLowerCase().includes(this.props.finderValue.toLowerCase())
                 || dataset.provider.name.toLowerCase().includes(this.props.finderValue.toLowerCase())));
         }
@@ -114,36 +145,22 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
             <Container className="justify-content-md-center">
                 <this.props.headerElement />
                 <Row className="justify-content-center">
-                    {/* <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-block p-2"> */}
-                        <ListGroup className="list-group-flush border border-secondary rounded  col-11 col-sm-10 col-md-5 col-lg-4 m-2 filter-form">
-                            <ListGroupItem><h6>Vyberte právní formu poskytovatele:</h6></ListGroupItem>
-                            <ListGroupItem>
-                                <CheckboxGroup options={optionsList} callback={this.handleCheckboxChange} />
-                            </ListGroupItem>
-                        </ListGroup>
+                    <ListGroup className="list-group-flush border border-secondary rounded  col-11 col-sm-10 col-md-5 col-lg-4 m-2 filter-form">
+                        <ListGroupItem><h6>Vyberte právní formu poskytovatele:</h6></ListGroupItem>
+                        <ListGroupItem>
+                            <CheckboxGroup options={optionsList} callback={this.handleCheckboxChange} />
+                        </ListGroupItem>
+                    </ListGroup>
 
-                    {/* </Col> */}
-                    {/* <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-block p-2 col-sm-auto"> */}
-                        <ListGroup className="list-group-flush border border-secondary rounded col-11 col-sm-10 col-md-5 col-lg-4 m-2 filter-form">
-                            <ListGroupItem><h6>Vyhledávání desky:</h6></ListGroupItem>
-                            <ListGroupItem>
-                                <Form onSubmit={this.handleSubmit} >
-                                    <Form.Group id="form-finder">
+                    <ListGroup className="list-group-flush border border-secondary rounded col-11 col-sm-10 col-md-5 col-lg-4 m-2 filter-form">
+                        <ListGroupItem><h6>Vyhledávání desky:</h6></ListGroupItem>
+                        <ListGroupItem>
+                            <FinderForm onTextChangeCallback={this.handleChange} 
+                                        onCancelCallback={this.handleCancel}
+                                        onSubmitCallback={this.handleSubmit} />
+                        </ListGroupItem>
+                    </ListGroup>
 
-                                        <Form.Control type="text" id="finder" onChange={this.handleChange} className="m-2" defaultValue={this.props.finderValue}/>
-
-                                        <Button type="submit" variant="outline-primary" className="m-2">
-                                            Najít
-                                        </Button>
-                                        <Button type="reset" onClick={this.handleCancel} variant="outline-primary" className="m-2">
-                                            Zrušit vyhledání
-                                        </Button>
-                                    </Form.Group>
-                                </Form>
-                            </ListGroupItem>
-                        </ListGroup>
-
-                    {/* </Col> */}
                 </Row>
                 <hr />
                 <this.props.bulletinListElement data={data} />
@@ -152,24 +169,4 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
     }
 }
 
-class ProviderCheckbox extends React.Component<{ callback: OptionChangeCallback }> {
-    constructor(props: { callback: OptionChangeCallback }) {
-        super(props);
-    }
-    render() {
-        var optionsList = [
-            { label: "Obce", value: "obce", checked: true },
-            { label: "Městské části", value: "casti", checked: true },
-            { label: "Kraje", value: "kraje", checked: true },
-            { label: "Organizační složky státu", value: "stat", checked: true },
-            { label: "Ostatní", value: "ostatni", checked: true }];
-        return (
-            <>
-                <p>Vyberte poskytovatele</p>
-                <CheckboxGroup options={optionsList} callback={this.props.callback} />
-            </>
-        );
-    }
-}
 
-export { BulletinController };
