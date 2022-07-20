@@ -89,7 +89,7 @@ export class Statistics extends React.Component<{}, { loaded: boolean, downloadC
         return (
             <>
                 <Header />
-                <Tabs defaultActiveKey="validation" className="mb-3 justify-content-md-center">
+                <Tabs defaultActiveKey="validation" className="mb-3 justify-content-center">
                     <Tab eventKey="validation" title="Validace" key="validation">
                         <ValidationStatistics data={this.data.data} />
                     </Tab>
