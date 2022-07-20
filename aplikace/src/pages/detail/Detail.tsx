@@ -144,14 +144,14 @@ class BulletinDetailComplete extends React.Component<BulletinDetailProps, Bullet
         if (this.fetchDistributionPromise) this.fetchDistributionPromise.cancel();
         if (this.fetchOrganizationPromise) this.fetchOrganizationPromise.cancel();
     }
-    handleChange(event: any) {
+    private handleChange(event: any) {
         this.setState({ finderValue: event.target.value });
     }
-    handleSubmit(event: any) {
+    private handleSubmit(event: any) {
         event.preventDefault();
         this.setState({ finderOn: true });
     }
-    handleCancel() {
+    private handleCancel() {
         this.setState({ finderValue: "", finderOn: false });
     }
     render() {

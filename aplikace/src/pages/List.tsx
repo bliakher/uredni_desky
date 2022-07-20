@@ -36,7 +36,7 @@ export class BulletinCards extends React.Component<BulletinListComponentProps, P
 
     /** number of cards displayed in 1 increment */
     DISPLAY_INCREMENT = 20;
-    constructor(props: { data: BulletinData[] }) {
+    constructor(props: BulletinListComponentProps) {
         super(props);
         this.state = { displayedCount: this.DISPLAY_INCREMENT <= props.data.length ? this.DISPLAY_INCREMENT : props.data.length };
         this.setDisplayedCount = this.setDisplayedCount.bind(this);
@@ -87,10 +87,9 @@ export class BulletinCards extends React.Component<BulletinListComponentProps, P
 
 /**
  * Component that displayes one bulletin as card with information about the bulletin and a link to bulletin detail
- * 
  */
 export class Bulletin extends React.Component<BulletinComponentProps, {}> {
-    constructor(props: { data: BulletinData }) {
+    constructor(props: BulletinComponentProps) {
         super(props);
     }
 

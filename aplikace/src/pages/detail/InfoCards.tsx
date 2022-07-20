@@ -34,7 +34,7 @@ export class InfoCards extends React.Component<InfoCardsProps, PaginatedComponen
         this.handleShowMore = this.handleShowMore.bind(this);
         this.handleShowAll = this.handleShowAll.bind(this);
     }
-    handleShowMore() {
+    private handleShowMore() {
         var total = this.props.data.length;
         var displayed = this.state.displayedCount;
         var increment = this.INFO_QUANTUM;
@@ -45,7 +45,7 @@ export class InfoCards extends React.Component<InfoCardsProps, PaginatedComponen
         }
         this.setState({ displayedCount: displayed });
     }
-    handleShowAll() {
+    private handleShowAll() {
         var total = this.props.data.length;
         this.setState({ displayedCount: total });
     }

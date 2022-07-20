@@ -6,8 +6,11 @@ import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import { SimplePaging } from '../forms/SimplePaging';
 import { AiOutlineInfoCircle as InfoIcon } from 'react-icons/ai';
+import { BulletinComponentProps, BulletinListComponentProps, PaginatedComponentState } from '../componentInterfaces';
 
-
+/**
+ * Component with header of validation table
+ */
 export const ValidationHeader = () => {
     return (
         <>
@@ -29,74 +32,74 @@ export const ValidationHeader = () => {
     );
 }
 
-class ValidationRow extends React.Component<{ data: BulletinData }, { loaded: boolean }> {
-    ok = "Ano";
-    notOk = "Ne";
-    noValue = "-";
-
-    fetchDistributionPromise: CancelablePromise | null;
-    constructor(props: { data: BulletinData }) {
+/**
+ * Component that displayes validation results of BulletinData in a paginated table
+ */
+export class ValidationTable extends React.Component<BulletinListComponentProps, PaginatedComponentState> {
+    ROW_QUANTUM = 30;
+    constructor(props: BulletinListComponentProps) {
         super(props);
-        this.state = { loaded: false };
-        this.fetchDistributionPromise = null;
+        this.state = { displayedCount: props.data.length > this.ROW_QUANTUM ? this.ROW_QUANTUM : props.data.length };
+        this.handleShowMore = this.handleShowMore.bind(this);
+        this.handleShowAll = this.handleShowAll.bind(this);
     }
-    async componentDidMount() {
-        this.fetchDistributionPromise = makeCancelable(this.props.data.fetchDistribution());
-        await this.fetchDistributionPromise.promise;
-        this.setState({ loaded: true });
-    }
-    componentWillUnmount() {
-        if (this.fetchDistributionPromise) this.fetchDistributionPromise.cancel();
-    }
-    renderWaiting() {
-        var provider = this.props.data.provider;
-        var name = this.props.data.name;
+    private renderHeaderRow() {
         return (
             <tr>
-                <td>{provider.name}</td>
-                <td>{name}</td>
-                <td colSpan={6}>Načítá se...</td>
+                <th>Poskytovatel</th>
+                <th>Úřední deska</th>
+                <th>Distribuce</th>
+                <th>Doporučené atributy</th>
+                <th>Počet informací</th>
+                <th>Doporučené atributy informací</th>
+                <th>Podrobnosti</th>
             </tr>
         );
     }
-    renderLoaded() {
-        var distribution = this.props.data.getDistribution();
-        var provider = this.props.data.provider;
-        var iri = this.props.data.iri;
-        var name = this.props.data.name;
-        var source = this.props.data.source;
-        var info = this.props.data.getInfoRecords();
-        var infoCount = info ? info.length : this.noValue;
-        var missing = this.props.data.checkRecommendedProperties();
-        var missingBulletin = missing.bulletin.length == 0 ? this.ok : this.notOk;
-        var missingInfo = missing.information.length == 0 ? this.ok : this.notOk;
-        var errorLevelClass = distribution === null ? "validation-severe" :
-            (missing.bulletin.length > 0 || missing.information.length > 0) ? "validation-warning" :
-                "validation-ok";
 
-        return (
-            <tr className={"p-2 " + errorLevelClass}>
-                <td>{provider.name}</td>
-                <td>{name}</td>
-                <td className="text-center">{distribution ? this.ok : this.notOk}</td>
-                <td className="text-center">{distribution ? missingBulletin : this.noValue}</td>
-                <td className="text-center">{infoCount}</td>
-                <td className="text-center">{distribution ? missingInfo : this.noValue}</td>
-                <td className="text-center">
-                    {/* <Link to={"detail?iri=" + iri}>Detail</Link> */}
-                    <Button href={"#/validace/detail?iri=" + iri} variant="outline-secondary" size="sm"> + </Button>
-                </td>
-            </tr>
-        );
-    }
-    render() {
-        if (this.state.loaded) {
-            return this.renderLoaded();
+    private handleShowMore() {
+        var total = this.props.data.length;
+        var displayed = this.state.displayedCount;
+        var increment = this.ROW_QUANTUM;
+        if (displayed + increment <= total) {
+            displayed += increment;
+        } else {
+            displayed += (total - displayed);
         }
-        return this.renderWaiting();
+        this.setState({ displayedCount: displayed });
+    }
+    private handleShowAll() {
+        var total = this.props.data.length;
+        this.setState({ displayedCount: total });
+    }
+
+    render() {
+        var bulletins = this.props.data;
+        var header = this.renderHeaderRow();
+        var displayed = this.state.displayedCount < this.props.data.length ? this.state.displayedCount : this.props.data.length;
+        return (
+            <>
+                <TableExplanation />
+                <Table bordered hover responsive>
+                    <thead>
+                        {header}
+                    </thead>
+                    <tbody>
+                        {bulletins.slice(0, displayed)
+                            .map(bul => <ValidationRow data={bul} key={bul.iri + Math.random().toString()} />)}
+                    </tbody>
+                </Table>
+                <SimplePaging displayed={displayed} total={this.props.data.length}
+                    handleMore={this.handleShowMore} handleAll={this.handleShowAll} />
+
+            </>
+        );
     }
 }
 
+/**
+ * Explanation text to table columns
+ */
 class TableExplanation extends React.Component {
     constructor(props: any) {
         super(props);
@@ -128,68 +131,74 @@ class TableExplanation extends React.Component {
 
 }
 
+/**
+ * Row of validation table - displays result of validation of one bulletin, has link to validation detail
+ */
+class ValidationRow extends React.Component<{ data: BulletinData }, { loaded: boolean }> {
+    ok = "Ano";
+    notOk = "Ne";
+    noValue = "-";
 
-export class ValidationTable extends React.Component<{ data: BulletinData[] }, { displayedCount: number }> {
-    ROW_QUANTUM = 30;
-    constructor(props: { data: BulletinData[] }) {
+    fetchDistributionPromise: CancelablePromise | null;
+    constructor(props: { data: BulletinData }) {
         super(props);
-        this.state = { displayedCount: props.data.length > this.ROW_QUANTUM ? this.ROW_QUANTUM : props.data.length };
-        this.handleShowMore = this.handleShowMore.bind(this);
-        this.handleShowAll = this.handleShowAll.bind(this);
+        this.state = { loaded: false };
+        this.fetchDistributionPromise = null;
     }
-    renderHeaderRow() {
+    async componentDidMount() {
+        this.fetchDistributionPromise = makeCancelable(this.props.data.fetchDistribution());
+        await this.fetchDistributionPromise.promise;
+        this.setState({ loaded: true });
+    }
+    componentWillUnmount() {
+        if (this.fetchDistributionPromise) this.fetchDistributionPromise.cancel();
+    }
+    private renderWaiting() {
+        var provider = this.props.data.provider;
+        var name = this.props.data.name;
         return (
             <tr>
-                <th>Poskytovatel</th>
-                <th>Úřední deska</th>
-                <th>Distribuce</th>
-                <th>Doporučené atributy</th>
-                <th>Počet informací</th>
-                <th>Doporučené atributy informací</th>
-                <th>Podrobnosti</th>
+                <td>{provider.name}</td>
+                <td>{name}</td>
+                <td colSpan={6}>Načítá se...</td>
             </tr>
         );
     }
+    private renderLoaded() {
+        var distribution = this.props.data.getDistribution();
+        var provider = this.props.data.provider;
+        var iri = this.props.data.iri;
+        var name = this.props.data.name;
+        var info = this.props.data.getInfoRecords();
+        var infoCount = info ? info.length : this.noValue;
+        var missing = this.props.data.checkRecommendedProperties();
+        var missingBulletin = missing.bulletin.length == 0 ? this.ok : this.notOk;
+        var missingInfo = missing.information.length == 0 ? this.ok : this.notOk;
+        var errorLevelClass = distribution === null ? "validation-severe" :
+            (missing.bulletin.length > 0 || missing.information.length > 0) ? "validation-warning" :
+                "validation-ok";
 
-    handleShowMore() {
-        var total = this.props.data.length;
-        var displayed = this.state.displayedCount;
-        var increment = this.ROW_QUANTUM;
-        if (displayed + increment <= total) {
-            displayed += increment;
-        } else {
-            displayed += (total - displayed);
-        }
-        this.setState({ displayedCount: displayed });
-    }
-    handleShowAll() {
-        var total = this.props.data.length;
-        this.setState({ displayedCount: total });
-    }
-
-    render() {
-        var bulletins = this.props.data;
-        // console.log(bulletins.length);
-        var header = this.renderHeaderRow();
-        var displayed = this.state.displayedCount < this.props.data.length ? this.state.displayedCount : this.props.data.length;
         return (
-            <>
-                <TableExplanation />
-                <Table bordered hover responsive>
-                    <thead>
-                        {header}
-                    </thead>
-                    <tbody>
-                        {bulletins.slice(0, displayed)
-                            .map(bul => <ValidationRow data={bul} key={bul.iri + Math.random().toString()} />)}
-                    </tbody>
-                </Table>
-                <SimplePaging displayed={displayed} total={this.props.data.length}
-                    handleMore={this.handleShowMore} handleAll={this.handleShowAll} />
-
-            </>
+            <tr className={"p-2 " + errorLevelClass}>
+                <td>{provider.name}</td>
+                <td>{name}</td>
+                <td className="text-center">{distribution ? this.ok : this.notOk}</td>
+                <td className="text-center">{distribution ? missingBulletin : this.noValue}</td>
+                <td className="text-center">{infoCount}</td>
+                <td className="text-center">{distribution ? missingInfo : this.noValue}</td>
+                <td className="text-center">
+                    <Button href={"#/validace/detail?iri=" + iri} variant="outline-secondary" size="sm"> + </Button>
+                </td>
+            </tr>
         );
     }
+    render() {
+        if (this.state.loaded) {
+            return this.renderLoaded();
+        }
+        return this.renderWaiting();
+    }
 }
+
 
 
