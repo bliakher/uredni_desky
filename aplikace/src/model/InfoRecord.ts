@@ -39,7 +39,6 @@ export class InfoRecord {
             if (dateObj.hasOwnProperty("datum_a_čas")) {
                 return new TimeMoment(new Date(dateObj["datum_a_čas"]));
             }
-            console.log(dateObj["datum"], new Date(dateObj["datum"]));
             return new TimeMoment(new Date(dateObj["datum"]));
         }
         return null;

@@ -8,13 +8,8 @@ import Button from 'react-bootstrap/Button';
 import { SimplePaging } from '../../Utils';
 import { AiOutlineInfoCircle as InfoIcon } from 'react-icons/ai';
 
-export const Validation = () => {
-    return (
-        <BulletinController headerElement={ValidationHeader} bulletinListElement={ValidationTable} />
-    );
-}
 
-const ValidationHeader = () => {
+export const ValidationHeader = () => {
     return (
         <>
             <Row className="p-2 text-center ">
@@ -135,7 +130,7 @@ class TableExplanation extends React.Component {
 }
 
 
-class ValidationTable extends React.Component<{ data: BulletinData[] }, { displayedCount: number }> {
+export class ValidationTable extends React.Component<{ data: BulletinData[] }, { displayedCount: number }> {
     ROW_QUANTUM = 30;
     constructor(props: { data: BulletinData[] }) {
         super(props);

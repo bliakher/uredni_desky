@@ -14,7 +14,7 @@ import Stack from 'react-bootstrap/Stack'
 import { stat } from 'fs';
 
 
-class Bulletin extends React.Component<{ data: BulletinData }> {
+export class Bulletin extends React.Component<{ data: BulletinData }> {
     constructor(props: { data: BulletinData }) {
         super(props);
     }
@@ -65,17 +65,17 @@ class Bulletin extends React.Component<{ data: BulletinData }> {
     }
 }
 
-class BulletinList extends React.Component {
-    render() {
-        return (
-            <BulletinController
-                headerElement={BulletinListHeader}
-                bulletinListElement={BulletinCards} />
-        );
-    }
-}
+// class BulletinList extends React.Component {
+//     render() {
+//         return (
+//             <BulletinController
+//                 headerElement={BulletinListHeader}
+//                 bulletinListElement={BulletinCards} />
+//         );
+//     }
+// }
 
-const BulletinListHeader = () => {
+export const BulletinListHeader = () => {
     return (
         <>
             <Row className="p-2 text-center ">
@@ -90,7 +90,7 @@ const BulletinListHeader = () => {
     );
 }
 
-class BulletinCards extends React.Component<{ data: BulletinData[] }, { displayedCount: number }> {
+export class BulletinCards extends React.Component<{ data: BulletinData[] }, { displayedCount: number }> {
     DISPLAY_INCREMENT = 20;
     constructor(props: { data: BulletinData[] }) {
         super(props);
@@ -143,4 +143,3 @@ class BulletinCards extends React.Component<{ data: BulletinData[] }, { displaye
     }
 }
 
-export { BulletinList, Bulletin, BulletinCards };

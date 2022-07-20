@@ -44,8 +44,9 @@ export class InfoCards extends React.Component<{ data: Array<InfoRecord>, cardEl
                     
                     {infoRecords.slice(0, displayed).map(record =>
                         (
-                        <Col className="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl-3 d-flex ">
-                            <this.props.cardElement data={record} key={(record.getName() || "") + Math.random().toString()} />
+                        <Col className="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl-3 d-flex " 
+                            key={(record.getName() || "") + Math.random().toString()}>
+                            <this.props.cardElement data={record} />
                         </Col>
                         ))}
                     

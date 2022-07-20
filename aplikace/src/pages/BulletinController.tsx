@@ -10,12 +10,12 @@ import Form from 'react-bootstrap/Form';
 interface BulletinControllerProps {
     headerElement: any;
     bulletinListElement: any;
-    //setSelected: (selected: ProviderCategories) => void;
+    checkedProviders: Set<ProviderType>;
+    handleChecked: (check: ProviderType) => void;
 }
 
 interface BulletinControllerState {
     loaded: boolean;
-    checkedProviders: Set<ProviderType>;
     finderValue: string;
     finderOn: boolean;
 }
@@ -29,8 +29,6 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
         this.state = {
             loaded: false,
             // on load all provider types are checked
-            checkedProviders: new Set<ProviderType>(
-                [ProviderType.City, ProviderType.CityPart, ProviderType.Government, ProviderType.Region, ProviderType.Unknown]),
             finderValue: "",
             finderOn: false,
         };
@@ -77,13 +75,7 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
         if (type === ProviderType.Error) {
             return;
         }
-        var updatedSet = new Set(this.state.checkedProviders);
-        if (updatedSet.has(type)) {
-            updatedSet.delete(type);
-        } else {
-            updatedSet.add(type);
-        }
-        this.setState({ checkedProviders: updatedSet });
+        this.props.handleChecked(type);
     }
     handleSubmit(event: any) {
         event.preventDefault();
@@ -92,22 +84,22 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
     handleChange(event: any) {
         this.setState({ finderValue: event.target.value });
     }
-    handleCancel(event: any) {
+    handleCancel() {
         this.setState({ finderValue: "", finderOn: false });
     }
 
     render() {
-        var data = this.datasets.data.filter(dataset => this.state.checkedProviders.has(dataset.provider.type));
+        var data = this.datasets.data.filter(dataset => this.props.checkedProviders.has(dataset.provider.type));
         if (this.state.finderOn) {
             data = data.filter(dataset => (dataset.name.toLowerCase().includes(this.state.finderValue.toLowerCase())
                 || dataset.provider.name.toLowerCase().includes(this.state.finderValue.toLowerCase())));
         }
         var optionsList = [
-            { label: "Obce", value: "obce", checked: this.state.checkedProviders.has(ProviderType.City) },
-            { label: "Městské části", value: "casti", checked: this.state.checkedProviders.has(ProviderType.CityPart) },
-            { label: "Kraje", value: "kraje", checked: this.state.checkedProviders.has(ProviderType.Region) },
-            { label: "Organizační složky státu", value: "stat", checked: this.state.checkedProviders.has(ProviderType.Government) },
-            { label: "Ostatní", value: "ostatni", checked: this.state.checkedProviders.has(ProviderType.Unknown) }];
+            { label: "Obce", value: "obce", checked: this.props.checkedProviders.has(ProviderType.City) },
+            { label: "Městské části", value: "casti", checked: this.props.checkedProviders.has(ProviderType.CityPart) },
+            { label: "Kraje", value: "kraje", checked: this.props.checkedProviders.has(ProviderType.Region) },
+            { label: "Organizační složky státu", value: "stat", checked: this.props.checkedProviders.has(ProviderType.Government) },
+            { label: "Ostatní", value: "ostatni", checked: this.props.checkedProviders.has(ProviderType.Unknown) }];
 
         if (!this.state.loaded) {
             return (
