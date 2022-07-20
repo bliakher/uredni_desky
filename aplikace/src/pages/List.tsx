@@ -52,11 +52,11 @@ class Bulletin extends React.Component<{ data: BulletinData }> {
 
 
                 </Card.Body>
-                <Stack direction="horizontal">
-                    <Button href={"#/detail?iri=" + bulletin.iri} variant="primary" size="sm" className="m-1">
+                <Stack direction="horizontal" className="justify-content-md-center">
+                    <Button href={"#/detail?iri=" + bulletin.iri} variant="outline-primary" size="sm" className="m-1">
                         Zobrazit informace
                     </Button>
-                    <Button href={linkToDataset} target="_blank" rel="noreferrer" variant="outline-primary" size="sm" className="m-1">
+                    <Button href={linkToDataset} target="_blank" rel="noreferrer" variant="outline-secondary" size="sm" className="m-1">
                         Dataset v NKOD
                     </Button>
                 </Stack>

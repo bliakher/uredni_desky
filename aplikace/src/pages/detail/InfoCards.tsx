@@ -9,7 +9,7 @@ import {
 
 
 export class InfoCards extends React.Component<{ data: Array<InfoRecord>, cardElement: any }, { displayedCount: number }> {
-    INFO_QUANTUM = 10; // number of infos loaded on one load
+    INFO_QUANTUM = 20; // number of infos loaded on one load
     constructor(props: { data: Array<InfoRecord>, cardElement: any }) {
         super(props);
         this.state = {
@@ -40,7 +40,7 @@ export class InfoCards extends React.Component<{ data: Array<InfoRecord>, cardEl
         var displayed = this.state.displayedCount < this.props.data.length ? this.state.displayedCount : this.props.data.length;
         return (
             <>
-                <Row className="text-center justify-content-md-center">
+                <Row className="text-center justify-content-center">
                     {infoRecords.slice(0, displayed).map(record =>
                         (<this.props.cardElement data={record} key={(record.getName() || "") + Math.random().toString()} />))}
                 </Row>
@@ -88,13 +88,21 @@ export class InfoCard extends React.Component<{ data: InfoRecord }> {
                             } />
 
                         </ListGroupItem>
-                        {documents.length > 0 && (
+                        
+                        <ListGroupItem>
+                        {documents.length > 0 && ( 
                             <>
-                                <ListGroupItem>
-                                    <h6>Přílohy:</h6>
-                                    <Attachements documents={documents} />
-                                </ListGroupItem>
-                            </>)}
+                            <h6>Přílohy:</h6>
+                            <Attachements documents={documents} />
+                            </>
+                            )}
+                        {documents.length == 0 && ( 
+                            <>
+                            <h6>Bez příloh</h6>
+                            </>
+                            )}
+                        </ListGroupItem>
+                            
                         <ListGroupItem>
                             {url && <Button href={url} target="_blank" rel="noreferrer" variant="primary" >
                                 Informace
@@ -121,11 +129,11 @@ export const Attachements = (props: { documents: Array<Document> }) => {
         );
     }
     return (
-        <Row className="text-center justify-content-md-center">
+        <Row className="text-center justify-content-center">
             {props.documents.filter(document => document.getUrl() !== null)
                 .map((document, index) => {
                     return (<Button href={document.getUrl() ?? ""} target="_blank" rel="noreferrer" variant="outline-primary"
-                        className="m-1 col-3" key={document.getUrl() ?? ""}>
+                        className="m-1 col-auto" key={document.getUrl() ?? ""}>
                         {index + 1}
                     </Button>);
                 })}

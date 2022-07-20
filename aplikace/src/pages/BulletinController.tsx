@@ -120,27 +120,25 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
         return (
             <Container className="justify-content-md-center">
                 <this.props.headerElement />
-                <Row className="justify-content-md-center">
-                    <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex p-2">
-                        <ListGroup className="list-group-flush border border-secondary rounded">
+                <Row className="justify-content-center">
+                    {/* <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-block p-2"> */}
+                        <ListGroup className="list-group-flush border border-secondary rounded  col-11 col-sm-10 col-md-5 col-lg-4 m-2 filter-form">
                             <ListGroupItem><h6>Vyberte právní formu poskytovatele:</h6></ListGroupItem>
                             <ListGroupItem>
                                 <CheckboxGroup options={optionsList} callback={this.handleCheckboxChange} />
                             </ListGroupItem>
                         </ListGroup>
-                        {/* <div>Vyberte poskytovatele:</div>
-                        <CheckboxGroup options={optionsList} callback={this.handleCheckboxChange}/> */}
-                    </Col>
-                    <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex p-2">
-                        <ListGroup className="list-group-flush border border-secondary rounded">
+
+                    {/* </Col> */}
+                    {/* <Col className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-block p-2 col-sm-auto"> */}
+                        <ListGroup className="list-group-flush border border-secondary rounded col-11 col-sm-10 col-md-5 col-lg-4 m-2 filter-form">
                             <ListGroupItem><h6>Vyhledávání desky:</h6></ListGroupItem>
                             <ListGroupItem>
                                 <Form onSubmit={this.handleSubmit} >
                                     <Form.Group id="form-finder">
 
                                         <Form.Control type="text" id="finder" onChange={this.handleChange} className="m-2" />
-                                        {/* <input type="submit" value="Najít"/>
-                                        <input type="cancel" value="Zrušit vyhledání" onClick={this.handleCancel}/> */}
+
                                         <Button type="submit" variant="outline-primary" className="m-2">
                                             Najít
                                         </Button>
@@ -152,7 +150,7 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
                             </ListGroupItem>
                         </ListGroup>
 
-                    </Col>
+                    {/* </Col> */}
                 </Row>
                 <hr />
                 <this.props.bulletinListElement data={data} />

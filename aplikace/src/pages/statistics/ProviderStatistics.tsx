@@ -172,11 +172,11 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
     render() {
         return (
             <>
-                <Row className="text-center justify-content-md-center">
+                <Row className="text-center justify-content-center">
                     <h4>Statistika poskytovatelů úředních desek</h4>
                 </Row>
-                <Row className="text-center justify-content-md-center">
-                    <Col className="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6 d-flex p-2 m-2">
+                <Row className="text-center justify-content-center">
+                    <Col className="col-11 col-sm-11 col-md-6 col-lg-6 col-xl-6 col-xxl-6 d-flex p-2 m-2">
                         <p>
                             Poskytovatele dat z úředních desek můžeme rozdělit do kategorií podle jejich právní formy.
                             Data o právní formě orgánů veřejné moci získáváme z Registu práv a povinností (<a href="https://www.szrcr.cz/cs/registr-prav-a-povinnosti">RPP</a>).
@@ -186,7 +186,7 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                     </Col>
                 </Row>
 
-                <Row className="text-center justify-content-md-center">
+                <Row className="text-center justify-content-center">
                     <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex">
                         <div>
                             <h6>Obec</h6>
@@ -194,7 +194,7 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                         </div>
                     </Col>
                 </Row>
-                <Row className="text-center justify-content-md-center">
+                <Row className="text-center justify-content-center">
                     <Col className="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 col-xxl-3">
                         <div>
                             <h6>Městská část, městský obvod</h6>
@@ -214,10 +214,10 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
                         </div>
                     </Col>
                 </Row>
-                <Row className="text-center justify-content-md-center m-3">
+                <Row className="text-center justify-content-center m-3">
                     <h6>Ostatní právní formy orgánů veřejné moci (OVM)</h6>
                 </Row>
-                <Row className="justify-content-md-center">
+                <Row className="justify-content-center">
                     <Col className="col-11 col-sm-11 col-md-5 col-lg-5 col-xl-5 col-xxl-5 p-2 m-2">
                         {this.renderOtherProviders()}
                     </Col>

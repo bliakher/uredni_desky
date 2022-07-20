@@ -129,12 +129,12 @@ class SimplePaging extends React.Component<SimplePagingProps>{
     }
     render() {
         return (
-            <Stack className="text-center justify-content-md-center m-2">
+            <Stack className="text-center justify-content-center m-2">
                 <div className="m-2">
                     <p>Zobrazeno: {this.props.displayed} z {this.props.total}</p>
                 </div>
                 { this.props.displayed !== this.props.total && 
-                    <Stack direction="horizontal" className="text-center justify-content-md-center">
+                    <Stack direction="horizontal" className="text-center justify-content-center">
                         <div className="m-2">
                                 <Button variant="outline-secondary" onClick={this.props.handleMore}>Zobrazit další</Button>
                         </div>

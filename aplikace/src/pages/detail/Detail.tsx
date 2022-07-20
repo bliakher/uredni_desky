@@ -33,24 +33,13 @@ const DetailHeader = (props: {
                     {props.title + " "}
                 </h3>
             </div>
-            <Row className="text-center justify-content-md-center m-2">
-                <Col className="col-6 col-sm-6 col-md-5 col-lg-4 col-xl-4 col-xxl-4" >
-                    {/* <ListGroup className="list-group-flush border border-secondary rounded">
-                        <ListGroupItem>Poskytovatel dat: {props.providerName}</ListGroupItem>
-                        { props.ownerName != null &&
-                        <ListGroupItem>
-                            Provozovatel: {props.ownerName}
-                        </ListGroupItem>}
-                    </ListGroup> */}
 
-                    <div>
-                        <div>Poskytovatel dat: {props.providerName}</div>
-                        {props.ownerName != null &&
-                            <div>Provozovatel: {props.ownerName}</div>}
-                    </div>
+            <div className="text-center justify-content-md-center m-2">
+                <div>Poskytovatel dat: {props.providerName}</div>
+                {props.ownerName != null &&
+                    <div>Provozovatel: {props.ownerName}</div>}
+            </div>
 
-                </Col>
-            </Row>
             <div className="text-center justify-content-md-center m-3">
                 <span>
                     <Button variant="outline-secondary" href={"https://data.gov.cz/datová-sada?iri=" + props.bulletinIri} target="_blank" className="m-1">
@@ -142,12 +131,11 @@ class BulletinDetailComplete extends React.Component<{ iri: string }, BulletinDe
                         <Container>
                             <DetailHeader title={this.data.name} bulletinIri={this.data.iri} url={url}
                                 providerName={this.data.provider.name} ownerName={this.state.ownerName} />
-                            <hr />
-                            {/**  className="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-3 d-flex"  */}
-                            <Row className="text-center justify-content-md-center d-flex align-items-center">
+                            
+                            <Row className="justify-content-center">
 
-                                <Col className="col-6 col-sm-6 col-md-5 col-lg-4 col-xl-4 col-xxl-3" >
-                                    <ListGroup className="list-group-flush border border-secondary rounded">
+                                {/* <Col className="col-6 col-sm-6 col-md-5 col-lg-4 col-xl-4 col-xxl-3" > */}
+                                    <ListGroup className="list-group-flush border border-secondary rounded col-auto d-block m-4" >
                                         <ListGroupItem><h6>Vyhledávání informace:</h6></ListGroupItem>
                                         <ListGroupItem>
                                             <Form onSubmit={this.handleSubmit} >
@@ -166,8 +154,10 @@ class BulletinDetailComplete extends React.Component<{ iri: string }, BulletinDe
                                             </Form>
                                         </ListGroupItem>
                                     </ListGroup>
-                                </Col>
+                                {/* </Col> */}
                             </Row>
+
+                            <hr />
 
                             {this.state.loaded && !this.data.hasValidSource && (
                                 <Row className="text-center justify-content-md-center m-3 p-2 warning-text">

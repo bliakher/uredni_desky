@@ -56,7 +56,7 @@ export class ValidationStatistics extends React.Component<{ data: BulletinData[]
         // {height: number, width: number, grid: { rows: number, columns: number, pattern: ('independent' | 'coupled') }}
         var layout = {
             height: 300,
-            width: 500
+            width: 450
         };
         if (this.pieContainer.current) {
             Plotly.newPlot(this.pieContainer.current, data, layout);
@@ -125,33 +125,33 @@ export class ValidationStatistics extends React.Component<{ data: BulletinData[]
     render() {
         return (
             <>
-                <Row className="text-center justify-content-md-center">
+                <Row className="text-center justify-content-center">
                     <h4>Validace úředních desek</h4>
                 </Row>
-                <Row className="text-center justify-content-md-center">
-                    <Col className="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6 d-flex p-2 m-2">
+                <Row className="text-center justify-content-center">
+                    <Col className="col-11 col-sm-11 col-md-6 col-lg-6 col-xl-6 col-xxl-6 d-flex p-2 m-2">
                         <p>
                             Validaci provádíme na základě <a href="https://ofn.gov.cz/úředn%C3%AD-desky/2021-07-20/">specifikace</a> OFN pro úřední desky, která obsahuje seznam doporučených atributů, které by zveřejněná deska měla obsahovat.
                             Podrobnější informace a validaci konkrétních úředních desek naleznete v sekci <a href="#/validace">Validace</a>.
                         </p>
                     </Col>
                 </Row>
-                <Row className="justify-content-md-center">
-                    <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex">
+                <Row className="justify-content-center">
+                    <Col className="col-11 col-sm-11 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex m-2">
                         {this.renderStatText()}
                     </Col>
-                    <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
+                    <Col className="col-11 col-sm-11 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
                         <div ref={this.pieContainer} />
                     </Col>
                 </Row>
-                <Row className="text-center justify-content-md-center">
-                    <Col className="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 col-xxl-6 d-flex p-2 m-2">
+                <Row className="text-center justify-content-center">
+                    <Col className="col-11 col-sm-11 col-md-6 col-lg-6 col-xl-6 col-xxl-6 d-flex p-2 m-2">
                         <p>
                             V této části se zobrazují pouze úřední desky, u kterých byly nalezeny nedostatky. Kliknutím na název úřední desky se zobrazí podrobnosti z validace úřední desky.
                         </p>
                     </Col>
                 </Row>
-                <Row className="justify-content-md-center m-2">
+                <Row className="justify-content-center m-2">
                     <Col className="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5 col-xxl-5 d-flex p-2 m-2">
                         <ProblematicBulletins header="Nelze načíst distribuci" bulletins={this.params.notLoaded} />
                     </Col>

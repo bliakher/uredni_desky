@@ -12,6 +12,15 @@ code {
     monospace;
 }
 
+.card {
+  flex-grow: 1;
+}
+
+.filter-form {
+  flex-grow: 1;
+
+}
+
 .warning-text {
   color: #9e2c24;
 }
