@@ -1,9 +1,11 @@
-import React from 'react';
-import { Outlet, Link } from "react-router-dom";
 import Navbar from 'react-bootstrap/Navbar';
 import { Container, Nav } from 'react-bootstrap';
 import logo from '../logo.png'
 
+/**
+ * Component with the layout of the navigation bar
+ * Displayed on every page
+ */
 const Layout = () => {
     return (
         <>

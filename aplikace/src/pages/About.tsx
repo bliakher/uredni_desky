@@ -1,11 +1,11 @@
 import React from 'react';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Button from 'react-bootstrap/Button';
 import { FaGithub as GitHubIcon } from 'react-icons/fa';
-import { Col } from 'react-bootstrap';
+import { Col, Row, Button, Container } from 'react-bootstrap';
 
-class Home extends React.Component<{}, {}> {
+/**
+ * Component that displays information about the project
+ */
+export class About extends React.Component<{}, {}> {
     constructor(props: any) {
         super(props);
     }
@@ -55,5 +55,3 @@ class Home extends React.Component<{}, {}> {
         );
     }
 }
-
-export default Home;
