@@ -11,13 +11,16 @@ interface BulletinControllerProps {
     headerElement: any;
     bulletinListElement: any;
     checkedProviders: Set<ProviderType>;
-    handleChecked: (check: ProviderType) => void;
+    setCheckChange: (check: ProviderType) => void;
+    finderValue: string;
+    setFinderValue: (newValue: string) => void
+    finderOn: boolean;
+    setFinderStatus: (isOn: boolean) => void
+
 }
 
 interface BulletinControllerState {
     loaded: boolean;
-    finderValue: string;
-    finderOn: boolean;
 }
 
 class BulletinController extends React.Component<BulletinControllerProps, BulletinControllerState> {
@@ -27,10 +30,7 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
     constructor(props: BulletinControllerProps) {
         super(props);
         this.state = {
-            loaded: false,
-            // on load all provider types are checked
-            finderValue: "",
-            finderOn: false,
+            loaded: false
         };
         this.datasets = new DatasetStore();
         this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
@@ -75,24 +75,25 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
         if (type === ProviderType.Error) {
             return;
         }
-        this.props.handleChecked(type);
+        this.props.setCheckChange(type);
     }
     handleSubmit(event: any) {
         event.preventDefault();
-        this.setState({ finderOn: true });
+        this.props.setFinderStatus(true);
     }
     handleChange(event: any) {
-        this.setState({ finderValue: event.target.value });
+        this.props.setFinderValue(event.target.value);
     }
     handleCancel() {
-        this.setState({ finderValue: "", finderOn: false });
+        this.props.setFinderStatus(false);
+        this.props.setFinderValue("");
     }
 
     render() {
         var data = this.datasets.data.filter(dataset => this.props.checkedProviders.has(dataset.provider.type));
-        if (this.state.finderOn) {
-            data = data.filter(dataset => (dataset.name.toLowerCase().includes(this.state.finderValue.toLowerCase())
-                || dataset.provider.name.toLowerCase().includes(this.state.finderValue.toLowerCase())));
+        if (this.props.finderOn) {
+            data = data.filter(dataset => (dataset.name.toLowerCase().includes(this.props.finderValue.toLowerCase())
+                || dataset.provider.name.toLowerCase().includes(this.props.finderValue.toLowerCase())));
         }
         var optionsList = [
             { label: "Obce", value: "obce", checked: this.props.checkedProviders.has(ProviderType.City) },
@@ -129,7 +130,7 @@ class BulletinController extends React.Component<BulletinControllerProps, Bullet
                                 <Form onSubmit={this.handleSubmit} >
                                     <Form.Group id="form-finder">
 
-                                        <Form.Control type="text" id="finder" onChange={this.handleChange} className="m-2" />
+                                        <Form.Control type="text" id="finder" onChange={this.handleChange} className="m-2" defaultValue={this.props.finderValue}/>
 
                                         <Button type="submit" variant="outline-primary" className="m-2">
                                             Najít
