@@ -3,13 +3,28 @@ import { InfoRecord, Document } from '../../model/InfoRecord';
 import { HoverTooltip } from '../Utils';
 import { SimplePaging } from '../forms/SimplePaging';
 import { Card, Row, Button, ListGroup, ListGroupItem, Col } from 'react-bootstrap';
-import {
-    BsCalendar2Event as CalendarEventIcon, BsCalendar2X as CalendarXIcon,
-    BsCalendar2PlusFill as CalendarPlusIcon, BsCalendar2XFill as CalendarXFillIcon, BsLink45Deg as LinkIcon
-} from 'react-icons/bs';
+import { BsCalendar2Event as CalendarEventIcon, BsCalendar2XFill as CalendarXFillIcon } from 'react-icons/bs';
+import { InfoComponentProps, PaginatedComponentState } from '../componentInterfaces';
 
+/**
+ * Props of the InfoCards component
+ */
+interface InfoCardsProps {
+    /** list of information to display */
+    data: Array<InfoRecord>;
+    /**
+     * React component type
+     * Inner component that can display 1 bulletin info
+     * It should have props of interface InfoComponentProps
+     */
+    cardElement: any;
+}
 
-export class InfoCards extends React.Component<{ data: Array<InfoRecord>, cardElement: any }, { displayedCount: number }> {
+/**
+ * Component that displays paginated list of infos from bulletin
+ * Visualization of data is done by a component that is given as props
+ */
+export class InfoCards extends React.Component<InfoCardsProps, PaginatedComponentState> {
     INFO_QUANTUM = 20; // number of infos loaded on one load
     constructor(props: { data: Array<InfoRecord>, cardElement: any }) {
         super(props);
@@ -42,15 +57,14 @@ export class InfoCards extends React.Component<{ data: Array<InfoRecord>, cardEl
         return (
             <>
                 <Row className="text-center justify-content-center">
-                    
-                    {infoRecords.slice(0, displayed).map(record =>
-                        (
-                        <Col className="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl-3 d-flex " 
+
+                    {infoRecords.slice(0, displayed).map(record => (
+                        <Col className="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl-3 d-flex "
                             key={(record.getName() || "") + Math.random().toString()}>
                             <this.props.cardElement data={record} />
                         </Col>
-                        ))}
-                    
+                    ))}
+
                 </Row>
                 <SimplePaging displayed={displayed} total={this.props.data.length} handleMore={this.handleShowMore} handleAll={this.handleShowAll} />
             </>
@@ -58,8 +72,10 @@ export class InfoCards extends React.Component<{ data: Array<InfoRecord>, cardEl
     }
 }
 
-
-export class InfoCard extends React.Component<{ data: InfoRecord }> {
+/**
+ * Component displaying 1 bulletin info in bulletin detail
+ */
+export class InfoCard extends React.Component<InfoComponentProps> {
     constructor(props: { data: InfoRecord }) {
         super(props);
     }
@@ -75,7 +91,7 @@ export class InfoCard extends React.Component<{ data: InfoRecord }> {
         var documents = info.getDocuments().filter(document => document.getUrl() !== null); // take only documents with url
         return (
             <>
-                <Card  className="m-1">
+                <Card className="m-1">
                     <Card.Body>
                         <Card.Title>{name}</Card.Title>
                     </Card.Body>
@@ -96,21 +112,21 @@ export class InfoCard extends React.Component<{ data: InfoRecord }> {
                             } />
 
                         </ListGroupItem>
-                        
+
                         <ListGroupItem>
-                        {documents.length > 0 && ( 
-                            <>
-                            <h6>Přílohy:</h6>
-                            <Attachements documents={documents} />
-                            </>
+                            {documents.length > 0 && (
+                                <>
+                                    <h6>Přílohy:</h6>
+                                    <Attachements documents={documents} />
+                                </>
                             )}
-                        {documents.length == 0 && ( 
-                            <>
-                            <h6>Bez příloh</h6>
-                            </>
+                            {documents.length == 0 && (
+                                <>
+                                    <h6>Bez příloh</h6>
+                                </>
                             )}
                         </ListGroupItem>
-                            
+
                         <ListGroupItem>
                             {url && <Button href={url} target="_blank" rel="noreferrer" variant="primary" >
                                 Informace
@@ -124,6 +140,10 @@ export class InfoCard extends React.Component<{ data: InfoRecord }> {
     }
 }
 
+/**
+ * Attachements of a bulletin info
+ * There can be 0, 1 or more attachements
+ */
 export const Attachements = (props: { documents: Array<Document> }) => {
     if (props.documents.length === 0) {
         return (
@@ -147,4 +167,43 @@ export const Attachements = (props: { documents: Array<Document> }) => {
                 })}
         </Row>
     );
+}
+
+/**
+ * Component displaying missing properties of 1 bulletin info in validation detail
+ */
+export class InfoCardValidation extends React.Component<InfoComponentProps> {
+    constructor(props: { data: InfoRecord }) {
+        super(props);
+    }
+    render() {
+        var info = this.props.data;
+        var name = info.getName() ? info.getName() : "'Informace na úřední desce'";
+        var url = info.getUrl();
+        var missing = info.getMissingRecommendedProperties();
+
+        return (
+            <>
+                <Card border="danger" className="m-2" style={{ width: '12rem' }}>
+                    <Card.Body>
+                        <Card.Title>{name}</Card.Title>
+                    </Card.Body>
+                    <ListGroup className="list-group-flush">
+                        <ListGroupItem>
+                            <div className="fw-bold warning-text">Chybí:</div>
+                            <ul className="align-left">
+                                {missing.map(property => (<li key={property}>{property}</li>))}
+                            </ul>
+                        </ListGroupItem>
+                        <ListGroupItem>
+                            {url && <Button href={url} target="_blank" rel="noreferrer" variant="outline-primary" >
+                                Informace
+                            </Button>}
+                        </ListGroupItem>
+                    </ListGroup>
+
+                </Card>
+            </>
+        );
+    }
 }

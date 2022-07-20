@@ -20,7 +20,7 @@ interface BulletinControllerProps {
     /**
      * React component type
      * Component that visualizes the filtered data
-     * It should have 1 prop: props = {data: BulletinData[]}
+     * It should have props of interface BulletinListComponentProps
      */
     bulletinListElement: any;
     /** provider type chosen in filter */

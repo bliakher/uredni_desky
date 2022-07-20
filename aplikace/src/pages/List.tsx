@@ -9,7 +9,7 @@ import Row from 'react-bootstrap/Row';
 import Badge from 'react-bootstrap/Badge';
 import { Col } from 'react-bootstrap';
 import Stack from 'react-bootstrap/Stack'
-import { PaginatedComponentState, VisualizationComponentProps, VisualizationListComponentProps } from './componentInterfaces';
+import { PaginatedComponentState, BulletinComponentProps, BulletinListComponentProps } from './componentInterfaces';
 
 /**
  * Component with header of bulletin list
@@ -32,7 +32,7 @@ export const BulletinListHeader = () => {
 /**
  * Component that displayes BulletinData as a paginated list of cards 
  */
-export class BulletinCards extends React.Component<VisualizationListComponentProps, PaginatedComponentState> {
+export class BulletinCards extends React.Component<BulletinListComponentProps, PaginatedComponentState> {
 
     /** number of cards displayed in 1 increment */
     DISPLAY_INCREMENT = 20;
@@ -89,7 +89,7 @@ export class BulletinCards extends React.Component<VisualizationListComponentPro
  * Component that displayes one bulletin as card with information about the bulletin and a link to bulletin detail
  * 
  */
-export class Bulletin extends React.Component<VisualizationComponentProps, {}> {
+export class Bulletin extends React.Component<BulletinComponentProps, {}> {
     constructor(props: { data: BulletinData }) {
         super(props);
     }

@@ -6,6 +6,7 @@ import { InfoRecord } from '../../model/InfoRecord';
 import { Card, ListGroup, ListGroupItem, Row, Button, Col, Tab, Tabs, Container } from 'react-bootstrap';
 import { Loader } from '../Utils';
 import { ShowDatasetButton } from '../forms/ShowDatasetButton';
+import { InfoCardValidation } from '../detail/InfoCards';
 
 
 export const ValidationDetail = () => {
@@ -129,10 +130,7 @@ const ValidationBody = (props: {bulletin: BulletinData}) => {
                             <Container>
                             <Row className="justify-content-md-center text-center">
                                 { missing.information.map(info => (
-                                    // <Col className="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-3 col-xxl-3 d-flex" >
                                         <InfoCardValidation data={info.info} />
-                                    // </Col>
-
                                 )) }
                             </Row>
                             </Container>
@@ -159,42 +157,6 @@ const CenterOnHalfScreen = (props: {element: any}) => {
     );
 }
 
-
-class InfoCardValidation extends React.Component<{data: InfoRecord}> {
-    constructor(props: {data: InfoRecord}) {
-        super(props);
-    }
-    render() {
-        var info = this.props.data;
-        var name = info.getName()? info.getName() : "'Informace na úřední desce'";
-        var url = info.getUrl();
-        var missing = info.getMissingRecommendedProperties();
-
-        return (
-            <>
-                <Card border="danger" className="m-2" style={{width: '12rem'}}>
-                    <Card.Body>
-                        <Card.Title>{name}</Card.Title>
-                    </Card.Body>
-                    <ListGroup className="list-group-flush">
-                        <ListGroupItem>
-                            <div className="fw-bold warning-text">Chybí:</div>
-                            <ul className="align-left">
-                                { missing.map(property => (<li key={property}>{property}</li>)) }
-                            </ul>
-                        </ListGroupItem>
-                        <ListGroupItem>
-                            {url && <Button href={url} target="_blank" rel="noreferrer" variant="outline-primary" >
-                                        Informace
-                                    </Button>}
-                        </ListGroupItem>
-                    </ListGroup>
-                    
-                </Card>
-            </>
-        );
-    }
-}
 
 const MissingCard = (props: {missing: MissingProperties, infoCount: number, bulletinIri: string}) => {
     return (
