@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, ListGroup, ListGroupItem, Row, Button } from 'react-bootstrap';
+import { Container, ListGroup, ListGroupItem, Row } from 'react-bootstrap';
 import { DatasetStore } from '../model/DatasetStore';
 import { ProviderType } from '../model/Provider';
 import { CancelablePromise, makeCancelable } from '../model/cancelablePromise';

@@ -1,9 +1,12 @@
 import React from 'react';
-import { Col, ListGroup, Row, Button, ListGroupItem, Stack } from 'react-bootstrap';
+import { Col, ListGroup, Row, ListGroupItem } from 'react-bootstrap';
 import { BulletinData } from '../../model/dataset';
 import Plotly from 'plotly.js-dist-min';
+import { BulletinListComponentProps } from '../componentInterfaces';
 
-
+/**
+ * Class that encapsulates all validation statistic data
+ */
 class ValidationParams {
     count: number;
     notLoaded: BulletinData[];
@@ -37,7 +40,10 @@ class ValidationParams {
     }
 }
 
-export class ValidationStatistics extends React.Component<{ data: BulletinData[] }> {
+/**
+ * Component that displayes validation statistics in text and pie plot using Plotly
+ */
+export class ValidationStatistics extends React.Component<BulletinListComponentProps, {}> {
     pieContainer: React.RefObject<HTMLInputElement>;
     params: ValidationParams;
     constructor(props: { data: BulletinData[] }) {
@@ -53,7 +59,6 @@ export class ValidationStatistics extends React.Component<{ data: BulletinData[]
             labels: labels,
             type: 'pie'
         }];
-        // {height: number, width: number, grid: { rows: number, columns: number, pattern: ('independent' | 'coupled') }}
         var layout = {
             height: 300,
             width: 450
@@ -62,7 +67,7 @@ export class ValidationStatistics extends React.Component<{ data: BulletinData[]
             Plotly.newPlot(this.pieContainer.current, data, layout);
         }
     }
-    initParams() {
+    private initParams() {
         var notLoaded = [];
         var loadedIncorrect = [];
         var bulletinError = 0;
@@ -82,16 +87,7 @@ export class ValidationStatistics extends React.Component<{ data: BulletinData[]
         var count = this.props.data.length;
         return new ValidationParams(count, notLoaded, loadedIncorrect, bulletinError, infoError);
     }
-    getPieData() {
-        var values = [this.params.correctPerc, this.params.notLoadedPerc, this.params.loadedIncorrect];
-        var labels = ["Bez nedostatků", "Nelze stáhnout distribuci", "Chybějící doporučené atributy"];
-        return [{
-            values: values,
-            labels: labels,
-            type: "pie"
-        }];
-    }
-    renderStatText() {
+    private renderStatText() {
         return (
             <>
                 <ListGroup>
@@ -165,6 +161,9 @@ export class ValidationStatistics extends React.Component<{ data: BulletinData[]
     }
 }
 
+/**
+ * Displayes all bulletins that have some problems - not loadable distribution or missing params
+ */
 const ProblematicBulletins = (props: { header: string, bulletins: BulletinData[] }) => {
     return (
         <ListGroup>

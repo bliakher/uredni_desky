@@ -1,16 +1,26 @@
 import React from 'react';
-import { Col, ListGroup, ProgressBar, Row, Tab, Tabs, Button, ListGroupItem, Stack } from 'react-bootstrap';
+import { Col, ListGroup, Row, ListGroupItem } from 'react-bootstrap';
 import type { ProviderTypeCountMap, ProviderTypeLabelMap } from '../../model/Provider';
 import { CITY_CODE, CITY_PART_CODE, REGION_CODE, GOVERNMENT_CODE } from '../../model/Provider';
 import Plotly from 'plotly.js-dist-min';
 
-
+/**
+ * State of ProviderStatistics component
+ */
 interface ProviderStatProps {
+    /** counts of bulletin data providers in each organization type */
     providerCounts: ProviderTypeCountMap;
+    /** counts of all existing organizations in each organization type */
     maxProviderCounts: ProviderTypeCountMap;
+
+    /** labels of organization types */
     providerLabels: ProviderTypeLabelMap;
 }
 
+/**
+ * Component that displayes statistics about providers
+ * How many organizations from every organization type provide bulletin data
+ */
 export class ProviderStatistics extends React.Component<ProviderStatProps> {
     pieContainerLeft: React.RefObject<HTMLInputElement>;
     pieContainerRight: React.RefObject<HTMLInputElement>;
@@ -37,7 +47,7 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
     componentDidMount() {
         this.createProviderChartsIndividual();
     }
-    getOtherProvidersData() {
+    private getOtherProvidersData() {
         console.log(this.props.providerCounts);
         var result: { label: string, providerCount: number, maxCount: number }[] = [];
         this.props.providerCounts.forEach((value, key) => {
@@ -50,7 +60,7 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
         })
         return result;
     }
-    getPieData(typeCode: string) {
+    private getPieData(typeCode: string) {
         var total = this.props.maxProviderCounts.get(typeCode);
         var providerCount = this.props.providerCounts.get(typeCode);
         if (!total || !providerCount) return null;
@@ -59,9 +69,8 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
         var remCountPerc = Math.round(remainingCount / total * 10000) / 100;
         return { perc: [remCountPerc, countPerc], count: [remainingCount, providerCount] }
     }
-    getRegionData() { return this.getPieData(REGION_CODE); }
-    getGovernmentData() { return this.getPieData(GOVERNMENT_CODE); }
-    createProviderChartsIndividual() {
+
+    private createProviderChartsIndividual() {
         var labels = ["OVM neposkytující úřední desku", "OVM poskytující úřední desku jako otevřená data"];
 
         var layoutWithLegend: { height: number, width: number, legend: { xanchor: 'center' } } = {
@@ -124,7 +133,7 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
         }
     }
 
-    renderOtherProviders() {
+    private renderOtherProviders() {
         var otherProviders = this.getOtherProvidersData();
         if (otherProviders.length === 0) return null;
         return (
@@ -143,7 +152,7 @@ export class ProviderStatistics extends React.Component<ProviderStatProps> {
         );
     }
 
-    renderOtherOrganizations() {
+    private renderOtherOrganizations() {
         var values: number[] = [];
         var labels: string[] = [];
         // collect organization types that have no providers of bulletins
