@@ -49,7 +49,7 @@ function getQueryForOrganizationTypeWithIco(icoList: Array<string>): string {
     var query = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#> \
     PREFIX l-sgov-sbírka-111-2009-pojem: <https://slovník.gov.cz/legislativní/sbírka/111/2009/pojem/> \
     PREFIX a-sgov-104-pojem: <https://slovník.gov.cz/agendový/104/pojem/> \
-    SELECT * WHERE { \
+    SELECT DISTINCT * WHERE { \
       ?OrganVerejneMoci a l-sgov-sbírka-111-2009-pojem:orgán-veřejné-moci . \
       OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-název-orgánu-veřejné-moci ?nazev . FILTER (langMatches(LANG(?nazev),'cs')) } \
       OPTIONAL { ?OrganVerejneMoci l-sgov-sbírka-111-2009-pojem:má-identifikační-číslo-osoby-orgánu-veřejné-moci ?ico . } \
@@ -217,6 +217,7 @@ interface OrganizationInfo {
  * @returns map from org. ico to its info
  */
 async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<string, OrganizationInfo>> {
+    icoList = Array.from(new Set(icoList));
     var query = getQueryForOrganizationTypeWithIco(icoList);
     const response = await fetch(rpp_sparql, getRPPQueryObj(query));
     var typedOrganizations = (await response.json()).results.bindings;
@@ -229,6 +230,42 @@ async function fetchOrganizationTypes(icoList: Array<string>): Promise<Map<strin
         orgMap.set(cisloOVM, orgInfo);
     }
     return orgMap;
+}
+
+function divideList(list: string[], chunkSize: number): string[][]  {
+    var result: string[][] = [];
+    var chunkCount = Math.floor(list.length / chunkSize);
+    for (var i = 0; i < chunkCount; i++) {
+        const chunkStart = i * chunkSize;
+        const chunk = list.slice(chunkStart, chunkStart + chunkSize);
+        result.push(chunk);
+    }
+    if (list.length > 0 && list.length % chunkSize > 0) {
+        const lastChunk = list.slice(i * chunkSize);
+        result.push(lastChunk);
+    }
+    return result;
+}
+
+function mergeMaps(mapList: Map<any, any>[]): Map<any, any> {
+    if (mapList.length === 0) return new Map();
+    var result = mapList[0];
+    for (var i = 1; i < mapList.length; i++) {
+        var nextChunk = mapList[i];
+        nextChunk.forEach((value, key) => {
+            result.set(key, value);
+        });
+    }
+    return result;
+}
+
+const ICO_CHUNK_SIZE = 30;
+async function fetchOrganizationTypesByParts(icoList: Array<string>): Promise<Map<string, OrganizationInfo>> {
+    icoList = Array.from(new Set(icoList));
+    const icoChunks = divideList(icoList, ICO_CHUNK_SIZE);
+    const resultChunks = await Promise.all(icoChunks.map(chunk => fetchOrganizationTypes(chunk)));
+    const result = mergeMaps(resultChunks);
+    return result;
 }
 
 /**
@@ -331,4 +368,4 @@ async function fetchAllOrganizationTypes(): Promise<{ labels: ProviderTypeLabelM
 }
 
 export type { Point, PointMap };
-export { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri, fetchOrganizationNameByIco, fetchAddressPointsByIris, fetchAllOrganizationTypes };
+export { fetchAllBulletins, fetchOrganizationTypes, fetchOrganizationTypesByParts, fetchBulletinByIri, fetchOrganizationNameByIco, fetchAddressPointsByIris, fetchAllOrganizationTypes };

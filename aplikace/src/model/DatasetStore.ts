@@ -1,5 +1,6 @@
 import { QueryResponse, BulletinData } from './dataset';
-import { fetchAllBulletins, fetchOrganizationTypes, fetchBulletinByIri, fetchAddressPointsByIris, fetchAllOrganizationTypes } from '../services/query';
+import { fetchAllBulletins, fetchOrganizationTypes, fetchOrganizationTypesByParts,
+     fetchBulletinByIri, fetchAddressPointsByIris, fetchAllOrganizationTypes } from '../services/query';
 import type { PointMap } from '../services/query';
 import { Provider, ProviderTypeCountMap, ProviderTypeLabelMap } from './Provider';
 
@@ -83,7 +84,7 @@ export class DatasetStore {
      * Fetch information about providers such as provider type and residence adress
      */
     async fetchProviderInfo() {
-        var infoMap = await fetchOrganizationTypes(this.getIcoListFromIri());
+        var infoMap = await fetchOrganizationTypesByParts(this.getIcoListFromIri());
         for (var bulletin of this.data) {
             var ico = this.getIcoFromIri(bulletin);
             var providerInfo = infoMap.get(ico);
@@ -124,7 +125,7 @@ export class DatasetStore {
         // console.log("start filter");
         var ico = this.getIcoList();
         // console.log(ico);
-        var providerInfo = await fetchOrganizationTypes(ico);
+        var providerInfo = await fetchOrganizationTypesByParts(ico);
         var typeToCount = new Map<string, number>();
         providerInfo.forEach((orgInfo, key) => {
             // if (orgInfo.typeNumber === "") console.log(orgInfo.name, key);
