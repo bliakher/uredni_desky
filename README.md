@@ -14,5 +14,5 @@ To retrieve data the application uses SPARQL endpoints of the [National Data Cat
 
 Application is published on GitHub Pages [here](https://bliakher.github.io/uredni_desky/).
 
-Documentation (in Czech) can be found [here](https://bliakher.github.io/uredni_desky_docs/)
+Documentation (in Czech) can be found [here](https://bliakher.github.io/uredni_desky_docs/).
 
