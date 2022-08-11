@@ -10,7 +10,9 @@ The application is intended not only for users from the general public, who can 
 
 To retrieve data the application uses SPARQL endpoints of the [National Data Catalog](https://data.gov.cz/english/) and the [Register of rights and obligations](https://www.szrcr.cz/cs/registr-prav-a-povinnosti). It is implemented as a single-page application in TypeScript using React framework.
 
-### Aplication
+### Application
 
 Application is published on GitHub Pages [here](https://bliakher.github.io/uredni_desky/).
+
+Documentation (in Czech) can be found [here](https://bliakher.github.io/uredni_desky_docs/)
 
