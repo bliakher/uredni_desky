@@ -8,7 +8,7 @@ The Bachelor thesis is about the design and implementation of a web application 
 
 The application is intended not only for users from the general public, who can use it to search and filter information from bulletin boards, but also for data publishers. The application performs validation of published data and clearly displays any deficiencies.
 
-To retrieve data the application uses SPARQL endpoints of the National Data Catalog and the Register of rights and obligations. It is implemented as a single-page application in TypeScript using React framework.
+To retrieve data the application uses SPARQL endpoints of the [National Data Catalog](https://data.gov.cz/english/) and the [Register of rights and obligations](https://www.szrcr.cz/cs/registr-prav-a-povinnosti). It is implemented as a single-page application in TypeScript using React framework.
 
 ### Aplication
 
