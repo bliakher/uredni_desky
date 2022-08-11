@@ -12,5 +12,5 @@ To retrieve data the application uses SPARQL endpoints of the National Data Cata
 
 ### Aplication
 
-Application is published on GitHub Pages [here](https://bliakher.github.io/uredni_desky/)
+Application is published on GitHub Pages [here](https://bliakher.github.io/uredni_desky/).
 
