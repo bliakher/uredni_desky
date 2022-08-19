@@ -16,7 +16,7 @@ Thesis can be found [here](https://github.com/bliakher/thesis_text).
 
 Application is published on GitHub Pages [here](https://bliakher.github.io/uredni_desky/).
 
-*\* Load of the app currently takes about 35s due to one of the main data sources being under construction and hence very limited performance.*
+*\* Load of the app currently takes about 35s due to one of the main data sources being under construction and hence having very limited performance.*
 
 Documentation (in Czech) can be found [here](https://bliakher.github.io/uredni_desky_docs/).
 
